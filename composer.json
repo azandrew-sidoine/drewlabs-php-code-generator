@@ -1,0 +1,34 @@
+{
+    "name": "drewlabs/code-generator",
+    "description": "Simple utility classes for generating PHP classes, methods, properties and interfaces",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Drewlabs\\CodeGenerator\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "azandrew-sidoine",
+            "email": "asmyns.platonnas29@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^7.3|^8.0",
+        "drewlabs/contracts": "v1.0.x-dev",
+        "drewlabs/core-helpers": "v1.0.x-dev"
+    },
+
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:liksoft/drewlabs-php-contracts.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:liksoft/drewlabs-php-core-helpers.git"
+        }
+    ]
+}
