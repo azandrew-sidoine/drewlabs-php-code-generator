@@ -83,8 +83,11 @@ class PHPClassProperty implements PHPComponentModelInterface
     protected function setFileImports()
     {
         if ((null !== $this->type_) && drewlabs_core_strings_contains($this->type_, '\\')) {
-            $this->imports_[] = $this->type_;
-            $this->type_ = drewlabs_core_strings_after_last('\\', $this->type_);
+            // $this->imports_[] = $this->type_;
+            // $this->type_ = drewlabs_core_strings_after_last('\\', $this->type_);
+            $this->type_ = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
+                return $this->getClassFromClassPath($classPath);
+            })($this->type_);
         }
         return $this;
     }

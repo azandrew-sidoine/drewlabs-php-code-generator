@@ -68,6 +68,13 @@ class PHPClassMethod implements PHPComponentModelInterface
      */
     private $content_;
 
+    /**
+     * Indicates whether the definition is return as interface method or a class method
+     *
+     * @var bool
+     */
+    private $isInterfaceMethod_ = false;
+
     public function __construct(
         string $name,
         array $params = [],
@@ -125,7 +132,6 @@ class PHPClassMethod implements PHPComponentModelInterface
     {
         $this->content_ = $content;
         return $this;
-
     }
 
     /**
@@ -138,15 +144,23 @@ class PHPClassMethod implements PHPComponentModelInterface
     {
         $this->description_ = $value;
         return $this;
+    }
 
+    public function asInterfaceMethod()
+    {
+        $this->isInterfaceMethod_ = true;
+        return $this;
     }
 
     protected function setFileImports()
     {
         if (null !== $this->returns_) {
             if (drewlabs_core_strings_contains($this->returns_, '\\')) {
-                $this->imports_[] = $this->returns_;
-                $this->returns_ = drewlabs_core_strings_after_last('\\', $this->returns_);
+                $this->returns_ = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
+                    return $this->getClassFromClassPath($classPath);
+                })($this->returns_);
+                // $this->imports_[] = $this->returns_;
+                // $this->returns_ = drewlabs_core_strings_after_last('\\', $this->returns_);
             }
         }
         $values = [];
@@ -155,8 +169,15 @@ class PHPClassMethod implements PHPComponentModelInterface
             $params = [];
             foreach ($values as $value) {
                 if (drewlabs_core_strings_contains($value->type(), '\\')) {
-                    $this->imports_[] = $value;
-                    $params[] = new MethodParam($value->name(), drewlabs_core_strings_after_last('\\', $value->type()), $value->defaultValue());
+                    // $this->imports_[] = $value;
+                    $params[] = new MethodParam(
+                        $value->name(),
+                        // drewlabs_core_strings_after_last('\\', $value->type()),
+                        $this->addClassPathToImportsPropertyAfter(function ($classPath) {
+                            return $this->getClassFromClassPath($classPath);
+                        })($value->type()),
+                        $value->defaultValue()
+                    );
                 } else {
                     $params[] = $value;
                 }
@@ -205,7 +226,7 @@ class PHPClassMethod implements PHPComponentModelInterface
             [
                 'private', 'protected', 'public'
             ]
-        ) ? $this->accessModifier_ : "public";
+        ) && !$this->isInterfaceMethod_ ? $this->accessModifier_ : "public";
         // Start the declaration
         $declaration = $this->isStatic_ ? "$accessModifier static function $this->name_(" : "$accessModifier function $this->name_(";
         // Add method params
@@ -217,19 +238,23 @@ class PHPClassMethod implements PHPComponentModelInterface
             }, $this->params_);
             $declaration .= implode(", ", $params) . ")";
         }
-        $parts[] = $declaration;
-        $parts[] = "{";
-        $parts[] = "\t# code...";
-        if (null !== $this->content_) {
-            $splitted_contents = explode(PHP_EOL, $this->content_);
-            $splitted_contents = array_map(function($content) {
-                return "\t$content";
-            }, $splitted_contents);
-            $parts[] = implode(PHP_EOL, $splitted_contents);
+        if ($this->isInterfaceMethod_) {
+            $parts[] = "$declaration;";
+        } else {
+            $parts[] = $declaration;
+            $parts[] = "{";
+                $parts[] = "\t# code...";
+                if (null !== $this->content_) {
+                    $splitted_contents = explode(PHP_EOL, $this->content_);
+                    $splitted_contents = array_map(function ($content) {
+                        return "\t$content";
+                    }, $splitted_contents);
+                    $parts[] = implode(PHP_EOL, $splitted_contents);
+                }
+                $parts[] = "}";
         }
-        $parts[] = "}";
         if ($this->getIndentation()) {
-            $parts = array_map(function($part) {
+            $parts = array_map(function ($part) {
                 return $this->getIndentation() . "$part";
             }, $parts);
         }

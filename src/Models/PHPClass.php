@@ -2,59 +2,24 @@
 
 namespace Drewlabs\CodeGenerator\Models;
 
-use Drewlabs\CodeGenerator\CommentModelFactory;
 use Drewlabs\CodeGenerator\Contracts\PHPComponentModelInterface;
-use Drewlabs\CodeGenerator\Contracts\MethodParamInterface;
 use Drewlabs\CodeGenerator\Exceptions\PHPClassException;
-use Drewlabs\CodeGenerator\Models\Traits\HasImportDeclarations;
 use Drewlabs\CodeGenerator\Models\PHPClassMethod;
 use Drewlabs\CodeGenerator\Models\PHPClassProperty;
+use Drewlabs\CodeGenerator\Models\Traits\HasTraitsDefintions;
 use InvalidArgumentException;
 
 /** @package Drewlabs\CodeGenerator\Models */
 class PHPClass implements PHPComponentModelInterface
 {
-    use HasImportDeclarations;
+    use HasTraitsDefintions;
 
-    /**
-     * @var string
-     */
-    private $name_;
-    /**
-     * @var PHPClassMethod[]
-     */
-    private $methods_ = [];
-    /**
-     * @var PHPClassProperty[]
-     */
-    private $properties_ = [];
-
-    /**
-     * The namespace the class belongs to
-     *
-     * @var string
-     */
-    private $namespace_;
 
     /**
      *
      * @var string[]
      */
     private $interfaces_ = [];
-
-    /**
-     * List of packages and classes to import
-     *
-     * @var string[]
-     */
-    private $imports_;
-
-    /**
-     * List of traits
-     *
-     * @var string[]
-     */
-    private $traits_;
 
     /**
      * Class base class name
@@ -85,10 +50,13 @@ class PHPClass implements PHPComponentModelInterface
     ) {
         $this->name_ = $name;
         // Validate implementations
-        foreach ($implementations as $value) {
-            # code...
-            if (!drewlabs_core_strings_is_str($value)) {
-                throw new InvalidArgumentException(sprintf("%s is not an istance of PHP string", get_class($value)));
+        if (drewlabs_core_array_is_arrayable($implementations)) {
+            foreach ($implementations as $value) {
+                # code...
+                if (!drewlabs_core_strings_is_str($value)) {
+                    throw new InvalidArgumentException(sprintf("%s is not an istance of PHP string", get_class($value)));
+                }
+                $this->addImplementation($value);
             }
         }
         // Validate methods
@@ -114,34 +82,10 @@ class PHPClass implements PHPComponentModelInterface
         }
     }
 
-    public function getName()
-    {
-        return $this->name_;
-    }
-
-    public function addProperty(PHPClassProperty $property)
-    {
-        $this->properties_[] = $property;
-        return $this;
-    }
-
-    public function addMethod(PHPClassMethod $property)
-    {
-        $this->methods_[] = $property;
-        return $this;
-    }
-
     public function setBaseClass(string $baseClass)
     {
         if (null !== $baseClass) {
-            if (drewlabs_core_strings_contains($baseClass, '\\')) {
-                if (!in_array($baseClass, $this->imports_)) {
-                    $this->imports_[] = $baseClass;
-                }
-                $this->baseClass_[] = drewlabs_core_strings_after_last('\\', $baseClass);
-            } else {
-                $this->baseClass_[] = $baseClass;
-            }
+            $this->baseClass_ = $baseClass;
         }
         return $this;
     }
@@ -149,27 +93,8 @@ class PHPClass implements PHPComponentModelInterface
     public function addImplementation(string $value)
     {
         if (null !== $value) {
-            if (drewlabs_core_strings_contains($value, '\\')) {
-                if (!in_array($value, $this->imports_)) {
-                    $this->imports_[] = $value;
-                }
-                $this->interfaces_[] = drewlabs_core_strings_after_last('\\', $value);
-            } else {
-                $this->interfaces_[] = $value;
-            }
+            $this->interfaces_[] = $value;
         }
-        return $this;
-    }
-
-    public function addToNamespace(string $namespace)
-    {
-        $this->namespace_ = $namespace;
-        return $this;
-    }
-
-    public function addTrait(string $trait)
-    {
-        $this->traits_[] = $trait;
         return $this;
     }
 
@@ -191,12 +116,36 @@ class PHPClass implements PHPComponentModelInterface
         return $this;
     }
 
+    protected function setImports()
+    {
+        // Loop through interfaces
+        $interfaces = [];
+        foreach (($this->interfaces_ ?? []) as $value) {
+            if (drewlabs_core_strings_contains($value, '\\')) {
+                $interfaces[] = $this->addClassPathToImportsPropertyAfter(function($classPath) {
+                    return $this->getClassFromClassPath($classPath);
+                })($value);
+            } else {
+                $interfaces[] = $value;
+            }
+        }
+        $this->interfaces_ = $interfaces;
+
+        // Set base class imports
+        if (drewlabs_core_strings_contains($this->baseClass_, '\\')) {
+            $this->baseClass_ = $this->addClassPathToImportsPropertyAfter(function($classPath) {
+                return $this->getClassFromClassPath($classPath);
+            })($this->baseClass_);
+        }
+    }
+
     public function classToString(): string
     {
+        $this->setImports();
         $parts = [];
         $modifier = $this->isFinal_ ? "final " : ($this->isAbstract_ ? "abstract " : "");
         $declaration = sprintf("%sclass %s", $modifier, $this->name_);
-        if ((null !== $this->baseClass_) && is_array($this->baseClass_) && !empty($this->baseClass_)) {
+        if ((null !== $this->baseClass_)) {
             $declaration .= sprintf(" extends %s", $this->baseClass_);
         }
         if ((null !== $this->interfaces_)  && is_array($this->interfaces_) && !empty($this->interfaces_)) {
@@ -213,47 +162,43 @@ class PHPClass implements PHPComponentModelInterface
             }
         }
         // Add properties
+        $imports = $this->getImports();
+
         if ((null !== $this->properties_) && is_array($this->properties_)  && !empty($this->properties_)) {
             foreach ($this->properties_ as $value) {
                 $parts[] = "";
                 $parts[] = $value->setIndentation("\t")->__toString();
+                $imports = array_merge($imports, $value->getImports() ?? []);
             }
         }
         if ((null !== $this->methods_) && is_array($this->methods_)  && !empty($this->properties_)) {
             foreach ($this->methods_ as $value) {
                 $parts[] = "";
-                $parts[] = $value->setIndentation("\t")->__toString();
+                $parts[] = $value->setGlobalImports($imports)->setIndentation("\t")->__toString();
+                $imports = array_merge($imports, $value->getImports() ?? []);
             }
         }
+        $this->setGlobalImports($imports);
         $parts[] = "";
         $parts[] = "}";
         return implode(PHP_EOL, $parts);
     }
 
+    protected function buildNamespaceClass()
+    {
+        $classString = $this->classToString();
+        $parts[] = (new PHPNamespace($this->namespace_))
+        ->addClass($this)
+        ->addImports($this->getGlobalImports())->__toString();
+        $parts[] = $classString;
+        return implode(PHP_EOL, $parts);
+    }
+
     public function __toString(): string
     {
-        $imports = array_merge(
-            $this->imports_ ?? [],
-            array_reduce(
-                $this->properties_ ?? [],
-                function ($carry, $prop) {
-                    return array_merge($carry, $prop->getImports());
-                },
-                []
-            ),
-            array_reduce(
-                $this->methods_ ?? [],
-                function ($carry, $prop) {
-                    return array_merge($carry, $prop->getImports());
-                },
-                []
-            ),
-        );
 
         if (null !== $this->namespace_) {
-            return (new PHPNamespace($this->namespace_))
-                ->addClass($this)
-                ->addImports($imports);
+            return $this->buildNamespaceClass();
         }
         return $this->classToString();
     }
