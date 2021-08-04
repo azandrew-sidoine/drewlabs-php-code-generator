@@ -8,7 +8,7 @@ use Drewlabs\CodeGenerator\Contracts\FunctionParameterInterface;
 use Drewlabs\CodeGenerator\Models\Traits\HasClassMemberDefinitions;
 use Drewlabs\CodeGenerator\Models\Traits\HasImportDeclarations;
 use Drewlabs\CodeGenerator\Models\Traits\HasIndentation;
-use Drewlabs\Core\Helpers\Arrays\BinarySearchBoundEnum;
+use Drewlabs\Core\Helpers\Arrays\BinarySearchResult;
 
 /** @package Drewlabs\CodeGenerator\Models */
 class PHPClassMethod implements ClassMethodInterface
@@ -120,11 +120,11 @@ class PHPClassMethod implements ClassMethodInterface
         sort($params);
         $match = drewlabs_core_array_bsearch(array_keys($params), $param, function($curr,  FunctionParameterInterface $item) use ($params) {
             if ($params[$curr]->equals($item)) {
-                return BinarySearchBoundEnum::FOUND;
+                return BinarySearchResult::FOUND;
             }
-            return strcmp($curr, $item->name()) > 0 ? BinarySearchBoundEnum::LOWER : BinarySearchBoundEnum::UPPER;
+            return strcmp($curr, $item->name()) > 0 ? BinarySearchResult::LEFT : BinarySearchResult::RIGHT;
         });
-        if ($match !== BinarySearchBoundEnum::LOWER) {
+        if ($match !== BinarySearchResult::LEFT) {
             throw new \RuntimeException(sprintf('Duplicated entry %s in method %s definition : ', $param->name(), $this->name_));
         }
         #endregion Validate method parameters for duplicated entries

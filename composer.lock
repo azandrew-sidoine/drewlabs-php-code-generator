@@ -112,12 +112,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:liksoft/drewlabs-php-core-helpers.git",
-                "reference": "4948ed3ef3fcd7f608563eb0002a59a157fb88d6"
+                "reference": "fd78258fb97d15e708c761cacf3ade4d1bb26564"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liksoft/drewlabs-php-core-helpers/zipball/4948ed3ef3fcd7f608563eb0002a59a157fb88d6",
-                "reference": "4948ed3ef3fcd7f608563eb0002a59a157fb88d6",
+                "url": "https://api.github.com/repos/liksoft/drewlabs-php-core-helpers/zipball/fd78258fb97d15e708c761cacf3ade4d1bb26564",
+                "reference": "fd78258fb97d15e708c761cacf3ade4d1bb26564",
                 "shasum": ""
             },
             "require": {
@@ -173,7 +173,7 @@
             "support": {
                 "source": "https://github.com/liksoft/drewlabs-php-core-helpers/tree/v1.0"
             },
-            "time": "2021-07-22T19:01:31+00:00"
+            "time": "2021-08-04T14:20:42+00:00"
         },
         {
             "name": "psr/http-message",

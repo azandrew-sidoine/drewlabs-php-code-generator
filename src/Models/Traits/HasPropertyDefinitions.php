@@ -3,7 +3,7 @@
 namespace Drewlabs\CodeGenerator\Models\Traits;
 
 use Drewlabs\CodeGenerator\Contracts\ClassPropertyInterface;
-use Drewlabs\Core\Helpers\Arrays\BinarySearchBoundEnum;
+use Drewlabs\Core\Helpers\Arrays\BinarySearchResult;
 
 trait HasPropertyDefinitions
 {
@@ -21,11 +21,11 @@ trait HasPropertyDefinitions
         sort($properties);
         $match = drewlabs_core_array_bsearch(array_keys($properties), $property, function($curr, $item) use ($properties) {
             if ($properties[$curr]->equals($item)) {
-                return BinarySearchBoundEnum::FOUND;
+                return BinarySearchResult::FOUND;
             }
-            return strcmp($curr, $item->getName()) > 0 ? BinarySearchBoundEnum::LOWER : BinarySearchBoundEnum::UPPER;
+            return strcmp($curr, $item->getName()) > 0 ? BinarySearchResult::LEFT : BinarySearchResult::RIGHT;
         });
-        if ($match !== BinarySearchBoundEnum::LOWER) {
+        if ($match !== BinarySearchResult::LEFT) {
             throw new \RuntimeException('Duplicated property : ' . $property->getName());
         }
         $this->properties_[] = $property;
