@@ -6,3 +6,5 @@
 - Add usage documentations []
 
 - Insure that there is on one same property name on a class [x]
+- Add Generator classes for Method, Property, Class, Interface and Trait []
+- Migrate Method, Property, Class, Interface and Trait __toString() codes to generator classes []
