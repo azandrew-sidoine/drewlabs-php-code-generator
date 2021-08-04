@@ -27,7 +27,18 @@ trait HasImportDeclarations
         return $this->imports_ ?? [];
     }
 
-    public function addClassPathToImportsPropertyAfter(\Closure $callback)
+    public function setGlobalImports(array $values)
+    {
+        $this->globalImports_ = $values;
+        return $this;
+    }
+
+    public function getGlobalImports()
+    {
+        return $this->globalImports_;
+    }
+
+    private function addClassPathToImportsPropertyAfter(\Closure $callback)
     {
         return function (string $value) use ($callback) {
             $result = $callback($value);
@@ -41,12 +52,12 @@ trait HasImportDeclarations
         };
     }
 
-    public function getClassFromClassPath(string $classPath)
+    private function getClassFromClassPath(string $classPath)
     {
         $classPathComponents = array_reverse(drewlabs_core_strings_to_array($classPath, "\\"));
         $name = $classPathComponents[0];
         $globalImports_ = $this->getGlobalImports() ?? [];
-        $matches = array_filter($globalImports_, function ($import) use ($name) {
+        $matches = array_filter($globalImports_ ?? [], function ($import) use ($name) {
             return is_string($import) && drewlabs_core_strings_ends_with($import, $name);
         });
         if (!empty($matches)) {
@@ -55,16 +66,5 @@ trait HasImportDeclarations
             $classPath = sprintf("%s as %s", $classPath, $name);
         }
         return new ParseClassPathResult($name, $classPath);
-    }
-
-    public function setGlobalImports(array $values)
-    {
-        $this->globalImports_ = $values;
-        return $this;
-    }
-
-    public function getGlobalImports()
-    {
-        return $this->globalImports_;
     }
 }

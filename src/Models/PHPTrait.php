@@ -2,14 +2,14 @@
 
 namespace Drewlabs\CodeGenerator\Models;
 
-use Drewlabs\CodeGenerator\Contracts\PHPComponentModelInterface;
+use Drewlabs\CodeGenerator\Contracts\OOPStructInterface;
 use Drewlabs\CodeGenerator\Models\PHPClassMethod;
 use Drewlabs\CodeGenerator\Models\PHPClassProperty;
 use Drewlabs\CodeGenerator\Models\Traits\HasTraitsDefintions;
 use InvalidArgumentException;
 
 /** @package Drewlabs\CodeGenerator\Models */
-class PHPTrait implements PHPComponentModelInterface
+class PHPTrait implements OOPStructInterface
 {
 
     use HasTraitsDefintions;

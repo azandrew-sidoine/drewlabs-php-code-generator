@@ -3,30 +3,29 @@
 namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\CommentModelFactory;
-use Drewlabs\CodeGenerator\Contracts\PHPComponentModelInterface;
-use Drewlabs\CodeGenerator\Contracts\MethodParamInterface;
+use Drewlabs\CodeGenerator\Contracts\ClassMethodInterface;
+use Drewlabs\CodeGenerator\Contracts\FunctionParameterInterface;
+use Drewlabs\CodeGenerator\Models\Traits\HasClassMemberDefinitions;
 use Drewlabs\CodeGenerator\Models\Traits\HasImportDeclarations;
 use Drewlabs\CodeGenerator\Models\Traits\HasIndentation;
+use Drewlabs\Core\Helpers\Arrays\BinarySearchBoundEnum;
 
 /** @package Drewlabs\CodeGenerator\Models */
-class PHPClassMethod implements PHPComponentModelInterface
+class PHPClassMethod implements ClassMethodInterface
 {
 
     use HasImportDeclarations;
     use HasIndentation;
+    use HasClassMemberDefinitions;
 
     /**
      * @var string
      */
     private $name_;
     /**
-     * @var MethodParamInterface[]
+     * @var FunctionParameterInterface[]
      */
     private $params_;
-    /**
-     * @var string
-     */
-    private $description_;
 
     /**
      * PHP Stringeable component
@@ -34,12 +33,6 @@ class PHPClassMethod implements PHPComponentModelInterface
      * @var mixed
      */
     private $comment_;
-
-    /**
-     *
-     * @var string
-     */
-    private $accessModifier_;
 
     /**
      * The returns type of the function
@@ -80,26 +73,22 @@ class PHPClassMethod implements PHPComponentModelInterface
         array $params = [],
         string $returns = null,
         $modifier = 'public',
-        $description = ''
+        $descriptors = ''
     ) {
         $this->name_ = $name;
-        $this->params_ = $params;
-        $this->description_ = $description;
-        $this->accessModifier_ = $modifier;
+        // Add list of params to the method
+        foreach (array_filter($params ?? []) as $value) {
+            $this->addParam($value);
+        }
+        if (null !== $descriptors) {
+            $this->addComment($descriptors);
+        }
+        if (null !== $modifier) {
+            $this->setModifier($modifier);
+        }
         $this->returns_ = $returns;
     }
 
-    public function getName()
-    {
-        return $this->name_;
-    }
-
-    /**
-     * Specify the exceptions that the current method throws
-     *
-     * @param array $exceptions
-     * @return self
-     */
     public function throws($exceptions = [])
     {
         if (null !== $exceptions) {
@@ -116,33 +105,42 @@ class PHPClassMethod implements PHPComponentModelInterface
         return $this;
     }
 
-    public function isStatic(bool $value)
+    /**
+     * Add a new Parameter to the method
+     *
+     * @return self
+     */
+    public function addParam(FunctionParameterInterface $param)
+    {
+        #region Validate method parameters for duplicated entries
+        $params = [];
+        foreach (($this->params_ ?? []) as $value) {
+            $params[$value->name()] = $value;
+        }
+        sort($params);
+        $match = drewlabs_core_array_bsearch(array_keys($params), $param, function($curr,  FunctionParameterInterface $item) use ($params) {
+            if ($params[$curr]->equals($item)) {
+                return BinarySearchBoundEnum::FOUND;
+            }
+            return strcmp($curr, $item->name()) > 0 ? BinarySearchBoundEnum::LOWER : BinarySearchBoundEnum::UPPER;
+        });
+        if ($match !== BinarySearchBoundEnum::LOWER) {
+            throw new \RuntimeException(sprintf('Duplicated entry %s in method %s definition : ', $param->name(), $this->name_));
+        }
+        #endregion Validate method parameters for duplicated entries
+        $this->params_[] = $param;
+        return $this;
+    }
+
+    public function asStatic(bool $value)
     {
         $this->isStatic_ = $this->name_ === '__construct' ? false : ($value || false);
         return $this;
     }
 
-    /**
-     * Add contents to the generated method
-     *
-     * @param string $content
-     * @return self
-     */
-    public function withConents(string $content)
+    public function addContents(string $content)
     {
         $this->content_ = $content;
-        return $this;
-    }
-
-    /**
-     * Add a description to the class
-     *
-     * @param string $value
-     * @return self
-     */
-    public function withDescriptions(string $value)
-    {
-        $this->description_ = $value;
         return $this;
     }
 
@@ -152,6 +150,13 @@ class PHPClassMethod implements PHPComponentModelInterface
         return $this;
     }
 
+    public function equals(ClassMethodInterface $value)
+    {
+        return $this->name_ === $value->getName();
+        // If PHP Support method overloading go deep to method definitions
+    }
+
+
     protected function setFileImports()
     {
         if (null !== $this->returns_) {
@@ -159,8 +164,6 @@ class PHPClassMethod implements PHPComponentModelInterface
                 $this->returns_ = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                     return $this->getClassFromClassPath($classPath);
                 })($this->returns_);
-                // $this->imports_[] = $this->returns_;
-                // $this->returns_ = drewlabs_core_strings_after_last('\\', $this->returns_);
             }
         }
         $values = [];
@@ -169,8 +172,7 @@ class PHPClassMethod implements PHPComponentModelInterface
             $params = [];
             foreach ($values as $value) {
                 if (drewlabs_core_strings_contains($value->type(), '\\')) {
-                    // $this->imports_[] = $value;
-                    $params[] = new MethodParam(
+                    $params[] = new PHPFunctionParameter(
                         $value->name(),
                         // drewlabs_core_strings_after_last('\\', $value->type()),
                         $this->addClassPathToImportsPropertyAfter(function ($classPath) {
@@ -189,7 +191,11 @@ class PHPClassMethod implements PHPComponentModelInterface
 
     protected function setComments()
     {
-        $descriptors = $this->description_ ? [$this->description_] : [];
+        $descriptors = array_filter((drewlabs_core_strings_is_str($this->descriptors_) ? [$this->descriptors_] : $this->descriptors_) ?? []);
+        if (!empty($descriptors)) {
+            // Add a line separator between the descriptors and other definitions
+            $descriptors[] = "";
+        }
         // Generates method params comments
         if (null !== $this->params_) {
             foreach ($this->params_ as $value) {
@@ -197,13 +203,11 @@ class PHPClassMethod implements PHPComponentModelInterface
                 $descriptors[] = "@param " . $type . " " . $value->name();
             }
         }
-        $descriptors[] = "";
         // Generate exception comment
         if ((null !== $this->exceptions_) && is_array($this->exceptions_)) {
             foreach ($this->exceptions_ as $value) {
                 $descriptors[] = "@throws $value";
             }
-            $descriptors[] = "";
         }
         // Generate returns comment
         if (null !== $this->returns_) {
@@ -234,13 +238,24 @@ class PHPClassMethod implements PHPComponentModelInterface
             $params = array_map(function ($param) {
                 $type = null === $param->type() ? "" : $param->type();
                 $result = "$type \$" . $param->name();
-                return null !== $param->defaultValue() ? $result : "$result = " . $param->defaultValue();
-            }, $this->params_);
-            $declaration .= implode(", ", $params) . ")";
+                return null === $param->defaultValue() ? $result : "$result = " . drewlabs_core_strings_replace('"null"', 'null', $param->defaultValue());
+            }, array_merge(
+                array_filter($this->params_, function($p) {
+                    return !$p->isOptional();
+                }),
+                array_filter($this->params_, function($p) {
+                    return $p->isOptional();
+                })
+            ));
+            $declaration .= implode(", ", $params);
         }
+        // Add the closing parenthesis
+        $declaration .=  ")";
+        // If it is an interface method, close the definition
         if ($this->isInterfaceMethod_) {
             $parts[] = "$declaration;";
         } else {
+            // If it is not an interface method, add the method body
             $parts[] = $declaration;
             $parts[] = "{";
                 $parts[] = "\t# code...";

@@ -2,7 +2,7 @@
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface PHPComponentModelInterface extends Stringable
+interface OOPComponentInterface extends Stringable
 {
     /**
      * Return component name

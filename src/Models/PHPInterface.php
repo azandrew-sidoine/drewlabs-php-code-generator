@@ -2,16 +2,16 @@
 
 namespace Drewlabs\CodeGenerator\Models;
 
-use Drewlabs\CodeGenerator\Contracts\PHPComponentModelInterface;
+use Drewlabs\CodeGenerator\Contracts\OOPComponentInterface;
 use Drewlabs\CodeGenerator\Models\PHPClassMethod;
 use Drewlabs\CodeGenerator\Models\PHPClassProperty;
-use Drewlabs\CodeGenerator\Models\Traits\OOPComponent;
+use Drewlabs\CodeGenerator\Models\Traits\OOPStructComponent;
 use InvalidArgumentException;
 
 /** @package Drewlabs\CodeGenerator\Models */
-class PHPInterface implements PHPComponentModelInterface
+class PHPInterface implements OOPComponentInterface
 {
-    use OOPComponent;
+    use OOPStructComponent;
 
     /**
      * Class base class name

@@ -2,18 +2,17 @@
 
 namespace Drewlabs\CodeGenerator\Models;
 
-use Drewlabs\CodeGenerator\Contracts\PHPComponentModelInterface;
+use Drewlabs\CodeGenerator\Contracts\Blueprint;
+use Drewlabs\CodeGenerator\Contracts\ClassMethodInterface;
+use Drewlabs\CodeGenerator\Contracts\ClassPropertyInterface;
 use Drewlabs\CodeGenerator\Exceptions\PHPClassException;
-use Drewlabs\CodeGenerator\Models\PHPClassMethod;
-use Drewlabs\CodeGenerator\Models\PHPClassProperty;
 use Drewlabs\CodeGenerator\Models\Traits\HasTraitsDefintions;
 use InvalidArgumentException;
 
 /** @package Drewlabs\CodeGenerator\Models */
-class PHPClass implements PHPComponentModelInterface
+class PHPClass implements Blueprint
 {
     use HasTraitsDefintions;
-
 
     /**
      *
@@ -42,6 +41,14 @@ class PHPClass implements PHPComponentModelInterface
      */
     private $isFinal_;
 
+    /**
+     * Undocumented function
+     *
+     * @param string $name
+     * @param string $implementations
+     * @param ClassMethodInterface[] $methods
+     * @param ClassPropertyInterface[] $properties
+     */
     public function __construct(
         string $name,
         array $implementations = [],
@@ -63,8 +70,8 @@ class PHPClass implements PHPComponentModelInterface
         if (null !== $methods && is_array($methods)) {
             foreach ($methods as $value) {
                 # code...
-                if (!($value instanceof PHPClassMethod)) {
-                    throw new InvalidArgumentException(sprintf("%s is not an istance of %s", get_class($value), PHPClassMethod::class));
+                if (!($value instanceof ClassMethodInterface)) {
+                    throw new InvalidArgumentException(sprintf("%s is not an istance of %s", get_class($value), ClassMethodInterface::class));
                 }
                 $this->addMethod($value);
             }
@@ -74,8 +81,8 @@ class PHPClass implements PHPComponentModelInterface
         if (null !== $properties && is_array($methods)) {
             foreach ($properties as $value) {
                 # code...
-                if (!($value instanceof PHPClassProperty)) {
-                    throw new InvalidArgumentException(sprintf("%s is not an istance of %s", get_class($value), PHPClassProperty::class));
+                if (!($value instanceof ClassPropertyInterface)) {
+                    throw new InvalidArgumentException(sprintf("%s is not an istance of %s", get_class($value), ClassPropertyInterface::class));
                 }
                 $this->addProperty($value);
             }
@@ -90,6 +97,12 @@ class PHPClass implements PHPComponentModelInterface
         return $this;
     }
 
+    /**
+     * Add an interface or an implementation to the class
+     *
+     * @param string $value
+     * @return self
+     */
     public function addImplementation(string $value)
     {
         if (null !== $value) {
@@ -97,49 +110,42 @@ class PHPClass implements PHPComponentModelInterface
         }
         return $this;
     }
-
-    public function isFinal(bool $value)
+    
+    public function asFinal()
     {
         if ($this->isAbstract_) {
             throw new PHPClassException("Class cannot be final and abstract at the same time");
         }
-        $this->isFinal_ = $value;
+        $this->isFinal_ = true;
         return $this;
     }
 
-    public function isAbstract(bool $value)
+    public function asAbstract()
     {
         if ($this->isFinal_) {
             throw new PHPClassException("Class cannot be final and abstract at the same time");
         }
-        $this->isAbstract_ = $value;
+        $this->isAbstract_ = true;
         return $this;
     }
 
-    protected function setImports()
+    /**
+     * Adds a constant property definition to the class
+     *
+     * @param ClassPropertyInterface $property
+     * @return self
+     */
+    public function addConstant(ClassPropertyInterface $property)
     {
-        // Loop through interfaces
-        $interfaces = [];
-        foreach (($this->interfaces_ ?? []) as $value) {
-            if (drewlabs_core_strings_contains($value, '\\')) {
-                $interfaces[] = $this->addClassPathToImportsPropertyAfter(function($classPath) {
-                    return $this->getClassFromClassPath($classPath);
-                })($value);
-            } else {
-                $interfaces[] = $value;
-            }
-        }
-        $this->interfaces_ = $interfaces;
-
-        // Set base class imports
-        if (drewlabs_core_strings_contains($this->baseClass_, '\\')) {
-            $this->baseClass_ = $this->addClassPathToImportsPropertyAfter(function($classPath) {
-                return $this->getClassFromClassPath($classPath);
-            })($this->baseClass_);
-        }
+        return $this->addProperty($property->asConstant());
     }
 
-    public function classToString(): string
+    /**
+     * Returns the class a PHP string that can be write to a file
+     *
+     * @return string
+     */
+    public function objectToString(): string
     {
         $this->setImports();
         $parts = [];
@@ -184,9 +190,32 @@ class PHPClass implements PHPComponentModelInterface
         return implode(PHP_EOL, $parts);
     }
 
+    protected function setImports()
+    {
+        // Loop through interfaces
+        $interfaces = [];
+        foreach (($this->interfaces_ ?? []) as $value) {
+            if (drewlabs_core_strings_contains($value, '\\')) {
+                $interfaces[] = $this->addClassPathToImportsPropertyAfter(function($classPath) {
+                    return $this->getClassFromClassPath($classPath);
+                })($value);
+            } else {
+                $interfaces[] = $value;
+            }
+        }
+        $this->interfaces_ = $interfaces;
+
+        // Set base class imports
+        if (drewlabs_core_strings_contains($this->baseClass_, '\\')) {
+            $this->baseClass_ = $this->addClassPathToImportsPropertyAfter(function($classPath) {
+                return $this->getClassFromClassPath($classPath);
+            })($this->baseClass_);
+        }
+    }
+
     protected function buildNamespaceClass()
     {
-        $classString = $this->classToString();
+        $classString = $this->objectToString();
         $parts[] = (new PHPNamespace($this->namespace_))
         ->addClass($this)
         ->addImports($this->getGlobalImports())->__toString();
@@ -200,6 +229,6 @@ class PHPClass implements PHPComponentModelInterface
         if (null !== $this->namespace_) {
             return $this->buildNamespaceClass();
         }
-        return $this->classToString();
+        return $this->objectToString();
     }
 }

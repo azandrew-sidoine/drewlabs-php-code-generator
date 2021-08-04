@@ -6,7 +6,7 @@ trait HasTraitsDefintions
 {
 
     use HasImportDeclarations;
-    use OOPComponent;
+    use OOPStructComponent;
 
     /**
      * List of traits
