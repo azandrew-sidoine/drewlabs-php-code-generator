@@ -47,39 +47,41 @@ function create_php_class_const_property_with_methods(string $name, $value, $mod
 
 function create_interface_method()
 {
-    $method = (new PHPClassMethod('write', [
-        new PHPFunctionParameter('name', 'string'),
-        new PHPFunctionParameter('params', PHPFunctionParameter::class)
-    ], Stringable::class, 'public', null))->throws([
+    $method = (new PHPClassMethod(
+        'write',
+        [
+            new PHPFunctionParameter('name', 'string'),
+            new PHPFunctionParameter('params', PHPFunctionParameter::class)
+        ],
+    ))->throws([
         RuntimeException::class
-    ])->asInterfaceMethod();
+    ])
+        ->asInterfaceMethod()
+        ->setReturnType(Stringable::class)
+        ->setModifier(PHPTypesModifiers::PUBLIC);
     return $method->__toString();
 }
 
 function create_class_method()
 {
-    $method = (new PHPClassMethod('__construct', [], Stringable::class, 'protected', null))->throws([
+    $method = (new PHPClassMethod('__construct'))->throws([
         RuntimeException::class
     ])->addParam(new PHPFunctionParameter('users', null, ["user1" => "Sandra", "user2" => "Emily"]))
         ->addParam((new PHPFunctionParameter('params', PHPFunctionParameter::class))->asOptional())
         ->addContents(
             <<<EOT
-\$this->name_ = \$users;
+\$this->users_ = \$users;
 \$this->params_ = \$params;
-\$this->description_ = \$description;
-\$this->accessModifier_ = \$modifier;
-\$this->returns_ = \$returns;
 EOT
-        )->addComment('This is a PHP Class method');
+        )->addLine('// This is an extra line')
+        ->setReturnType(Stringable::class)
+        ->addComment('This is a PHP Class method');
     return $method->__toString();
 }
 
 function create_php_class()
 {
-    $class_ = (new PHPClass("Person", [
-        "\\App\\Contracts\\PersonInterface",
-        "\\App\\Contracts\\HumanInterface"
-    ], [
+    $class_ = (new PHPClass("Person", [], [
         (new PHPClassMethod('__construct', [
             new PHPFunctionParameter('firstname', 'string'),
             new PHPFunctionParameter('lastname', 'string')
@@ -93,6 +95,8 @@ function create_php_class()
         ], "self", 'public', 'parent property setter')),
         (new PHPClassMethod('getFirstName', [], "string", 'public', 'firstname property getter')),
     ],))->setBaseClass("\\App\\Core\\PersonBase")
+        ->addImplementation("\\App\\Contracts\\PersonInterface")
+        ->addImplementation("\\App\\Contracts\\HumanInterface")
         ->asFinal()
         ->addProperty(new PHPClassProperty('firstname', 'string', 'private', null, 'Person first name'))
         ->addConstant(new PHPClassProperty('lastname', 'string', 'private', null, 'Person last name'))
@@ -106,10 +110,6 @@ function create_php_traits()
     $class_ = (new PHPTrait(
         "HasValidatableAttributes",
         [
-            (new PHPClassMethod('__construct', [
-                new PHPFunctionParameter('firstname', 'string'),
-                new PHPFunctionParameter('lastname', 'string')
-            ], null, 'public', 'Class initializer')),
             (new PHPClassMethod('setFirstName', [
                 new PHPFunctionParameter('firstname', 'string')
             ], "self", 'public', 'firstname property setter')),
@@ -119,9 +119,14 @@ function create_php_traits()
             (new PHPClassMethod('getFirstName', [], "string", 'public', 'firstname property getter')),
         ]
     ))
-    ->addTrait('\\App\\Person\\Traits\\PersonInterface')->addToNamespace("App\\Models")
-    ->addProperty(new PHPClassProperty('firstname', 'string', 'private', null, 'Person first name'))
-    ->addConstant(new PHPClassProperty('lastname', 'string', 'private', null, 'Person last name'));
+        ->addTrait('\\App\\Person\\Traits\\PersonInterface')
+        ->addToNamespace("App\\Models")
+        ->addProperty(new PHPClassProperty('firstname', 'string', 'private', null, 'Person first name'))
+        ->addConstant(new PHPClassProperty('lastname', 'string', 'private', null, 'Person last name'))
+        ->addMethod((new PHPClassMethod('__construct', [
+            new PHPFunctionParameter('firstname', 'string'),
+            new PHPFunctionParameter('lastname', 'string')
+        ], null, 'public', 'Class initializer')));
 
     return $class_->__toString();
 }
@@ -129,21 +134,17 @@ function create_php_traits()
 function create_php_interfaces()
 {
     $class_ = (new PHPInterface(
-        "ConsoleWriter",
+        "Writer",
         [
-            (new PHPClassMethod('setFirstName', [
-                new PHPFunctionParameter('firstname', 'string')
-            ], "self", 'public', 'firstname property setter')),
-            (new PHPClassMethod('setParent', [
-                new PHPFunctionParameter('person',  "\\App\\Person\\Contracts\\PersonInterface")
-            ], "self", 'public', 'parent property setter')),
-            (new PHPClassMethod('getFirstName', [], "string", 'public', 'firstname property getter')),
-        ],
-        [
-            new PHPClassProperty('firstname', 'string', 'private', null, 'Person first name'),
-            new PHPClassProperty('lastname', 'string', 'private', null, 'Person last name')
+            (new PHPClassMethod('setWriter', [
+                new PHPFunctionParameter('writer', 'App\\Contracts\\Writer')
+            ], "self", 'public', 'Writer property setter')),
+            (new PHPClassMethod('write', [
+                new PHPFunctionParameter('buffer', 'string')
+            ], null, 'public', 'Write the buffer to the console')),
         ]
-    ))->addToNamespace("App\\Models");
+    ))->addToNamespace("App\\Contracts\\Writer")
+        ->setBaseInterface('App\\Contracts\\Writer\\BufferWriter');
 
     return $class_->__toString();
 }
@@ -175,10 +176,10 @@ function create_php_interfaces()
 // echo create_class_method() . PHP_EOL;
 
 
-echo create_php_class() . PHP_EOL;
+// echo create_php_class() . PHP_EOL;
 
 // echo create_interface_method() . PHP_EOL;
 
 // echo create_php_traits() . PHP_EOL;
 
-// echo create_php_interfaces() . PHP_EOL;
+echo create_php_interfaces() . PHP_EOL;

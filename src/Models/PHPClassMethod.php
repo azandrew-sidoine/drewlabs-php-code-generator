@@ -1,22 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Drewlabs package.
+ *
+ * (c) Sidoine Azandrew <azandrewdevelopper@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\CommentModelFactory;
-use Drewlabs\CodeGenerator\Contracts\ClassMethodInterface;
+use Drewlabs\CodeGenerator\Contracts\CallableInterface;
 use Drewlabs\CodeGenerator\Contracts\FunctionParameterInterface;
-use Drewlabs\CodeGenerator\Models\Traits\HasClassMemberDefinitions;
 use Drewlabs\CodeGenerator\Models\Traits\HasImportDeclarations;
 use Drewlabs\CodeGenerator\Models\Traits\HasIndentation;
+use Drewlabs\CodeGenerator\Models\Traits\OOPStructComponentMembers;
 use Drewlabs\Core\Helpers\Arrays\BinarySearchResult;
 
-/** @package Drewlabs\CodeGenerator\Models */
-class PHPClassMethod implements ClassMethodInterface
+class PHPClassMethod implements CallableInterface
 {
-
     use HasImportDeclarations;
     use HasIndentation;
-    use HasClassMemberDefinitions;
+    use OOPStructComponentMembers;
 
     /**
      * @var string
@@ -28,41 +37,40 @@ class PHPClassMethod implements ClassMethodInterface
     private $params_;
 
     /**
-     * PHP Stringeable component
-     * 
+     * PHP Stringeable component.
+     *
      * @var mixed
      */
     private $comment_;
 
     /**
-     * The returns type of the function
+     * The returns type of the function.
      *
      * @var string|array
      */
     private $returns_;
 
     /**
-     *
      * @var string
      */
     private $exceptions_;
 
     /**
-     * Indicates whether the method is static or not
+     * Indicates whether the method is static or not.
      *
      * @var bool
      */
     private $isStatic_;
 
     /**
-     * Method defintion content
+     * Method defintion content.
      *
-     * @var string
+     * @var string[]
      */
-    private $content_;
+    private $contents_;
 
     /**
-     * Indicates whether the definition is return as interface method or a class method
+     * Indicates whether the definition is return as interface method or a class method.
      *
      * @var bool
      */
@@ -71,7 +79,7 @@ class PHPClassMethod implements ClassMethodInterface
     public function __construct(
         string $name,
         array $params = [],
-        string $returns = null,
+        ?string $returns = null,
         $modifier = 'public',
         $descriptors = ''
     ) {
@@ -86,13 +94,72 @@ class PHPClassMethod implements ClassMethodInterface
         if (null !== $modifier) {
             $this->setModifier($modifier);
         }
-        $this->returns_ = $returns;
+        if ($returns) {
+            $this->setReturnType($returns);
+        }
+    }
+
+    public function __toString(): string
+    {
+        $this->setImports()->setComments();
+        if ($this->getIndentation()) {
+            $parts[] = $this->comment_->setIndentation($this->getIndentation())->__toString();
+        } else {
+            $parts[] = $this->comment_->__toString();
+        }
+        $accessModifier = (null !== $this->accessModifier_) && \in_array(
+            $this->accessModifier_,
+            [
+                'private', 'protected', 'public',
+            ], true
+        ) && !$this->isInterfaceMethod_ ? $this->accessModifier_ : 'public';
+        // Start the declaration
+        $declaration = $this->isStatic_ ? "$accessModifier static function $this->name_(" : "$accessModifier function $this->name_(";
+        // Add method params
+        if (null !== $this->params_) {
+            $params = array_map(static function ($param) {
+                $type = null === $param->type() ? '' : $param->type();
+                $result = "$type \$".$param->name();
+
+                return null === $param->defaultValue() ? $result : "$result = ".drewlabs_core_strings_replace('"null"', 'null', $param->defaultValue());
+            }, array_merge(
+                array_filter($this->params_, static function ($p) {
+                    return !$p->isOptional();
+                }),
+                array_filter($this->params_, static function ($p) {
+                    return $p->isOptional();
+                })
+            ));
+            $declaration .= implode(', ', $params);
+        }
+        // Add the closing parenthesis
+        $declaration .= ')';
+        // If it is an interface method, close the definition
+        if ($this->isInterfaceMethod_) {
+            $parts[] = "$declaration;";
+        } else {
+            // If it is not an interface method, add the method body
+            $parts[] = $declaration;
+            $parts[] = '{';
+            $parts[] = "\t# code...";
+            if (null !== ($contents = $this->contents_ ?? [])) {
+                $parts[] = implode(\PHP_EOL, $contents);
+            }
+            $parts[] = '}';
+        }
+        if ($this->getIndentation()) {
+            $parts = array_map(function ($part) {
+                return $this->getIndentation()."$part";
+            }, $parts);
+        }
+
+        return implode(\PHP_EOL, $parts);
     }
 
     public function throws($exceptions = [])
     {
         if (null !== $exceptions) {
-            $exceptions = drewlabs_core_strings_is_str($exceptions) ? [$exceptions] : (is_array($exceptions) ? $exceptions : []);
+            $exceptions = drewlabs_core_strings_is_str($exceptions) ? [$exceptions] : (\is_array($exceptions) ? $exceptions : []);
             foreach ($exceptions as $value) {
                 if (drewlabs_core_strings_contains($value, '\\')) {
                     $this->imports_[] = $value;
@@ -102,45 +169,70 @@ class PHPClassMethod implements ClassMethodInterface
                 }
             }
         }
+
         return $this;
     }
 
     /**
-     * Add a new Parameter to the method
+     * Add a new Parameter to the method.
      *
      * @return self
      */
     public function addParam(FunctionParameterInterface $param)
     {
-        #region Validate method parameters for duplicated entries
+        //region Validate method parameters for duplicated entries
         $params = [];
         foreach (($this->params_ ?? []) as $value) {
             $params[$value->name()] = $value;
         }
         sort($params);
-        $match = drewlabs_core_array_bsearch(array_keys($params), $param, function($curr,  FunctionParameterInterface $item) use ($params) {
+        $match = drewlabs_core_array_bsearch(array_keys($params), $param, static function ($curr, FunctionParameterInterface $item) use ($params) {
             if ($params[$curr]->equals($item)) {
                 return BinarySearchResult::FOUND;
             }
-            return strcmp($curr, $item->name()) > 0 ? BinarySearchResult::LEFT : BinarySearchResult::RIGHT;
+            return strcmp($params[$curr]->name(), $item->name()) > 0 ? BinarySearchResult::LEFT : BinarySearchResult::RIGHT;
         });
-        if ($match !== BinarySearchResult::LEFT) {
+        if (BinarySearchResult::LEFT !== $match) {
             throw new \RuntimeException(sprintf('Duplicated entry %s in method %s definition : ', $param->name(), $this->name_));
         }
-        #endregion Validate method parameters for duplicated entries
+        //endregion Validate method parameters for duplicated entries
         $this->params_[] = $param;
+
         return $this;
     }
 
     public function asStatic(bool $value)
     {
-        $this->isStatic_ = $this->name_ === '__construct' ? false : ($value || false);
+        $this->isStatic_ = '__construct' === $this->name_ ? false : ($value || false);
+
         return $this;
     }
 
-    public function addContents(string $content)
+    public function addContents(string $contents)
     {
-        $this->content_ = $content;
+        $self = $this;
+        if (null !== $contents) {
+            $values = explode(\PHP_EOL, $contents);
+            $values = array_map(static function ($content) {
+                return drewlabs_core_strings_rtrim("$content", ';');
+            }, $values);
+            foreach ($values as $value) {
+                # code...
+                $self = $self->addLine($value);
+            }
+        }
+        return $self;
+    }
+
+    /**
+     * 
+     * {@inheritDoc}
+     *
+     * Note : Lines must not be terminated with extras ; because the implementation will add a trailing ; at the end
+     */
+    public function addLine(string $line)
+    {
+        $this->contents_[] = "\t$line;";
         return $this;
     }
 
@@ -150,14 +242,19 @@ class PHPClassMethod implements ClassMethodInterface
         return $this;
     }
 
-    public function equals(ClassMethodInterface $value)
+    public function equals(CallableInterface $value)
     {
         return $this->name_ === $value->getName();
         // If PHP Support method overloading go deep to method definitions
     }
 
+    public function setReturnType(string $type)
+    {
+        $this->returns_ = $type;
+        return $this;
+    }
 
-    protected function setFileImports()
+    protected function setImports()
     {
         if (null !== $this->returns_) {
             if (drewlabs_core_strings_contains($this->returns_, '\\')) {
@@ -168,7 +265,7 @@ class PHPClassMethod implements ClassMethodInterface
         }
         $values = [];
         if ((null !== $this->params_)) {
-            $values = is_array($this->params_) ? $this->params_ : (is_string($this->params_) ? [$this->params_] : []);
+            $values = \is_array($this->params_) ? $this->params_ : (\is_string($this->params_) ? [$this->params_] : []);
             $params = [];
             foreach ($values as $value) {
                 if (drewlabs_core_strings_contains($value->type(), '\\')) {
@@ -186,6 +283,7 @@ class PHPClassMethod implements ClassMethodInterface
             }
             $this->params_ = $params;
         }
+
         return $this;
     }
 
@@ -194,85 +292,27 @@ class PHPClassMethod implements ClassMethodInterface
         $descriptors = array_filter((drewlabs_core_strings_is_str($this->descriptors_) ? [$this->descriptors_] : $this->descriptors_) ?? []);
         if (!empty($descriptors)) {
             // Add a line separator between the descriptors and other definitions
-            $descriptors[] = "";
+            $descriptors[] = '';
         }
         // Generates method params comments
         if (null !== $this->params_) {
             foreach ($this->params_ as $value) {
-                $type = null === $value->type() ? "mixed" : $value->type();
-                $descriptors[] = "@param " . $type . " " . $value->name();
+                $type = null === $value->type() ? 'mixed' : $value->type();
+                $descriptors[] = '@param '.$type.' '.$value->name();
             }
         }
         // Generate exception comment
-        if ((null !== $this->exceptions_) && is_array($this->exceptions_)) {
+        if ((null !== $this->exceptions_) && \is_array($this->exceptions_)) {
             foreach ($this->exceptions_ as $value) {
                 $descriptors[] = "@throws $value";
             }
         }
         // Generate returns comment
         if (null !== $this->returns_) {
-            $descriptors[] = "@return " . $this->returns_;
+            $descriptors[] = '@return '.$this->returns_;
         }
         $this->comment_ = (new CommentModelFactory(true))->make($descriptors);
-        return $this;
-    }
 
-    public function __toString(): string
-    {
-        $this->setFileImports()->setComments();
-        if ($this->getIndentation()) {
-            $parts[] = $this->comment_->setIndentation($this->getIndentation())->__toString();
-        } else {
-            $parts[] = $this->comment_->__toString();
-        }
-        $accessModifier = (null !== $this->accessModifier_) && in_array(
-            $this->accessModifier_,
-            [
-                'private', 'protected', 'public'
-            ]
-        ) && !$this->isInterfaceMethod_ ? $this->accessModifier_ : "public";
-        // Start the declaration
-        $declaration = $this->isStatic_ ? "$accessModifier static function $this->name_(" : "$accessModifier function $this->name_(";
-        // Add method params
-        if (null !== $this->params_) {
-            $params = array_map(function ($param) {
-                $type = null === $param->type() ? "" : $param->type();
-                $result = "$type \$" . $param->name();
-                return null === $param->defaultValue() ? $result : "$result = " . drewlabs_core_strings_replace('"null"', 'null', $param->defaultValue());
-            }, array_merge(
-                array_filter($this->params_, function($p) {
-                    return !$p->isOptional();
-                }),
-                array_filter($this->params_, function($p) {
-                    return $p->isOptional();
-                })
-            ));
-            $declaration .= implode(", ", $params);
-        }
-        // Add the closing parenthesis
-        $declaration .=  ")";
-        // If it is an interface method, close the definition
-        if ($this->isInterfaceMethod_) {
-            $parts[] = "$declaration;";
-        } else {
-            // If it is not an interface method, add the method body
-            $parts[] = $declaration;
-            $parts[] = "{";
-                $parts[] = "\t# code...";
-                if (null !== $this->content_) {
-                    $splitted_contents = explode(PHP_EOL, $this->content_);
-                    $splitted_contents = array_map(function ($content) {
-                        return "\t$content";
-                    }, $splitted_contents);
-                    $parts[] = implode(PHP_EOL, $splitted_contents);
-                }
-                $parts[] = "}";
-        }
-        if ($this->getIndentation()) {
-            $parts = array_map(function ($part) {
-                return $this->getIndentation() . "$part";
-            }, $parts);
-        }
-        return implode(PHP_EOL, $parts);
+        return $this;
     }
 }

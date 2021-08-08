@@ -1,39 +1,49 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Drewlabs package.
+ *
+ * (c) Sidoine Azandrew <azandrewdevelopper@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Drewlabs\CodeGenerator\Types;
 
-/** @package Drewlabs\CodeGenerator\Types */
 class PHPTypes
 {
     /**
-     * String representation of php integer type
+     * String representation of php integer type.
      */
-    const INT = 'integer';
+    public const INT = 'integer';
     /**
-     * String representation of php floating point type
+     * String representation of php floating point type.
      */
-    const FLOAT = 'float';
+    public const FLOAT = 'float';
     /**
-     * String representation of php decimal type
+     * String representation of php decimal type.
      */
-    const DECIMAL = 'float';
+    public const DECIMAL = 'float';
     /**
-     * String representation of php string type
+     * String representation of php string type.
      */
-    const STRING = 'string';
+    public const STRING = 'string';
     /**
-     * String representation of php objects
+     * String representation of php objects.
      */
-    const OBJECT = 'object';
+    public const OBJECT = 'object';
     /**
-     * String representation of php standard class
+     * String representation of php standard class.
      */
-    const STANDARD_CLASS = '\\stdClass';
+    public const STANDARD_CLASS = '\\stdClass';
 
     /**
-     * String representation of php list type
+     * String representation of php list type.
      */
-    const LIST = 'array';
+    public const LIST = 'array';
 
     public const VALUES = [
         self::INT,

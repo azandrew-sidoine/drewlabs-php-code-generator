@@ -11,8 +11,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Drewlabs\CodeGenerator\Exceptions;
+namespace Drewlabs\CodeGenerator\Contracts\Converters;
 
-class PHPClassException extends \Exception
+interface Stringifier
 {
+    /**
+     * Convert a component defintion to a string.
+     *
+     * @param mixed $component
+     */
+    public function stringify($component): string;
 }

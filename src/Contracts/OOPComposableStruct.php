@@ -13,19 +13,19 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface IndentableComponentInterface extends OOPComponentInterface
+interface OOPComposableStruct extends OOPStructInterface
 {
     /**
-     * Set the indentation to apply to the component.
+     * Returns the list of traits of the blueprint.
      *
-     * @return self
+     * @return string[]
      */
-    public function setIndentation(string $indentation);
+    public function getTraits(): ?array;
 
     /**
-     * Return the indentation to add to the component definition.
+     * Add a given trait to the structure definition.
      *
-     * @return string
+     * @return self|mixed
      */
-    public function getIndentation();
+    public function addTrait(string $trait);
 }

@@ -11,8 +11,8 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Drewlabs\CodeGenerator\Exceptions;
+namespace Drewlabs\CodeGenerator\Contracts;
 
-class PHPClassException extends \Exception
+interface TraitableStruct extends OOPComposableStruct
 {
 }

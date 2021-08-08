@@ -1,5 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Drewlabs package.
+ *
+ * (c) Sidoine Azandrew <azandrewdevelopper@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\Stringable;
@@ -11,7 +22,7 @@ class MultiLinePHPComment implements Stringable
     use HasIndentation;
 
     /**
-     * List of descriptions 
+     * List of descriptions.
      *
      * @var array
      */
@@ -22,40 +33,41 @@ class MultiLinePHPComment implements Stringable
         $this->descriptors_ = $descriptors;
     }
 
+    public function __toString(): string
+    {
+        $start = '/**';
+        $parts[0] = $start;
+        foreach (($this->getDescriptors() ?? []) as $key => $value) {
+            $addLine = drewlabs_core_strings_contains($value, Keywords::THROWS) || drewlabs_core_strings_contains($value, Keywords::RETURNS);
+            if ($addLine) {
+                $parts[] = $this->getIndentation() ? $this->getIndentation().' *' : ' *';
+            }
+            $parts[] = $this->getIndentation() ? sprintf('%s * %s', $this->getIndentation(), $value) : sprintf(' * %s', $value);
+        }
+        $parts[] = $this->getIndentation() ? sprintf('%s */', $this->getIndentation()) : ' */';
+
+        return implode(\PHP_EOL, $parts);
+    }
+
     /**
-     * Set the comment descriptors that will compose the comment
+     * Set the comment descriptors that will compose the comment.
      *
-     * @param array $descriptors
      * @return self
      */
     public function setDescriptors(array $descriptors)
     {
         $this->descriptors_ = $descriptors;
+
         return $this;
     }
 
     /**
-     * Returns the list of descriptors define on the comment
+     * Returns the list of descriptors define on the comment.
      *
      * @return array
      */
     public function getDescriptors()
     {
         return $this->descriptors_;
-    }
-
-    public function __toString(): string
-    {
-        $start = "/**";
-        $parts[0] = $start;
-        foreach (($this->getDescriptors() ?? []) as $key => $value) {
-            $addLine = drewlabs_core_strings_contains($value, Keywords::THROWS) || drewlabs_core_strings_contains($value, Keywords::RETURNS);
-            if ($addLine) {
-                $parts[] =  $this->getIndentation() ? $this->getIndentation() . " *" : " *";
-            }
-            $parts[] = $this->getIndentation() ? sprintf("%s * %s", $this->getIndentation(), $value) : sprintf(" * %s", $value);
-        }
-        $parts[] = $this->getIndentation() ? sprintf("%s */", $this->getIndentation()) : " */";
-        return implode(PHP_EOL, $parts);
     }
 }
