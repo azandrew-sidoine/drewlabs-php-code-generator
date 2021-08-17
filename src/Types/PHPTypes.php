@@ -45,6 +45,12 @@ class PHPTypes
      */
     public const LIST = 'array';
 
+    /**
+     * String representation of a boolean value
+     */
+    public const BOOLEAN = 'bool';
+
+
     public const VALUES = [
         self::INT,
         self::FLOAT,
@@ -53,5 +59,6 @@ class PHPTypes
         self::OBJECT,
         self::STANDARD_CLASS,
         self::LIST,
+        self::BOOLEAN
     ];
 }

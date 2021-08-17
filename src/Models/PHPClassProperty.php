@@ -205,7 +205,10 @@ class PHPClassProperty implements ClassPropertyInterface
             return '';
         }
         $isPHPClassDef = (drewlabs_core_strings_is_str($value) && (drewlabs_core_strings_contains($value, '\\') || drewlabs_core_strings_starts_with($value, 'new') || drewlabs_core_strings_ends_with($value, '::class')));
-        if (is_numeric($value) || $isPHPClassDef) {
+        if (is_bool($value)) {
+            $this->type_ = null === $this->type_ ? sprintf('%s', PHPTypes::BOOLEAN) : $this->type_;
+            return "$value";
+        } else if (is_numeric($value) || $isPHPClassDef) {
             $this->type_ = null === $this->type_ ? (is_numeric($value) ? sprintf('%s|%s', PHPTypes::INT, PHPTypes::FLOAT) : sprintf('%s', PHPTypes::OBJECT)) : $this->type_;
             return "$value";
         } elseif (drewlabs_core_strings_is_str($value) && !$isPHPClassDef) {
