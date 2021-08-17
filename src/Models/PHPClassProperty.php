@@ -102,22 +102,24 @@ class PHPClassProperty implements ClassPropertyInterface
             $this->accessModifier_,
             [
                 'private', 'protected', 'public',
-            ], true
+            ],
+            true
         ) ? $this->accessModifier_ : PHPTypesModifiers::PUBLIC;
         $definition = $this->isConstant_ ? sprintf('%s %s %s', $modifier, PHPTypesModifiers::CONSTANT, $this->name_) : "$modifier \$$this->name_";
         // TODO : Review this part after all classes tested successfully
-        if (drewlabs_core_strings_contains($this->value_, '"[') && drewlabs_core_strings_contains($this->value_, ']"')) {
-            $this->value_ = drewlabs_core_strings_replace(' ]"', ']', drewlabs_core_strings_replace('"[', '[', $this->value_));
+        $value = $this->parsePropertyValue();
+        if (drewlabs_core_strings_contains($value, '"[') && drewlabs_core_strings_contains($value, ']"')) {
+            $value = drewlabs_core_strings_replace(' ]"', ']', drewlabs_core_strings_replace('"[', '[', $value));
         }
-        if ($this->value_ && \is_string($this->value_) && !empty($this->value_)) {
-            $definition .= drewlabs_core_strings_replace('"null"', 'null', drewlabs_core_strings_replace(['""'], '"', " = $this->value_;"));
+        if ($value && \is_string($value) && !empty($value)) {
+            $definition .= drewlabs_core_strings_replace('"null"', 'null', drewlabs_core_strings_replace(['""'], '"', " = $value;"));
         } else {
             $definition .= ';';
         }
         $parts[] = $definition;
         if ($this->getIndentation()) {
             $parts = array_map(function ($part) {
-                return $this->getIndentation().$part;
+                return $this->getIndentation() . $part;
             }, $parts);
         }
 
@@ -137,27 +139,7 @@ class PHPClassProperty implements ClassPropertyInterface
         if (null === $value) {
             return $this->value_;
         }
-        // Return the object is an empry string or array is passed in
-        if (empty($value)) {
-            return $this;
-        }
-        $isPHPClassDef = (drewlabs_core_strings_is_str($value) && (drewlabs_core_strings_contains($value, '\\') || drewlabs_core_strings_starts_with($value, 'new') || drewlabs_core_strings_ends_with($value, '::class')));
-        if (is_numeric($value) || $isPHPClassDef) {
-            $this->type_ = null === $this->type_ ? (is_numeric($value) ? sprintf('%s|%s', PHPTypes::INT, PHPTypes::FLOAT) : sprintf('%s', PHPTypes::OBJECT)) : $this->type_;
-            $this->value_ = "$value";
-        } elseif (drewlabs_core_strings_is_str($value) && !$isPHPClassDef) {
-            $this->type_ = null === $this->type_ ? sprintf('%s', PHPTypes::STRING) : $this->type_;
-            $this->value_ = "\"$value\"";
-        } elseif (drewlabs_core_array_is_arrayable($value)) {
-            $this->type_ = null === $this->type_ ? sprintf('%s', PHPTypes::LIST) : $this->type_;
-            $start = '['.\PHP_EOL;
-            foreach ($value as $key => $value) {
-                $start .= (is_numeric($key) ? sprintf("\t\"%s\",", $value) : (is_numeric($value) ? sprintf("\t\"%s\" => %s,", $key, $value) : sprintf("\t\"%s\" => \"%s\",", $key, $value))).\PHP_EOL;
-            }
-            $start .= ' ]';
-            $this->value_ = $start;
-        }
-
+        $this->value_ = $value;
         return $this;
     }
 
@@ -180,7 +162,6 @@ class PHPClassProperty implements ClassPropertyInterface
                 return $this->getClassFromClassPath($classPath);
             })($this->type_);
         }
-
         return $this;
     }
 
@@ -214,5 +195,37 @@ class PHPClassProperty implements ClassPropertyInterface
         );
 
         return $this;
+    }
+
+    private function parsePropertyValue()
+    {
+        $value = $this->value_;
+        // Return the object is an empry string or array is passed in
+        if (drewlabs_core_strings_is_str($value) && empty($value)) {
+            return '';
+        }
+        $isPHPClassDef = (drewlabs_core_strings_is_str($value) && (drewlabs_core_strings_contains($value, '\\') || drewlabs_core_strings_starts_with($value, 'new') || drewlabs_core_strings_ends_with($value, '::class')));
+        if (is_numeric($value) || $isPHPClassDef) {
+            $this->type_ = null === $this->type_ ? (is_numeric($value) ? sprintf('%s|%s', PHPTypes::INT, PHPTypes::FLOAT) : sprintf('%s', PHPTypes::OBJECT)) : $this->type_;
+            return "$value";
+        } elseif (drewlabs_core_strings_is_str($value) && !$isPHPClassDef) {
+            $this->type_ = null === $this->type_ ? sprintf('%s', PHPTypes::STRING) : $this->type_;
+            return "\"$value\"";
+        } elseif (drewlabs_core_array_is_arrayable($value)) {
+            $this->type_ = null === $this->type_ ? sprintf('%s', PHPTypes::LIST) : $this->type_;
+            $indentation = $this->getIndentation();
+            if (empty($value)) {
+                $start = '[]';
+            } else {
+                $start = '[' . \PHP_EOL;
+                foreach ($value as $key => $value) {
+                    $def = (is_numeric($key) ? sprintf("\t\"%s\",", $value) : (is_numeric($value) ? sprintf("\t\"%s\" => %s,", $key, $value) : sprintf("\t\"%s\" => \"%s\",", $key, $value))) . \PHP_EOL;
+                    $start .= $indentation ? $indentation . $def : $def;
+                }
+                $start .=  $indentation ? $indentation . ']' : ']';
+            }
+            return $start;
+        }
+        return '';
     }
 }

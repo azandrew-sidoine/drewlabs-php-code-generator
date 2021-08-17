@@ -99,6 +99,7 @@ function create_php_class()
         ->addImplementation("\\App\\Contracts\\HumanInterface")
         ->asFinal()
         ->addProperty(new PHPClassProperty('firstname', 'string', 'private', null, 'Person first name'))
+        ->addProperty(new PHPClassProperty('fillable', 'array', 'private', ['firstname', 'lastname'], 'List of addresses'))
         ->addConstant(new PHPClassProperty('lastname', 'string', 'private', null, 'Person last name'))
         ->addToNamespace("App\\Models");
 
@@ -176,10 +177,10 @@ function create_php_interfaces()
 // echo create_class_method() . PHP_EOL;
 
 
-// echo create_php_class() . PHP_EOL;
+echo create_php_class() . PHP_EOL;
 
 // echo create_interface_method() . PHP_EOL;
 
 // echo create_php_traits() . PHP_EOL;
 
-echo create_php_interfaces() . PHP_EOL;
+// echo create_php_interfaces() . PHP_EOL;

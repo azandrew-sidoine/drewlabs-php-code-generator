@@ -3,3 +3,5 @@ vendor/**/**
 tests/
 tests/**/**
 index.php
+.metals
+.vscode
