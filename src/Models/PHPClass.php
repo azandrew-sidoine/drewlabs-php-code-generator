@@ -92,6 +92,18 @@ final class PHPClass implements Blueprint
      */
     public function setImports()
     {
+        $traits = [];
+        foreach (($this->traits_ ?? []) as $value) {
+            if (drewlabs_core_strings_contains($value, '\\')) {
+                $traits[] = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
+                    return $this->getClassFromClassPath($classPath);
+                })($value);
+                $this->setGlobalImports($this->getImports());
+            } else {
+                $traits[] = $value;
+            }
+        }
+        $this->traits_ = $traits;
         // Loop through interfaces
         $interfaces = [];
         foreach (($this->interfaces_ ?? []) as $value) {
@@ -99,6 +111,7 @@ final class PHPClass implements Blueprint
                 $interfaces[] = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                     return $this->getClassFromClassPath($classPath);
                 })($value);
+                $this->setGlobalImports($this->getImports());
             } else {
                 $interfaces[] = $value;
             }
@@ -110,19 +123,8 @@ final class PHPClass implements Blueprint
             $this->baseClass_ = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                 return $this->getClassFromClassPath($classPath);
             })($this->baseClass_);
+            $this->setGlobalImports($this->getImports());
         }
-
-        $traits = [];
-        foreach (($this->traits_ ?? []) as $value) {
-            if (drewlabs_core_strings_contains($value, '\\')) {
-                $traits[] = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
-                    return $this->getClassFromClassPath($classPath);
-                })($value);
-            } else {
-                $traits[] = $value;
-            }
-        }
-        $this->traits_ = $traits;
 
         return $this;
     }
