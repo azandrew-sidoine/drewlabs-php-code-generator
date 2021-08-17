@@ -112,6 +112,18 @@ final class PHPClass implements Blueprint
             })($this->baseClass_);
         }
 
+        $traits = [];
+        foreach (($this->traits_ ?? []) as $value) {
+            if (drewlabs_core_strings_contains($value, '\\')) {
+                $traits[] = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
+                    return $this->getClassFromClassPath($classPath);
+                })($value);
+            } else {
+                $traits[] = $value;
+            }
+        }
+        $this->traits_ = $traits;
+
         return $this;
     }
 }

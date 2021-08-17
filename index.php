@@ -95,6 +95,7 @@ function create_php_class()
         ], "self", 'public', 'parent property setter')),
         (new PHPClassMethod('getFirstName', [], "string", 'public', 'firstname property getter')),
     ],))->setBaseClass("\\App\\Core\\PersonBase")
+        ->addTrait('\\App\\Person\\Traits\\PersonInterface')
         ->addImplementation("\\App\\Contracts\\PersonInterface")
         ->addImplementation("\\App\\Contracts\\HumanInterface")
         ->asFinal()
