@@ -59,4 +59,12 @@ interface Blueprint extends OOPComposableStruct
      * Checks if the blueprint definition is an abstract blueprint definition.
      */
     public function isAbstract(): bool;
+
+    /**
+     * Add a class path that will be added to the global import when generating class namespace
+     * 
+     * @param string $classPath 
+     * @return self 
+     */
+    public function addClassPath(string $classPath);
 }
