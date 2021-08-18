@@ -33,7 +33,7 @@ trait BelongsToNamespace
     public function addToNamespace(?string $namespace = null)
     {
         if (null !== $namespace) {
-            $this->namespace_ = $namespace;
+            $this->namespace_ = ltrim($namespace, "\\");
         }
 
         return $this;

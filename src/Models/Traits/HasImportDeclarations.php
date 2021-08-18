@@ -66,7 +66,7 @@ trait HasImportDeclarations
             $classPath = $result instanceof ParseClassPathResult ? $result->getClassPath() : $value;
             $this->imports_ = $this->imports_ ?? [];
             if (!\in_array($value, $this->imports_, true) && (null !== $classPath)) {
-                $this->imports_[] = $classPath;
+                $this->imports_[] = ltrim($classPath, "\\");
             }
             return $name;
         };

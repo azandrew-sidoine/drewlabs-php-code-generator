@@ -72,7 +72,7 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
     public function __construct(
         string $name,
         ?string $type = null,
-        $modifier = 'public',
+        ?string $modifier = 'public',
         $default = null,
         $descriptors = ''
     ) {
