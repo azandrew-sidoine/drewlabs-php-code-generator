@@ -64,7 +64,7 @@ function create_interface_method()
 
 function create_class_method()
 {
-    $method = (new PHPClassMethod('__construct'))->throws([
+    $method = (new PHPClassMethod('methodName'))->throws([
         RuntimeException::class
     ])->addParam(new PHPFunctionParameter('users', null, ["user1" => "Sandra", "user2" => "Emily"]))
         ->addParam((new PHPFunctionParameter('params', PHPFunctionParameter::class))->asOptional());
@@ -94,7 +94,7 @@ function create_class_method()
     }
     $method->setReturnType(Stringable::class)
         ->addComment('This is a PHP Class method');
-    return $method->__toString();
+    return $method;
 }
 
 function create_php_class()
@@ -120,6 +120,7 @@ function create_php_class()
         ->addProperty(new PHPClassProperty('firstname', 'string', 'private', null, 'Person first name'))
         ->addProperty(new PHPClassProperty('fillable', 'array', 'private', ['firstname', 'lastname'], 'List of addresses'))
         ->addConstant(new PHPClassProperty('lastname', 'string', 'private', null, 'Person last name'))
+        ->addMethod(create_class_method())
         ->addToNamespace("App\\Models");
 
     return $class_->__toString();
@@ -193,10 +194,10 @@ function create_php_interfaces()
 //     "address"
 // ], "Table fillable attributes") . PHP_EOL;
 
-echo create_class_method() . PHP_EOL;
+// echo create_class_method()->__toString() . PHP_EOL;
 
 
-// echo create_php_class() . PHP_EOL;
+echo create_php_class() . PHP_EOL;
 
 // echo create_interface_method() . PHP_EOL;
 

@@ -103,7 +103,8 @@ class PHPClassMethod implements CallableInterface
     public function __toString(): string
     {
         $this->setImports()->setComments();
-        if ($this->getIndentation()) {
+        $indentation = $this->getIndentation();
+        if (null !== $indentation) {
             $parts[] = $this->comment_->setIndentation($this->getIndentation())->__toString();
         } else {
             $parts[] = $this->comment_->__toString();
@@ -112,7 +113,8 @@ class PHPClassMethod implements CallableInterface
             $this->accessModifier_,
             [
                 'private', 'protected', 'public',
-            ], true
+            ],
+            true
         ) && !$this->isInterfaceMethod_ ? $this->accessModifier_ : 'public';
         // Start the declaration
         $declaration = $this->isStatic_ ? "$accessModifier static function $this->name_(" : "$accessModifier function $this->name_(";
@@ -120,9 +122,9 @@ class PHPClassMethod implements CallableInterface
         if (null !== $this->params_) {
             $params = array_map(static function ($param) {
                 $type = null === $param->type() ? '' : $param->type();
-                $result = "$type \$".$param->name();
+                $result = "$type \$" . $param->name();
 
-                return null === $param->defaultValue() ? $result : "$result = ".drewlabs_core_strings_replace('"null"', 'null', $param->defaultValue());
+                return null === $param->defaultValue() ? $result : "$result = " . drewlabs_core_strings_replace('"null"', 'null', $param->defaultValue());
             }, array_merge(
                 array_filter($this->params_, static function ($p) {
                     return !$p->isOptional();
@@ -142,15 +144,19 @@ class PHPClassMethod implements CallableInterface
             // If it is not an interface method, add the method body
             $parts[] = $declaration;
             $parts[] = '{';
-            $parts[] = "\t# code...";
-            if (null !== ($contents = $this->contents_ ?? [])) {
-                $parts[] = implode(\PHP_EOL, $contents);
+            if (!empty(($contents = array_merge(["\t# code..."], $this->contents_ ?? [])))) {
+                $counter = 0;
+                $parts[] = implode(\PHP_EOL, array_map(function ($content) use ($indentation, &$counter) {
+                    $content = $indentation && $counter > 0 ? $indentation . $content : $content;
+                    $counter += 1;
+                    return $content;
+                }, $contents));
             }
             $parts[] = '}';
         }
-        if ($this->getIndentation()) {
-            $parts = array_map(function ($part) {
-                return $this->getIndentation()."$part";
+        if ($indentation) {
+            $parts = array_map(function ($part) use ($indentation) {
+                return $indentation . "$part";
             }, $parts);
         }
 
@@ -277,7 +283,6 @@ class PHPClassMethod implements CallableInterface
                 if (drewlabs_core_strings_contains($value->type(), '\\')) {
                     $params[] = new PHPFunctionParameter(
                         $value->name(),
-                        // drewlabs_core_strings_after_last('\\', $value->type()),
                         $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                             return $this->getClassFromClassPath($classPath);
                         })($value->type()),
@@ -304,7 +309,7 @@ class PHPClassMethod implements CallableInterface
         if (null !== $this->params_) {
             foreach ($this->params_ as $value) {
                 $type = null === $value->type() ? 'mixed' : $value->type();
-                $descriptors[] = '@param '.$type.' '.$value->name();
+                $descriptors[] = '@param ' . $type . ' ' . $value->name();
             }
         }
         // Generate exception comment
@@ -315,7 +320,7 @@ class PHPClassMethod implements CallableInterface
         }
         // Generate returns comment
         if (null !== $this->returns_) {
-            $descriptors[] = '@return '.$this->returns_;
+            $descriptors[] = '@return ' . $this->returns_;
         }
         $this->comment_ = (new CommentModelFactory(true))->make($descriptors);
 
