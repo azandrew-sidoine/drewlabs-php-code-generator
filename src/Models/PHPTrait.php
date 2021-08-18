@@ -57,7 +57,7 @@ final class PHPTrait implements TraitableStruct
      */
     public function __toString(): string
     {
-        return (new PHPTraitConverter())->stringify($this->setImports()) ?? '';
+        return (new PHPTraitConverter())->stringify($this->prepare()) ?? '';
     }
 
     /**
@@ -65,7 +65,7 @@ final class PHPTrait implements TraitableStruct
      *
      * @return self
      */
-    public function setImports()
+    public function prepare()
     {
         $traits = [];
         foreach (($this->traits_ ?? []) as $value) {

@@ -84,7 +84,7 @@ trait HasImportDeclarations
         // Get the class name from the class path
         $name = $classPathComponents[0];
         // Get the namespace of the component
-        $namespace = ($this instanceof NamespaceComponent) ? rtrim($this->getNamespace(), "\\") : null;
+        $namespace = null !== ($namespace = ($this instanceof NamespaceComponent) ? $this->getNamespace() : null) ? rtrim($namespace,  "\\") : null;
         // Do not add the class path to the imports statement if the last item of the class path is in the same 
         if ($namespace && drewlabs_core_strings_contains($classPath, $namespace) && !drewlabs_core_strings_contains(drewlabs_core_strings_replace($namespace . "\\", "", $classPath), "\\")) {
             return new ParseClassPathResult($name);

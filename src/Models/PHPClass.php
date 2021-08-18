@@ -72,7 +72,7 @@ final class PHPClass implements Blueprint
 
     public function __toString(): string
     {
-        return (new PHPClassConverter())->stringify($this->setImports());
+        return (new PHPClassConverter())->stringify($this->prepare());
     }
 
     /**
@@ -86,11 +86,27 @@ final class PHPClass implements Blueprint
     }
 
     /**
+     * Add a class path that will be added to the global import when generating class namespace
+     * 
+     * @param string $classPath 
+     * @return self 
+     */
+    public function addClassPath(string $classPath)
+    {
+        if ((null !== $classPath) && drewlabs_core_strings_contains($classPath, '\\')) {
+            $this->addClassPathToImportsPropertyAfter(function ($path) {
+                return $this->getClassFromClassPath($path);
+            })($classPath);
+        }
+        return $this;
+    }
+
+    /**
      * Set the class imports and returns.
      *
      * @return self
      */
-    public function setImports()
+    public function prepare()
     {
         $traits = [];
         foreach (($this->traits_ ?? []) as $value) {

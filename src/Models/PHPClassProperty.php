@@ -91,7 +91,7 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
 
     public function __toString(): string
     {
-        $this->setImports()
+        $this->prepare()
             ->setComments()
             ->value($this->value_);
         // Generate comments
@@ -159,7 +159,7 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
         return $this->name_ === $value->getName();
     }
 
-    protected function setImports()
+    protected function prepare()
     {
         if ((null !== $this->type_) && drewlabs_core_strings_contains($this->type_, '\\')) {
             $this->type_ = $this->addClassPathToImportsPropertyAfter(function ($classPath) {

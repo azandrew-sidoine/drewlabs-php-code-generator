@@ -112,7 +112,9 @@ function create_php_class()
             new PHPFunctionParameter('person',  "App\\Person\\Contracts\\PersonInterface")
         ], "self", 'public', 'parent property setter')),
         (new PHPClassMethod('getFirstName', [], "string", 'public', 'firstname property getter')),
-    ],))->setBaseClass("\\App\\Core\\PersonBase")
+    ],))
+    ->addClassPath("Illuminate\\Http\\Response")
+    ->setBaseClass("\\App\\Core\\PersonBase")
         ->addTrait('\\App\\Person\\Traits\\PersonInterface')
         ->addImplementation("\\App\\Contracts\\PersonInterface")
         ->addImplementation("\\App\\Contracts\\HumanInterface")
@@ -204,10 +206,10 @@ function create_php_interfaces()
 // echo create_class_method()->__toString() . PHP_EOL;
 
 
-// echo create_php_class() . PHP_EOL;
+echo create_php_class() . PHP_EOL;
 
 // echo create_interface_method() . PHP_EOL;
 
-echo create_php_traits() . PHP_EOL;
+// echo create_php_traits() . PHP_EOL;
 
-echo create_php_interfaces() . PHP_EOL;
+// echo create_php_interfaces() . PHP_EOL;

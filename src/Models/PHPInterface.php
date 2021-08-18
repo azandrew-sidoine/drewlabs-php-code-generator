@@ -47,7 +47,7 @@ final class PHPInterface implements ImplementableStruct
 
     public function __toString(): string
     {
-        return (new PHPInterfaceConverter())->stringify($this->setImports());
+        return (new PHPInterfaceConverter())->stringify($this->prepare());
     }
 
     public function setBaseInterface(string $value): ImplementableStruct
@@ -64,7 +64,7 @@ final class PHPInterface implements ImplementableStruct
         return $this->baseInterface_ ?? null;
     }
 
-    public function setImports()
+    public function prepare()
     {
         // Set base class imports
         if (drewlabs_core_strings_contains($this->baseInterface_, '\\')) {

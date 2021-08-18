@@ -48,7 +48,6 @@ class PHPClassConverter implements Stringifier
     protected function blueprintToString(Blueprint $clazz): string
     {
         // Setting import is done in the blueprint definition
-        // $clazz->setImports();
         $parts = [];
         $modifier = $clazz->isFinal() ? 'final ' : ($clazz->isAbstract() ? 'abstract ' : '');
         $declaration = sprintf('%sclass %s', $modifier, $clazz->getName());

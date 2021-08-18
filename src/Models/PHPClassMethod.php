@@ -107,7 +107,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
 
     public function __toString(): string
     {
-        $this->setImports()->setComments();
+        $this->prepare()->setComments();
         $indentation = $this->getIndentation();
         if (null !== $indentation) {
             $parts[] = $this->comment_->setIndentation($this->getIndentation())->__toString();
@@ -276,7 +276,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
         return $this;
     }
 
-    protected function setImports()
+    protected function prepare()
     {
         if (null !== $this->returns_) {
             if (drewlabs_core_strings_contains($this->returns_, '\\')) {
