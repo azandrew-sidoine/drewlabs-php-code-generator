@@ -16,6 +16,7 @@ namespace Drewlabs\CodeGenerator\Models;
 use Drewlabs\CodeGenerator\CommentModelFactory;
 use Drewlabs\CodeGenerator\Contracts\CallableInterface;
 use Drewlabs\CodeGenerator\Contracts\FunctionParameterInterface;
+use Drewlabs\CodeGenerator\Helpers\PHPLanguageDefifinitions;
 use Drewlabs\CodeGenerator\Models\Traits\HasImportDeclarations;
 use Drewlabs\CodeGenerator\Models\Traits\HasIndentation;
 use Drewlabs\CodeGenerator\Models\Traits\OOPStructComponentMembers;
@@ -232,7 +233,12 @@ class PHPClassMethod implements CallableInterface
      */
     public function addLine(string $line)
     {
-        $this->contents_[] = "\t$line;";
+        // Checks if the line is an expression, a block or a comments
+        if (empty($line) || PHPLanguageDefifinitions::isComment($line) || PHPLanguageDefifinitions::isBlock($line)) {
+            $this->contents_[] = "\t$line";
+        } else {
+            $this->contents_[] = "\t$line;";
+        }
         return $this;
     }
 

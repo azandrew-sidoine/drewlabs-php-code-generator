@@ -67,14 +67,32 @@ function create_class_method()
     $method = (new PHPClassMethod('__construct'))->throws([
         RuntimeException::class
     ])->addParam(new PHPFunctionParameter('users', null, ["user1" => "Sandra", "user2" => "Emily"]))
-        ->addParam((new PHPFunctionParameter('params', PHPFunctionParameter::class))->asOptional())
-        ->addContents(
-            <<<EOT
-\$this->users_ = \$users;
-\$this->params_ = \$params;
-EOT
-        )->addLine('// This is an extra line')
-        ->setReturnType(Stringable::class)
+        ->addParam((new PHPFunctionParameter('params', PHPFunctionParameter::class))->asOptional());
+    //         ->addContents(
+    //             <<<EOT
+    // \$this->users_ = \$users;
+    // \$this->params_ = \$params;
+    // EOT
+    //         )->addLine('// This is an extra line')
+    $lines = [
+        'try {',
+        "\t// validate request inputs",
+        "\t// Use your custom validation rules here",
+        "\t\$validator = \$this->validator->validate([], \$request->all())",
+        "\tif (\$validator->fails()) {",
+        "\t\treturn \$this->response->badRequest(\$validator->errors())",
+        "\t}",
+        "",
+        "} catch (\Exception \$e) {",
+        "\t// Return failure response to request client",
+        "\treturn \$this->response->error(\$e)",
+        "}"
+    ];
+    foreach ($lines as $line) {
+        # code...
+        $method = $method->addLine($line);
+    }
+    $method->setReturnType(Stringable::class)
         ->addComment('This is a PHP Class method');
     return $method->__toString();
 }
@@ -175,10 +193,10 @@ function create_php_interfaces()
 //     "address"
 // ], "Table fillable attributes") . PHP_EOL;
 
-// echo create_class_method() . PHP_EOL;
+echo create_class_method() . PHP_EOL;
 
 
-echo create_php_class() . PHP_EOL;
+// echo create_php_class() . PHP_EOL;
 
 // echo create_interface_method() . PHP_EOL;
 
