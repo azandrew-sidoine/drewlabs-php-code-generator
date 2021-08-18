@@ -71,6 +71,7 @@ final class PHPInterface implements ImplementableStruct
             $this->baseInterface_ = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                 return $this->getClassFromClassPath($classPath);
             })($this->baseInterface_);
+            $this->setGlobalImports($this->getImports());
         }
 
         return $this;

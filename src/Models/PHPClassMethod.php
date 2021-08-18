@@ -15,15 +15,18 @@ namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\CommentModelFactory;
 use Drewlabs\CodeGenerator\Contracts\CallableInterface;
+use Drewlabs\CodeGenerator\Contracts\ClassMemberInterface;
 use Drewlabs\CodeGenerator\Contracts\FunctionParameterInterface;
 use Drewlabs\CodeGenerator\Helpers\PHPLanguageDefifinitions;
+use Drewlabs\CodeGenerator\Models\Traits\BelongsToNamespace;
 use Drewlabs\CodeGenerator\Models\Traits\HasImportDeclarations;
 use Drewlabs\CodeGenerator\Models\Traits\HasIndentation;
 use Drewlabs\CodeGenerator\Models\Traits\OOPStructComponentMembers;
 use Drewlabs\Core\Helpers\Arrays\BinarySearchResult;
 
-class PHPClassMethod implements CallableInterface
+class PHPClassMethod implements CallableInterface, ClassMemberInterface
 {
+    use BelongsToNamespace;
     use HasImportDeclarations;
     use HasIndentation;
     use OOPStructComponentMembers;
@@ -122,9 +125,9 @@ class PHPClassMethod implements CallableInterface
         if (null !== $this->params_) {
             $params = array_map(static function ($param) {
                 $type = null === $param->type() ? '' : $param->type();
-                $result = "$type \$" . $param->name();
+                $result = "$type \$".$param->name();
 
-                return null === $param->defaultValue() ? $result : "$result = " . drewlabs_core_strings_replace('"null"', 'null', $param->defaultValue());
+                return null === $param->defaultValue() ? $result : "$result = ".drewlabs_core_strings_replace('"null"', 'null', $param->defaultValue());
             }, array_merge(
                 array_filter($this->params_, static function ($p) {
                     return !$p->isOptional();
@@ -146,17 +149,18 @@ class PHPClassMethod implements CallableInterface
             $parts[] = '{';
             if (!empty(($contents = array_merge(["\t# code..."], $this->contents_ ?? [])))) {
                 $counter = 0;
-                $parts[] = implode(\PHP_EOL, array_map(function ($content) use ($indentation, &$counter) {
-                    $content = $indentation && $counter > 0 ? $indentation . $content : $content;
-                    $counter += 1;
+                $parts[] = implode(\PHP_EOL, array_map(static function ($content) use ($indentation, &$counter) {
+                    $content = $indentation && $counter > 0 ? $indentation.$content : $content;
+                    ++$counter;
+
                     return $content;
                 }, $contents));
             }
             $parts[] = '}';
         }
         if ($indentation) {
-            $parts = array_map(function ($part) use ($indentation) {
-                return $indentation . "$part";
+            $parts = array_map(static function ($part) use ($indentation) {
+                return $indentation."$part";
             }, $parts);
         }
 
@@ -197,6 +201,7 @@ class PHPClassMethod implements CallableInterface
             if ($params[$curr]->equals($item)) {
                 return BinarySearchResult::FOUND;
             }
+
             return strcmp($params[$curr]->name(), $item->name()) > 0 ? BinarySearchResult::LEFT : BinarySearchResult::RIGHT;
         });
         if (BinarySearchResult::LEFT !== $match) {
@@ -224,15 +229,15 @@ class PHPClassMethod implements CallableInterface
                 return drewlabs_core_strings_rtrim("$content", ';');
             }, $values);
             foreach ($values as $value) {
-                # code...
+                // code...
                 $self = $self->addLine($value);
             }
         }
+
         return $self;
     }
 
     /**
-     * 
      * {@inheritDoc}
      *
      * Note : Lines must not be terminated with extras ; because the implementation will add a trailing ; at the end
@@ -245,12 +250,14 @@ class PHPClassMethod implements CallableInterface
         } else {
             $this->contents_[] = "\t$line;";
         }
+
         return $this;
     }
 
     public function asInterfaceMethod()
     {
         $this->isInterfaceMethod_ = true;
+
         return $this;
     }
 
@@ -263,6 +270,7 @@ class PHPClassMethod implements CallableInterface
     public function setReturnType(string $type)
     {
         $this->returns_ = $type;
+
         return $this;
     }
 
@@ -309,7 +317,7 @@ class PHPClassMethod implements CallableInterface
         if (null !== $this->params_) {
             foreach ($this->params_ as $value) {
                 $type = null === $value->type() ? 'mixed' : $value->type();
-                $descriptors[] = '@param ' . $type . ' ' . $value->name();
+                $descriptors[] = '@param '.$type.' '.$value->name();
             }
         }
         // Generate exception comment
@@ -320,7 +328,7 @@ class PHPClassMethod implements CallableInterface
         }
         // Generate returns comment
         if (null !== $this->returns_) {
-            $descriptors[] = '@return ' . $this->returns_;
+            $descriptors[] = '@return '.$this->returns_;
         }
         $this->comment_ = (new CommentModelFactory(true))->make($descriptors);
 

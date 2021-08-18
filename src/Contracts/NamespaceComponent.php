@@ -13,19 +13,17 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface IndentableComponentInterface extends OOPComponentInterface
+interface NamespaceComponent
 {
     /**
-     * Set the indentation to apply to the component.
+     * Add the oop component to a namespace.
      *
-     * @return self
+     * @return self|mixed
      */
-    public function setIndentation(string $indentation);
+    public function addToNamespace(?string $namespace = null);
 
     /**
-     * Return the indentation to add to the component definition.
-     *
-     * @return string
+     * Returns the namespace that the current component belongs to.
      */
-    public function getIndentation();
+    public function getNamespace(): ?string;
 }

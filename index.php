@@ -37,9 +37,9 @@ function create_php_class_property_with_methods(string $name, $value, $modifier 
 function create_php_class_const_property_with_methods(string $name, $value, $modifier = 'public', $description = '')
 {
     $property = (new PHPClassProperty($name))
-        ->asConstant()
         ->setModifier($modifier ?? PHPTypesModifiers::PUBLIC)
         ->addComment([$description, 'This is a second line comment'])
+        ->asConstant()
         ->value($value);
 
     return $property->__toString();
@@ -51,14 +51,15 @@ function create_interface_method()
         'write',
         [
             new PHPFunctionParameter('name', 'string'),
-            new PHPFunctionParameter('params', PHPFunctionParameter::class)
+            new PHPFunctionParameter('request', "\\Illumintae\Http\\Request"),
         ],
-    ))->throws([
-        RuntimeException::class
-    ])
+    ))
+        ->setModifier(PHPTypesModifiers::PUBLIC)
+        ->throws([
+            RuntimeException::class
+        ])
         ->asInterfaceMethod()
-        ->setReturnType(Stringable::class)
-        ->setModifier(PHPTypesModifiers::PUBLIC);
+        ->setReturnType(Stringable::class);
     return $method->__toString();
 }
 
@@ -104,12 +105,11 @@ function create_php_class()
             new PHPFunctionParameter('firstname', 'string'),
             new PHPFunctionParameter('lastname', 'string')
         ], null, 'public', 'Class initializer')),
-        (new PHPClassMethod('setFirstName', [
-            new PHPFunctionParameter('firstname', 'string'),
-            (new PHPFunctionParameter('default', 'string', 'DEFAULT'))->asOptional()
-        ], "self", 'public', 'firstname property setter')),
+        (new PHPClassMethod('setRequest', [
+            new PHPFunctionParameter('request', 'Illuminate\\Http\\Request')
+        ], "self", 'public', 'Request property setter')),
         (new PHPClassMethod('setParent', [
-            new PHPFunctionParameter('person',  "\\App\\Person\\Contracts\\PersonInterface")
+            new PHPFunctionParameter('person',  "App\\Person\\Contracts\\PersonInterface")
         ], "self", 'public', 'parent property setter')),
         (new PHPClassMethod('getFirstName', [], "string", 'public', 'firstname property getter')),
     ],))->setBaseClass("\\App\\Core\\PersonBase")
@@ -117,9 +117,9 @@ function create_php_class()
         ->addImplementation("\\App\\Contracts\\PersonInterface")
         ->addImplementation("\\App\\Contracts\\HumanInterface")
         ->asFinal()
-        ->addProperty(new PHPClassProperty('firstname', 'string', 'private', null, 'Person first name'))
-        ->addProperty(new PHPClassProperty('fillable', 'array', 'private', ['firstname', 'lastname'], 'List of addresses'))
-        ->addConstant(new PHPClassProperty('lastname', 'string', 'private', null, 'Person last name'))
+        ->addProperty(new PHPClassProperty('request', 'Illuminate\\Http\\Request', 'private', null, 'Injected request instance'))
+        ->addProperty(new PHPClassProperty('fillable', 'App\\Models\\Fillable', 'private', null, 'List of addresses'))
+        ->addConstant(new PHPClassProperty('parent_', 'App\\Person\\Contracts\\PersonInterface', 'private', null, 'Parent instance'))
         ->addMethod(create_class_method())
         ->addToNamespace("App\\Models");
 
@@ -138,14 +138,17 @@ function create_php_traits()
                 new PHPFunctionParameter('person',  "\\App\\Person\\Contracts\\PersonInterface")
             ], "self", 'public', 'parent property setter')),
             (new PHPClassMethod('getFirstName', [], "string", 'public', 'firstname property getter')),
+            new PHPClassMethod('setRequest', [
+                new PHPFunctionParameter('request', 'Illuminate\\Http\\Request')
+            ], "self", 'public', 'Request property setter')
         ]
     ))
         ->addTrait('\\App\\Person\\Traits\\PersonInterface')
         ->addToNamespace("App\\Models")
+        ->addProperty(new PHPClassProperty('request', 'Illuminate\\Http\\Request', 'private', null, 'Injected request instance'))
         ->addProperty(new PHPClassProperty('firstname', 'string', 'private', null, 'Person first name'))
-        ->addConstant(new PHPClassProperty('lastname', 'string', 'private', null, 'Person last name'))
         ->addMethod((new PHPClassMethod('__construct', [
-            new PHPFunctionParameter('firstname', 'string'),
+            new PHPFunctionParameter('parent', '\\App\\Person\\Contracts\\PersonInterface'),
             new PHPFunctionParameter('lastname', 'string')
         ], null, 'public', 'Class initializer')));
 
@@ -161,11 +164,15 @@ function create_php_interfaces()
                 new PHPFunctionParameter('writer', 'App\\Contracts\\Writer')
             ], "self", 'public', 'Writer property setter')),
             (new PHPClassMethod('write', [
-                new PHPFunctionParameter('buffer', 'string')
-            ], null, 'public', 'Write the buffer to the console')),
+                new PHPFunctionParameter('request', "\\Psr\Http\\ServerRequestInterface"),
+            ], null, 'public', 'Write to the server request')),
+            (new PHPClassMethod('read', [
+                new PHPFunctionParameter('request', "\\Psr\Http\\ServerRequestInterface"),
+            ], null, 'public', 'Read from the server request')),
         ]
-    ))->addToNamespace("App\\Contracts\\Writer")
-        ->setBaseInterface('App\\Contracts\\Writer\\BufferWriter');
+    ))
+        ->setBaseInterface('App\\Contracts\\Writer\\BufferWriter')
+        ->addToNamespace("App\\Contracts\\Writer");
 
     return $class_->__toString();
 }
@@ -197,10 +204,10 @@ function create_php_interfaces()
 // echo create_class_method()->__toString() . PHP_EOL;
 
 
-echo create_php_class() . PHP_EOL;
+// echo create_php_class() . PHP_EOL;
 
 // echo create_interface_method() . PHP_EOL;
 
-// echo create_php_traits() . PHP_EOL;
+echo create_php_traits() . PHP_EOL;
 
-// echo create_php_interfaces() . PHP_EOL;
+echo create_php_interfaces() . PHP_EOL;

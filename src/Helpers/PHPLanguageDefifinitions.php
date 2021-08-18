@@ -1,15 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Drewlabs package.
+ *
+ * (c) Sidoine Azandrew <azandrewdevelopper@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Drewlabs\CodeGenerator\Helpers;
 
 class PHPLanguageDefifinitions
 {
-
     /**
-     * Helper method for identifying PHP block of expressions
+     * Helper method for identifying PHP block of expressions.
      *
-     * @param string $line
-     * @return boolean
+     * @return bool
      */
     public static function isBlock(string $line)
     {
@@ -21,10 +30,9 @@ class PHPLanguageDefifinitions
     }
 
     /**
-     * Helper method for identifying PHP comments
-     * 
-     * @param string $line 
-     * @return bool 
+     * Helper method for identifying PHP comments.
+     *
+     * @return bool
      */
     public static function isComment(string $line)
     {

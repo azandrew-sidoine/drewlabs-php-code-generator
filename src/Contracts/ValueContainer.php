@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface ClassPropertyInterface extends ClassMemberInterface
+interface ValueContainer extends Indentable, PathImportContainer, NamespaceComponent
 {
     /**
      * Type property setter.
@@ -34,7 +34,7 @@ interface ClassPropertyInterface extends ClassMemberInterface
     /**
      * Create the property as PHP Constant.
      *
-     * @return self|ClassPropertyInterface
+     * @return self
      */
     public function asConstant();
 

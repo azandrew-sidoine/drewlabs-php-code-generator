@@ -13,12 +13,19 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface ClassMemberInterface extends Commentable
+interface Indentable extends OOPComponentInterface
 {
     /**
-     * Set the property Access modifier definition.
+     * Set the indentation to apply to the component.
      *
-     * @return self|ValueContainer|CallableInterface
+     * @return self
      */
-    public function setModifier(string $modifier);
+    public function setIndentation(string $indentation);
+
+    /**
+     * Return the indentation to add to the component definition.
+     *
+     * @return string
+     */
+    public function getIndentation();
 }

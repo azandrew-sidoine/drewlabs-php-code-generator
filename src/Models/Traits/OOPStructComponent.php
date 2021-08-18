@@ -18,6 +18,7 @@ use Drewlabs\Core\Helpers\Arrays\BinarySearchResult;
 
 trait OOPStructComponent
 {
+    use BelongsToNamespace;
     use HasImportDeclarations;
     use HasPropertyDefinitions;
 
@@ -29,13 +30,6 @@ trait OOPStructComponent
      * @var CallableInterface[]
      */
     private $methods_ = [];
-
-    /**
-     * The namespace the class belongs to.
-     *
-     * @var string
-     */
-    private $namespace_;
 
     public function getName()
     {
@@ -53,19 +47,13 @@ trait OOPStructComponent
             if ($methods[$curr]->equals($item)) {
                 return BinarySearchResult::FOUND;
             }
+
             return strcmp($methods[$curr]->getName(), $item->getName()) > 0 ? BinarySearchResult::LEFT : BinarySearchResult::RIGHT;
         });
         if (BinarySearchResult::LEFT !== $match) {
             throw new \RuntimeException('Duplicated method definition : '.$method->getName());
         }
         $this->methods_[] = $method;
-
-        return $this;
-    }
-
-    public function addToNamespace(string $namespace)
-    {
-        $this->namespace_ = $namespace;
 
         return $this;
     }
@@ -78,13 +66,5 @@ trait OOPStructComponent
     public function getMethods(): array
     {
         return $this->methods_ ?? [];
-    }
-
-    /**
-     * Returns the namespace that the current class belongs to.
-     */
-    public function getNamespace(): ?string
-    {
-        return $this->namespace_ ?? null;
     }
 }

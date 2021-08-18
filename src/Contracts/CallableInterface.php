@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface CallableInterface extends ClassMemberInterface
+interface CallableInterface extends Indentable, NamespaceComponent, PathImportContainer, Commentable
 {
     /**
      * Add a new Parameter to the method.
@@ -55,15 +55,13 @@ interface CallableInterface extends ClassMemberInterface
     /**
      * Add a new line to the method.
      *
-     * @param string $line
      * @return self
      */
     public function addLine(string $line);
 
     /**
-     * Set the return type of the function or method
+     * Set the return type of the function or method.
      *
-     * @param string $type
      * @return self
      */
     public function setReturnType(string $type);

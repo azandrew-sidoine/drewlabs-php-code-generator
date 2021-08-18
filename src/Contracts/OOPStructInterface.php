@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface OOPStructInterface extends OOPComponentInterface, ClassPathImportContainer
+interface OOPStructInterface extends OOPComponentInterface, PathImportContainer, NamespaceComponent
 {
     /**
      * Adds a constant property to the oop component definition.
@@ -22,14 +22,14 @@ interface OOPStructInterface extends OOPComponentInterface, ClassPathImportConta
      *
      * @return self
      */
-    public function addConstant(ClassPropertyInterface $property);
+    public function addConstant(ValueContainer $property);
 
     /**
      * Add a property to the oop component definition.
      *
      * @return self
      */
-    public function addProperty(ClassPropertyInterface $property);
+    public function addProperty(ValueContainer $property);
 
     /**
      * Add a method definition to the oop component definition.
@@ -37,13 +37,6 @@ interface OOPStructInterface extends OOPComponentInterface, ClassPathImportConta
      * @return self
      */
     public function addMethod(CallableInterface $property);
-
-    /**
-     * Add the oop component to a namespace.
-     *
-     * @return self
-     */
-    public function addToNamespace(string $namespace);
 
     // Add members getters
 
@@ -57,12 +50,7 @@ interface OOPStructInterface extends OOPComponentInterface, ClassPathImportConta
     /**
      * Returns the list of properties of the current component.
      *
-     * @return ClassPropertyInterface[]
+     * @return ValueContainer[]
      */
     public function getProperties(): array;
-
-    /**
-     * Returns the namespace that the current class belongs to.
-     */
-    public function getNamespace(): ?string;
 }

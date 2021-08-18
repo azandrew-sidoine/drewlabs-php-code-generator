@@ -13,17 +13,17 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Models\Traits;
 
-use Drewlabs\CodeGenerator\Contracts\ClassPropertyInterface;
+use Drewlabs\CodeGenerator\Contracts\ValueContainer;
 use Drewlabs\Core\Helpers\Arrays\BinarySearchResult;
 
 trait HasPropertyDefinitions
 {
     /**
-     * @var ClassPropertyInterface[]
+     * @var ValueContainer[]
      */
     private $properties_ = [];
 
-    public function addProperty(ClassPropertyInterface $property)
+    public function addProperty(ValueContainer $property)
     {
         $properties = [];
         foreach (($this->properties_ ?? []) as $value) {
@@ -45,7 +45,7 @@ trait HasPropertyDefinitions
         return $this;
     }
 
-    public function addConstant(ClassPropertyInterface $property)
+    public function addConstant(ValueContainer $property)
     {
         return $this->addProperty($property->asConstant());
     }

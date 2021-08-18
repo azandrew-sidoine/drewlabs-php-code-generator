@@ -15,7 +15,7 @@ namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\Blueprint;
 use Drewlabs\CodeGenerator\Contracts\CallableInterface;
-use Drewlabs\CodeGenerator\Contracts\ClassPropertyInterface;
+use Drewlabs\CodeGenerator\Contracts\ValueContainer;
 use Drewlabs\CodeGenerator\Converters\PHPClassConverter;
 use Drewlabs\CodeGenerator\Models\Traits\OOPBlueprintComponent;
 
@@ -27,8 +27,8 @@ final class PHPClass implements Blueprint
      * Undocumented function.
      *
      * @param string                   $implementations
-     * @param CallableInterface[]   $methods
-     * @param ClassPropertyInterface[] $properties
+     * @param CallableInterface[]      $methods
+     * @param ValueContainer[] $properties
      */
     public function __construct(
         string $name,
@@ -62,8 +62,8 @@ final class PHPClass implements Blueprint
         if (null !== $properties && \is_array($methods)) {
             foreach ($properties as $value) {
                 // code...
-                if (!($value instanceof ClassPropertyInterface)) {
-                    throw new \InvalidArgumentException(sprintf('%s is not an istance of %s', \get_class($value), ClassPropertyInterface::class));
+                if (!($value instanceof ValueContainer)) {
+                    throw new \InvalidArgumentException(sprintf('%s is not an istance of %s', \get_class($value), ValueContainer::class));
                 }
                 $this->addProperty($value);
             }
@@ -80,7 +80,7 @@ final class PHPClass implements Blueprint
      *
      * @return self
      */
-    public function addConstant(ClassPropertyInterface $property)
+    public function addConstant(ValueContainer $property)
     {
         return $this->addProperty($property->asConstant());
     }

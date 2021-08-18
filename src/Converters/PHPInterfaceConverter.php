@@ -15,6 +15,7 @@ namespace Drewlabs\CodeGenerator\Converters;
 
 use Drewlabs\CodeGenerator\Contracts\Converters\Stringifier;
 use Drewlabs\CodeGenerator\Contracts\ImplementableStruct;
+use Drewlabs\CodeGenerator\Models\PHPClassMethod;
 use Drewlabs\CodeGenerator\Models\PHPNamespace;
 
 final class PHPInterfaceConverter implements Stringifier
@@ -56,6 +57,12 @@ final class PHPInterfaceConverter implements Stringifier
         if ((null !== $methods) && \is_array($methods) && !empty($methods)) {
             foreach ($methods as $value) {
                 $parts[] = '';
+                if (($value instanceof PHPClassMethod) || method_exists($value, 'addToNamespace')) {
+                    /**
+                     * @var ClassPropertyInterface
+                     */
+                    $value = $value->{'addToNamespace'}($component->getNamespace());
+                }
                 // Call asInterfaceMethod() to indicates that the method is defines on an interface
                 $parts[] = $value->asInterfaceMethod()->setGlobalImports($imports)->setIndentation("\t")->__toString();
                 $imports = array_merge($imports, $value->getImports() ?? []);

@@ -14,15 +14,18 @@ declare(strict_types=1);
 namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\CommentModelFactory;
-use Drewlabs\CodeGenerator\Contracts\ClassPropertyInterface;
+use Drewlabs\CodeGenerator\Contracts\ClassMemberInterface;
+use Drewlabs\CodeGenerator\Contracts\ValueContainer;
+use Drewlabs\CodeGenerator\Models\Traits\BelongsToNamespace;
 use Drewlabs\CodeGenerator\Models\Traits\HasImportDeclarations;
 use Drewlabs\CodeGenerator\Models\Traits\HasIndentation;
 use Drewlabs\CodeGenerator\Models\Traits\OOPStructComponentMembers;
 use Drewlabs\CodeGenerator\Types\PHPTypes;
 use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
 
-class PHPClassProperty implements ClassPropertyInterface
+class PHPClassProperty implements ValueContainer, ClassMemberInterface
 {
+    use BelongsToNamespace;
     use HasImportDeclarations;
     use HasIndentation;
     use OOPStructComponentMembers;
@@ -119,7 +122,7 @@ class PHPClassProperty implements ClassPropertyInterface
         $parts[] = $definition;
         if ($this->getIndentation()) {
             $parts = array_map(function ($part) {
-                return $this->getIndentation() . $part;
+                return $this->getIndentation().$part;
             }, $parts);
         }
 
@@ -140,6 +143,7 @@ class PHPClassProperty implements ClassPropertyInterface
             return $this->value_;
         }
         $this->value_ = $value;
+
         return $this;
     }
 
@@ -150,7 +154,7 @@ class PHPClassProperty implements ClassPropertyInterface
         return $this;
     }
 
-    public function equals(ClassPropertyInterface $value)
+    public function equals(ValueContainer $value)
     {
         return $this->name_ === $value->getName();
     }
@@ -162,6 +166,7 @@ class PHPClassProperty implements ClassPropertyInterface
                 return $this->getClassFromClassPath($classPath);
             })($this->type_);
         }
+
         return $this;
     }
 
@@ -205,14 +210,17 @@ class PHPClassProperty implements ClassPropertyInterface
             return '';
         }
         $isPHPClassDef = (drewlabs_core_strings_is_str($value) && (drewlabs_core_strings_contains($value, '\\') || drewlabs_core_strings_starts_with($value, 'new') || drewlabs_core_strings_ends_with($value, '::class')));
-        if (is_bool($value)) {
+        if (\is_bool($value)) {
             $this->type_ = null === $this->type_ ? sprintf('%s', PHPTypes::BOOLEAN) : $this->type_;
+
             return "$value";
-        } else if (is_numeric($value) || $isPHPClassDef) {
+        } elseif (is_numeric($value) || $isPHPClassDef) {
             $this->type_ = null === $this->type_ ? (is_numeric($value) ? sprintf('%s|%s', PHPTypes::INT, PHPTypes::FLOAT) : sprintf('%s', PHPTypes::OBJECT)) : $this->type_;
+
             return "$value";
         } elseif (drewlabs_core_strings_is_str($value) && !$isPHPClassDef) {
             $this->type_ = null === $this->type_ ? sprintf('%s', PHPTypes::STRING) : $this->type_;
+
             return "\"$value\"";
         } elseif (drewlabs_core_array_is_arrayable($value)) {
             $this->type_ = null === $this->type_ ? sprintf('%s', PHPTypes::LIST) : $this->type_;
@@ -220,15 +228,17 @@ class PHPClassProperty implements ClassPropertyInterface
             if (empty($value)) {
                 $start = '[]';
             } else {
-                $start = '[' . \PHP_EOL;
+                $start = '['.\PHP_EOL;
                 foreach ($value as $key => $value) {
-                    $def = (is_numeric($key) ? sprintf("\t\"%s\",", $value) : (is_numeric($value) ? sprintf("\t\"%s\" => %s,", $key, $value) : sprintf("\t\"%s\" => \"%s\",", $key, $value))) . \PHP_EOL;
-                    $start .= $indentation ? $indentation . $def : $def;
+                    $def = (is_numeric($key) ? sprintf("\t\"%s\",", $value) : (is_numeric($value) ? sprintf("\t\"%s\" => %s,", $key, $value) : sprintf("\t\"%s\" => \"%s\",", $key, $value))).\PHP_EOL;
+                    $start .= $indentation ? $indentation.$def : $def;
                 }
-                $start .=  $indentation ? $indentation . ']' : ']';
+                $start .= $indentation ? $indentation.']' : ']';
             }
+
             return $start;
         }
+
         return '';
     }
 }
