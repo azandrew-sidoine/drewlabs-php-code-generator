@@ -1,36 +1,22 @@
 <?php
 
-declare(strict_types=1);
-
-/*
- * This file is part of the Drewlabs package.
- *
- * (c) Sidoine Azandrew <azandrewdevelopper@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Drewlabs\CodeGenerator\Models;
 
-use Drewlabs\CodeGenerator\Contracts\ClassMemberInterface;
 use Drewlabs\CodeGenerator\Contracts\ValueContainer;
 use Drewlabs\CodeGenerator\Models\Traits\BelongsToNamespace;
 use Drewlabs\CodeGenerator\Models\Traits\HasImportDeclarations;
 use Drewlabs\CodeGenerator\Models\Traits\HasIndentation;
-use Drewlabs\CodeGenerator\Models\Traits\OOPStructComponentMembers;
 use Drewlabs\CodeGenerator\Models\Traits\Type;
 use Drewlabs\CodeGenerator\Models\Traits\ValueContainer as TraitsValueContainer;
 use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
 
-class PHPClassProperty implements ValueContainer, ClassMemberInterface
+class PHPVariable implements ValueContainer
 {
     use BelongsToNamespace;
     use HasImportDeclarations;
     use HasIndentation;
-    use OOPStructComponentMembers;
-    use Type;
     use TraitsValueContainer;
+    use Type;
 
     /**
      * Class instances initializer.
@@ -41,19 +27,15 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
     public function __construct(
         string $name,
         ?string $type = null,
-        ?string $modifier = 'public',
         $default = null,
         $descriptors = ''
     ) {
-        $this->setName($name);
+        $this->name_ = $name;
         if (null !== $type) {
             $this->setType($type);
         }
         if (null !== $descriptors) {
             $this->addComment($descriptors);
-        }
-        if (null !== $modifier) {
-            $this->setModifier($modifier);
         }
         $this->value($default ?? '');
     }
@@ -69,15 +51,8 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
         } else {
             $parts[] = $this->comment_->__toString();
         }
-        // Generate defintion / declarations
-        $modifier = (null !== $this->accessModifier()) && \in_array(
-            $this->accessModifier(),
-            [
-                'private', 'protected', 'public',
-            ],
-            true
-        ) ? $this->accessModifier() : PHPTypesModifiers::PUBLIC;
-        $definition = $this->isConstant_ ? drewlabs_core_strings_to_upper_case(sprintf('%s %s %s', $modifier, PHPTypesModifiers::CONSTANT, $this->getName())) : sprintf("%s $%s", $modifier, $this->getName());
+
+        $definition = $this->isConstant_ ? drewlabs_core_strings_to_upper_case(sprintf('%s %s', PHPTypesModifiers::CONSTANT, $this->getName())) : sprintf("$%s", $this->getName());
         // TODO : Review this part after all classes tested successfully
         $value = $this->parsePropertyValue();
         if (drewlabs_core_strings_contains($value, '"[') && drewlabs_core_strings_contains($value, ']"')) {

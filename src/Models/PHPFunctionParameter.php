@@ -14,23 +14,12 @@ declare(strict_types=1);
 namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\FunctionParameterInterface;
+use Drewlabs\CodeGenerator\Models\Traits\Type;
 use Drewlabs\CodeGenerator\Types\PHPTypes;
 
 class PHPFunctionParameter implements FunctionParameterInterface
 {
-    /**
-     * Parameter type.
-     *
-     * @var string
-     */
-    private $type_;
-
-    /**
-     * Parameter name.
-     *
-     * @var string
-     */
-    private $name_;
+    use Type;
 
     /**
      * Parameter default value.
@@ -56,21 +45,20 @@ class PHPFunctionParameter implements FunctionParameterInterface
         ?string $type = null,
         $default = null
     ) {
-        $this->name_ = $name;
+        $this->setName($name);
         // Get the type from the parameter value
         if (null === $type) {
             $value = $default;
             $isPHPClassDef = (drewlabs_core_strings_is_str($value) && (drewlabs_core_strings_contains($value, '\\') || drewlabs_core_strings_starts_with($value, 'new') || drewlabs_core_strings_ends_with($value, '::class')));
             if (is_numeric($value) || $isPHPClassDef) {
-                $this->type_ = null === $this->type_ ? (is_numeric($value) ? sprintf('%s|%s', PHPTypes::INT, PHPTypes::FLOAT) : sprintf('%s', PHPTypes::OBJECT)) : $this->type_;
+                $type = null === $this->type_ ? (is_numeric($value) ? sprintf('%s|%s', PHPTypes::INT, PHPTypes::FLOAT) : sprintf('%s', PHPTypes::OBJECT)) : $this->type_;
             } elseif (drewlabs_core_strings_is_str($value) && !$isPHPClassDef) {
-                $this->type_ = null === $this->type_ ? sprintf('%s', PHPTypes::STRING) : $this->type_;
+                $type = null === $this->type_ ? sprintf('%s', PHPTypes::STRING) : $this->type_;
             } elseif (drewlabs_core_array_is_arrayable($value)) {
-                $this->type_ = null === $this->type_ ? sprintf('%s', PHPTypes::LIST) : $this->type_;
+                $type = null === $this->type_ ? sprintf('%s', PHPTypes::LIST) : $this->type_;
             }
-        } else {
-            $this->type_ = $type;
         }
+        $this->setType($type);
         $this->default_ = $default;
         $this->isOptional_ = null !== $default ? true : false;
     }
@@ -97,29 +85,9 @@ class PHPFunctionParameter implements FunctionParameterInterface
         return $this;
     }
 
-    /**
-     * Returns the parameter name.
-     *
-     * @return string
-     */
-    public function name()
-    {
-        return $this->name_;
-    }
-
-    /**
-     * Returns the parameter type name.
-     *
-     * @return string
-     */
-    public function type()
-    {
-        return $this->type_;
-    }
-
     public function equals(FunctionParameterInterface $value)
     {
-        return $this->name_ === $value->name();
+        return $this->name() === $value->name();
     }
 
     /**

@@ -21,20 +21,12 @@ trait OOPStructComponent
     use BelongsToNamespace;
     use HasImportDeclarations;
     use HasPropertyDefinitions;
+    use Type;
 
-    /**
-     * @var string
-     */
-    private $name_;
     /**
      * @var CallableInterface[]
      */
     private $methods_ = [];
-
-    public function getName()
-    {
-        return $this->name_;
-    }
 
     public function addMethod(CallableInterface $method)
     {

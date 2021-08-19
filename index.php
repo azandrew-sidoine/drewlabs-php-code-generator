@@ -4,7 +4,6 @@ require __DIR__ . '/vendor/autoload.php';
 
 use Drewlabs\CodeGenerator\CommentModelFactory;
 use Drewlabs\CodeGenerator\Contracts\Stringable;
-use Drewlabs\CodeGenerator\Models\PHPClassProperty;
 use Drewlabs\CodeGenerator\Models\PHPFunctionParameter;
 use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
 
@@ -14,11 +13,19 @@ use function Drewlabs\CodeGenerator\Proxy\PHPClassProperty;
 use function Drewlabs\CodeGenerator\Proxy\PHPFunctionParameter;
 use function Drewlabs\CodeGenerator\Proxy\PHPInterface;
 use function Drewlabs\CodeGenerator\Proxy\PHPTrait;
+use function Drewlabs\CodeGenerator\Proxy\PHPVariable;
 
 function create_comments($params, $multiline = false)
 {
     $comment = (new CommentModelFactory($multiline))->make($params);
     return $comment->__toString();
+}
+
+function create_php_variable(string $name, $type, $value = null, $description = '')
+{
+    $property = PHPVariable($name, $type, $value, $description)->asConstant();
+
+    return $property->__toString();
 }
 
 function create_php_class_property(string $name, $type, $modifier = 'public', $value = null, $description = '')
@@ -116,9 +123,9 @@ function create_php_class()
         ], "self", 'public', 'parent property setter')),
         (PHPClassMethod('getFirstName', [], "string", 'public', 'firstname property getter')),
     ],))
-    ->addClassPath("Illuminate\\Http\\Response")
-    ->addFunctionPath("\\Drewlabs\\CodeGenerator\\Proxy\\PHPTrait")
-    ->setBaseClass("\\App\\Core\\PersonBase")
+        ->addClassPath("Illuminate\\Http\\Response")
+        ->addFunctionPath("\\Drewlabs\\CodeGenerator\\Proxy\\PHPTrait")
+        ->setBaseClass("\\App\\Core\\PersonBase")
         ->addTrait('\\App\\Person\\Traits\\PersonInterface')
         ->addImplementation("\\App\\Contracts\\PersonInterface")
         ->addImplementation("\\App\\Contracts\\HumanInterface")
@@ -201,19 +208,31 @@ function create_php_interfaces()
 //     "id" => "12"
 // ], null) . PHP_EOL;
 
-// echo create_php_class_property('fillables', null, 'protected', [
-//     "firstname",
-//     "lastname",
-//     "address"
-// ], "Table fillable attributes") . PHP_EOL;
+echo create_php_class_property('fillables', null, 'protected', [
+    "firstname",
+    "lastname",
+    "address"
+], "Table fillable attributes") . PHP_EOL;
 
-// echo create_class_method()->__toString() . PHP_EOL;
+echo create_class_method()->__toString() . PHP_EOL;
 
 
 echo create_php_class() . PHP_EOL;
 
-// echo create_interface_method() . PHP_EOL;
+echo create_interface_method() . PHP_EOL;
 
 // echo create_php_traits() . PHP_EOL;
 
-// echo create_php_interfaces() . PHP_EOL;
+echo create_php_interfaces() . PHP_EOL;
+
+
+echo create_php_variable(
+    'fillables',
+    null,
+    [
+        "firstname",
+        "lastname",
+        "address"
+    ],
+    'This is a PHP Variable'
+) . PHP_EOL;

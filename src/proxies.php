@@ -2,6 +2,7 @@
 
 namespace Drewlabs\CodeGenerator\Proxy {
 
+    use Drewlabs\CodeGenerator\CommentModelFactory;
     use Drewlabs\CodeGenerator\Models\PHPClass;
     use Drewlabs\CodeGenerator\Models\PHPClassMethod;
     use Drewlabs\CodeGenerator\Models\PHPClassProperty;
@@ -9,8 +10,9 @@ namespace Drewlabs\CodeGenerator\Proxy {
     use Drewlabs\CodeGenerator\Models\PHPInterface;
     use Drewlabs\CodeGenerator\Models\PHPNamespace;
     use Drewlabs\CodeGenerator\Models\PHPTrait;
+    use Drewlabs\CodeGenerator\Models\PHPVariable;
 
-    /**
+/**
      * It provides a proxy function the {@link PHPClass} constructor
      * 
      * @param string $name 
@@ -123,5 +125,39 @@ namespace Drewlabs\CodeGenerator\Proxy {
         array $properties = []
     ) {
         return new PHPTrait($name, $methods, $properties);
+    }
+
+    /**
+     * Provides  a proxy function the {@link CommentModelFactory} constructor
+     * 
+     * @param bool $multiline 
+     * @return CommentModelFactory 
+     */
+    function CommentFactory(bool $multiline = true)
+    {
+        return new CommentModelFactory($multiline);
+    }
+
+    /**
+     * Provides a proxy function the {@link PHPVariable} constructor
+     * 
+     * @param string $name 
+     * @param null|string $type 
+     * @param mixed|null $default 
+     * @param string|string[] $descriptors 
+     * @return PHPVariable 
+     */
+    function PHPVariable(
+        string $name,
+        ?string $type = null,
+        $default = null,
+        $descriptors = ''
+    ) {
+        return new PHPVariable(
+            $name,
+            $type,
+            $default,
+            $descriptors
+        );
     }
 }

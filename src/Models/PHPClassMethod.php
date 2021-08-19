@@ -22,6 +22,7 @@ use Drewlabs\CodeGenerator\Models\Traits\BelongsToNamespace;
 use Drewlabs\CodeGenerator\Models\Traits\HasImportDeclarations;
 use Drewlabs\CodeGenerator\Models\Traits\HasIndentation;
 use Drewlabs\CodeGenerator\Models\Traits\OOPStructComponentMembers;
+use Drewlabs\CodeGenerator\Models\Traits\Type;
 use Drewlabs\Core\Helpers\Arrays\BinarySearchResult;
 
 class PHPClassMethod implements CallableInterface, ClassMemberInterface
@@ -30,11 +31,8 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
     use HasImportDeclarations;
     use HasIndentation;
     use OOPStructComponentMembers;
+    use Type;
 
-    /**
-     * @var string
-     */
-    private $name_;
     /**
      * @var FunctionParameterInterface[]
      */
@@ -87,7 +85,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
         ?string $modifier = 'public',
         $descriptors = ''
     ) {
-        $this->name_ = $name;
+        $this->setName($name);
         // Add list of params to the method
         foreach (array_filter($params ?? [], function ($value) {
             return $value instanceof FunctionParameterInterface;
@@ -107,6 +105,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
 
     public function __toString(): string
     {
+        $name = $this->getName();
         $this->prepare()->setComments();
         $indentation = $this->getIndentation();
         if (null !== $indentation) {
@@ -122,7 +121,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
             true
         ) && !$this->isInterfaceMethod_ ? $this->accessModifier_ : 'public';
         // Start the declaration
-        $declaration = $this->isStatic_ ? "$accessModifier static function $this->name_(" : "$accessModifier function $this->name_(";
+        $declaration = $this->isStatic_ ? "$accessModifier static function $name(" : "$accessModifier function $name(";
         // Add method params
         if (null !== $this->params_) {
             $params = array_map(static function ($param) {
@@ -207,7 +206,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
             return strcmp($params[$curr]->name(), $item->name()) > 0 ? BinarySearchResult::LEFT : BinarySearchResult::RIGHT;
         });
         if (BinarySearchResult::LEFT !== $match) {
-            throw new \RuntimeException(sprintf('Duplicated entry %s in method %s definition : ', $param->name(), $this->name_));
+            throw new \RuntimeException(sprintf('Duplicated entry %s in method %s definition : ', $param->name(), $this->getName()));
         }
         //endregion Validate method parameters for duplicated entries
         $this->params_[] = $param;
@@ -217,7 +216,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
 
     public function asStatic(bool $value)
     {
-        $this->isStatic_ = '__construct' === $this->name_ ? false : ($value || false);
+        $this->isStatic_ = '__construct' === $this->getName() ? false : ($value || false);
 
         return $this;
     }
@@ -265,7 +264,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
 
     public function equals(CallableInterface $value)
     {
-        return $this->name_ === $value->getName();
+        return $this->getName() === $value->getName();
         // If PHP Support method overloading go deep to method definitions
     }
 
@@ -310,7 +309,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
 
     protected function setComments()
     {
-        $descriptors = array_filter((drewlabs_core_strings_is_str($this->descriptors_) ? [$this->descriptors_] : $this->descriptors_) ?? []);
+        $descriptors = $this->comments();
         if (!empty($descriptors)) {
             // Add a line separator between the descriptors and other definitions
             $descriptors[] = '';
