@@ -101,6 +101,15 @@ final class PHPClass implements Blueprint
         return $this;
     }
 
+    public function addFunctionPath(string $value)
+    {
+        $imports = $this->imports_ ?? [];
+        if (!empty($value) && !\in_array($value, $imports, true) && (null !== $value)) {
+            $this->imports_[] = sprintf('function %s', ltrim($value, "\\"));
+        }
+        return $this;
+    }
+
     /**
      * Set the class imports and returns.
      *

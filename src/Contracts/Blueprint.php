@@ -67,4 +67,13 @@ interface Blueprint extends OOPComposableStruct
      * @return self 
      */
     public function addClassPath(string $classPath);
+
+    /**
+     * Method that allow bluprint to import function using a use statement
+     *
+     * @param string $functionPath
+     * 
+     * @return self
+     */
+    public function addFunctionPath(string $functionPath);
 }

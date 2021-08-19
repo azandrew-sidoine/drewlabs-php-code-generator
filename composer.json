@@ -6,7 +6,10 @@
     "autoload": {
         "psr-4": {
             "Drewlabs\\CodeGenerator\\": "src/"
-        }
+        },
+        "files": [
+            "./src/proxies.php"
+        ]
     },
     "authors": [
         {
