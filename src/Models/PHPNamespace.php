@@ -68,8 +68,10 @@ class PHPNamespace implements Stringable
             }
         }
         $parts = array_merge($parts, $class_imports);
-        $parts[] = \PHP_EOL.'// Function import statements';
-        $parts = array_merge($parts, $functions_imports);
+        if (count($functions_imports) > 0) {
+            $parts[] = \PHP_EOL.'// Function import statements';
+            $parts = array_merge($parts, $functions_imports);
+        }
         $parts[] = '';
         // Add content here
         return implode(\PHP_EOL, $parts);
