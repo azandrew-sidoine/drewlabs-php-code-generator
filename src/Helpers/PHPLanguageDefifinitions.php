@@ -15,7 +15,7 @@ namespace Drewlabs\CodeGenerator\Helpers;
 
 class PHPLanguageDefifinitions
 {
-    const DEFAULT_SPECIAL_CHARACTERS = ['[', ']', ',', ':', '}', '{'];
+    const DEFAULT_SPECIAL_CHARACTERS = ['[', ',', ':', '}', '{'];
 
     /**
      * Helper method for identifying PHP block of expressions.
