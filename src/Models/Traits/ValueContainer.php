@@ -1,15 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Drewlabs package.
+ *
+ * (c) Sidoine Azandrew <azandrewdevelopper@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Drewlabs\CodeGenerator\Models\Traits;
 
 use Drewlabs\CodeGenerator\Contracts\ValueContainer as ContractsValueContainer;
-use Drewlabs\CodeGenerator\Types\PHPTypes;
-
 use function Drewlabs\CodeGenerator\Proxy\CommentFactory;
+
+use Drewlabs\CodeGenerator\Types\PHPTypes;
 
 trait ValueContainer
 {
-
     /**
      * List of imports to append to the file/class imports.
      *
@@ -133,12 +143,12 @@ trait ValueContainer
             if (empty($value)) {
                 $start = '[]';
             } else {
-                $start = '[' . \PHP_EOL;
+                $start = '['.\PHP_EOL;
                 foreach ($value as $key => $value) {
-                    $def = (is_numeric($key) ? sprintf("\t\"%s\",", $value) : (is_numeric($value) ? sprintf("\t\"%s\" => %s,", $key, $value) : sprintf("\t\"%s\" => \"%s\",", $key, $value))) . \PHP_EOL;
-                    $start .= $indentation ? $indentation . $def : $def;
+                    $def = (is_numeric($key) ? sprintf("\t\"%s\",", $value) : (is_numeric($value) ? sprintf("\t\"%s\" => %s,", $key, $value) : sprintf("\t\"%s\" => \"%s\",", $key, $value))).\PHP_EOL;
+                    $start .= $indentation ? $indentation.$def : $def;
                 }
-                $start .= $indentation ? $indentation . ']' : ']';
+                $start .= $indentation ? $indentation.']' : ']';
             }
 
             return $start;

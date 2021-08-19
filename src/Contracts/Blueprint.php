@@ -61,18 +61,15 @@ interface Blueprint extends OOPComposableStruct
     public function isAbstract(): bool;
 
     /**
-     * Add a class path that will be added to the global import when generating class namespace
-     * 
-     * @param string $classPath 
-     * @return self 
+     * Add a class path that will be added to the global import when generating class namespace.
+     *
+     * @return self
      */
     public function addClassPath(string $classPath);
 
     /**
-     * Method that allow bluprint to import function using a use statement
+     * Method that allow bluprint to import function using a use statement.
      *
-     * @param string $functionPath
-     * 
      * @return self
      */
     public function addFunctionPath(string $functionPath);

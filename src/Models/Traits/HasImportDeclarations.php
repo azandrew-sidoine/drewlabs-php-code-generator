@@ -66,8 +66,9 @@ trait HasImportDeclarations
             $classPath = $result instanceof ParseClassPathResult ? $result->getClassPath() : $value;
             $imports = $this->imports_ ?? [];
             if (!\in_array($value, $imports, true) && (null !== $classPath)) {
-                $this->imports_[] = ltrim($classPath, "\\");
+                $this->imports_[] = ltrim($classPath, '\\');
             }
+
             return $name;
         };
     }
@@ -75,7 +76,7 @@ trait HasImportDeclarations
     private function getClassFromClassPath(string $classPath)
     {
         // If the classPath is not a class path, return the ParseClassPathResult with the name == $classPath
-        if (!drewlabs_core_strings_contains($classPath, "\\")) {
+        if (!drewlabs_core_strings_contains($classPath, '\\')) {
             return new ParseClassPathResult($classPath);
         }
         // Get the global imports components
@@ -84,11 +85,11 @@ trait HasImportDeclarations
         // Get the class name from the class path
         $name = $classPathComponents[0];
         // Get the namespace of the component
-        $namespace = null !== ($namespace = ($this instanceof NamespaceComponent) ? $this->getNamespace() : null) ? rtrim($namespace,  "\\") : null;
-        // Do not add the class path to the imports statement if the last item of the class path is in the same 
-        if ($namespace && drewlabs_core_strings_contains($classPath, $namespace) && !drewlabs_core_strings_contains(drewlabs_core_strings_replace($namespace . "\\", "", $classPath), "\\")) {
+        $namespace = null !== ($namespace = ($this instanceof NamespaceComponent) ? $this->getNamespace() : null) ? rtrim($namespace, '\\') : null;
+        // Do not add the class path to the imports statement if the last item of the class path is in the same
+        if ($namespace && drewlabs_core_strings_contains($classPath, $namespace) && !drewlabs_core_strings_contains(drewlabs_core_strings_replace($namespace.'\\', '', $classPath), '\\')) {
             return new ParseClassPathResult($name);
-        } else if (!\in_array($classPath, $globalImports_ ?? [], true)) {
+        } elseif (!\in_array($classPath, $globalImports_ ?? [], true)) {
             $matches = array_filter($globalImports_ ?? [], static function ($import) use ($name) {
                 return \is_string($import) && drewlabs_core_strings_ends_with($import, $name);
             });

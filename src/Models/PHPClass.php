@@ -26,9 +26,9 @@ final class PHPClass implements Blueprint
     /**
      * Undocumented function.
      *
-     * @param string                   $implementations
-     * @param CallableInterface[]      $methods
-     * @param ValueContainer[] $properties
+     * @param string              $implementations
+     * @param CallableInterface[] $methods
+     * @param ValueContainer[]    $properties
      */
     public function __construct(
         string $name,
@@ -86,10 +86,9 @@ final class PHPClass implements Blueprint
     }
 
     /**
-     * Add a class path that will be added to the global import when generating class namespace
-     * 
-     * @param string $classPath 
-     * @return self 
+     * Add a class path that will be added to the global import when generating class namespace.
+     *
+     * @return self
      */
     public function addClassPath(string $classPath)
     {
@@ -98,6 +97,7 @@ final class PHPClass implements Blueprint
                 return $this->getClassFromClassPath($path);
             })($classPath);
         }
+
         return $this;
     }
 
@@ -105,8 +105,9 @@ final class PHPClass implements Blueprint
     {
         $imports = $this->imports_ ?? [];
         if (!empty($value) && !\in_array($value, $imports, true) && (null !== $value)) {
-            $this->imports_[] = sprintf('function %s', ltrim($value, "\\"));
+            $this->imports_[] = sprintf('function %s', ltrim($value, '\\'));
         }
+
         return $this;
     }
 

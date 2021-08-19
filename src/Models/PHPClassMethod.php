@@ -87,7 +87,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
     ) {
         $this->setName($name);
         // Add list of params to the method
-        foreach (array_filter($params ?? [], function ($value) {
+        foreach (array_filter($params ?? [], static function ($value) {
             return $value instanceof FunctionParameterInterface;
         }) as $value) {
             $this->addParam($value);
@@ -126,9 +126,9 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
         if (null !== $this->params_) {
             $params = array_map(static function ($param) {
                 $type = null === $param->type() ? '' : $param->type();
-                $result = "$type \$" . $param->name();
+                $result = "$type \$".$param->name();
 
-                return null === $param->defaultValue() ? $result : "$result = " . drewlabs_core_strings_replace('"null"', 'null', $param->defaultValue());
+                return null === $param->defaultValue() ? $result : "$result = ".drewlabs_core_strings_replace('"null"', 'null', $param->defaultValue());
             }, array_merge(
                 array_filter($this->params_, static function ($p) {
                     return !$p->isOptional();
@@ -151,7 +151,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
             if (!empty(($contents = array_merge(["\t# code..."], $this->contents_ ?? [])))) {
                 $counter = 0;
                 $parts[] = implode(\PHP_EOL, array_map(static function ($content) use ($indentation, &$counter) {
-                    $content = $indentation && $counter > 0 ? $indentation . $content : $content;
+                    $content = $indentation && $counter > 0 ? $indentation.$content : $content;
                     ++$counter;
 
                     return $content;
@@ -161,7 +161,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
         }
         if ($indentation) {
             $parts = array_map(static function ($part) use ($indentation) {
-                return $indentation . "$part";
+                return $indentation."$part";
             }, $parts);
         }
 
@@ -318,7 +318,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
         if (null !== $this->params_) {
             foreach ($this->params_ as $value) {
                 $type = null === $value->type() ? 'mixed' : $value->type();
-                $descriptors[] = '@param ' . $type . ' ' . $value->name();
+                $descriptors[] = '@param '.$type.' '.$value->name();
             }
         }
         // Generate exception comment
@@ -329,7 +329,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
         }
         // Generate returns comment
         if (null !== $this->returns_) {
-            $descriptors[] = '@return ' . $this->returns_;
+            $descriptors[] = '@return '.$this->returns_;
         }
         $this->comment_ = (new CommentModelFactory(true))->make($descriptors);
 

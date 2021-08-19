@@ -25,7 +25,7 @@ trait OOPStructComponentMembers
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @return ValueContainer|CallableInterface
      */
     public function setModifier(string $value)

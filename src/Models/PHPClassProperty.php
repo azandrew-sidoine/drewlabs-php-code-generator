@@ -29,8 +29,8 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
     use HasImportDeclarations;
     use HasIndentation;
     use OOPStructComponentMembers;
-    use Type;
     use TraitsValueContainer;
+    use Type;
 
     /**
      * Class instances initializer.
@@ -63,6 +63,8 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
         $this->prepare()
             ->setComments()
             ->value($this->value());
+        $value = $this->parsePropertyValue();
+        $name = $this->getName();
         // Generate comments
         if ($this->getIndentation()) {
             $parts[] = $this->comment_->setIndentation($this->getIndentation())->__toString();
@@ -77,9 +79,8 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
             ],
             true
         ) ? $this->accessModifier() : PHPTypesModifiers::PUBLIC;
-        $definition = $this->isConstant_ ? drewlabs_core_strings_to_upper_case(sprintf('%s %s %s', $modifier, PHPTypesModifiers::CONSTANT, $this->getName())) : sprintf("%s $%s", $modifier, $this->getName());
+        $definition = $this->isConstant_ ? sprintf('%s %s %s', $modifier, PHPTypesModifiers::CONSTANT, drewlabs_core_strings_to_upper_case($name)) : sprintf('%s $%s', $modifier, $name);
         // TODO : Review this part after all classes tested successfully
-        $value = $this->parsePropertyValue();
         if (drewlabs_core_strings_contains($value, '"[') && drewlabs_core_strings_contains($value, ']"')) {
             $value = drewlabs_core_strings_replace(' ]"', ']', drewlabs_core_strings_replace('"[', '[', $value));
         }
@@ -91,7 +92,7 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
         $parts[] = $definition;
         if ($this->getIndentation()) {
             $parts = array_map(function ($part) {
-                return $this->getIndentation() . $part;
+                return $this->getIndentation().$part;
             }, $parts);
         }
 

@@ -208,31 +208,38 @@ function create_php_interfaces()
 //     "id" => "12"
 // ], null) . PHP_EOL;
 
-echo create_php_class_property('fillables', null, 'protected', [
+echo create_php_class_property('fillables', 'array<string>', 'protected', [
     "firstname",
     "lastname",
     "address"
 ], "Table fillable attributes") . PHP_EOL;
 
-echo create_class_method()->__toString() . PHP_EOL;
+// echo create_class_method()->__toString() . PHP_EOL;
 
 
-echo create_php_class() . PHP_EOL;
+// echo create_php_class() . PHP_EOL;
 
-echo create_interface_method() . PHP_EOL;
+// echo create_interface_method() . PHP_EOL;
 
-// echo create_php_traits() . PHP_EOL;
+// // echo create_php_traits() . PHP_EOL;
 
-echo create_php_interfaces() . PHP_EOL;
+// echo create_php_interfaces() . PHP_EOL;
 
 
-echo create_php_variable(
-    'fillables',
-    null,
-    [
-        "firstname",
-        "lastname",
-        "address"
-    ],
-    'This is a PHP Variable'
-) . PHP_EOL;
+// echo create_php_variable(
+//     'fillables',
+//     null,
+//     [
+//         "firstname",
+//         "lastname",
+//         "address"
+//     ],
+//     'This is a PHP Variable'
+// ) . PHP_EOL;
+
+// echo create_php_variable(
+//     'welcome',
+//     'string',
+//     "Hello World!",
+//     'This is a PHP Variable'
+// ) . PHP_EOL;
