@@ -102,10 +102,10 @@ class PHPVariable implements ValueContainer
 
     /**
      * Defines the variable as an r-value object.
-     * 
+     *
      * Note: R-Value variable does not have or type definition. Their type in inducted by the compiler.
      * They only have the value definition part
-     * 
+     *
      * @return self
      */
     public function asRValue()

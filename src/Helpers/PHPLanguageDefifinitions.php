@@ -15,7 +15,7 @@ namespace Drewlabs\CodeGenerator\Helpers;
 
 class PHPLanguageDefifinitions
 {
-    const DEFAULT_SPECIAL_CHARACTERS = ['[', ',', ':', '}', '{'];
+    public const DEFAULT_SPECIAL_CHARACTERS = ['[', ',', ':', '}', '{'];
 
     /**
      * Helper method for identifying PHP block of expressions.
@@ -51,11 +51,12 @@ class PHPLanguageDefifinitions
     {
         $characters = $characters ? drewlabs_core_array_unique(array_merge($characters, self::DEFAULT_SPECIAL_CHARACTERS)) : self::DEFAULT_SPECIAL_CHARACTERS;
         foreach ($characters as $value) {
-            # code...
+            // code...
             if (drewlabs_core_strings_ends_with(rtrim($line), $value)) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -63,11 +64,12 @@ class PHPLanguageDefifinitions
     {
         $characters = $characters ? drewlabs_core_array_unique(array_merge($characters, self::DEFAULT_SPECIAL_CHARACTERS)) : self::DEFAULT_SPECIAL_CHARACTERS;
         foreach ($characters as $value) {
-            # code...
+            // code...
             if (drewlabs_core_strings_starts_with(ltrim($line), $value)) {
                 return true;
             }
         }
+
         return false;
     }
 }

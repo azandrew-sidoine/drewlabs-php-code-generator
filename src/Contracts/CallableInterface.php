@@ -20,7 +20,14 @@ interface CallableInterface extends Indentable, NamespaceComponent, PathImportCo
      *
      * @return self
      */
-    public function addParam(FunctionParameterInterface $param);
+    public function addParameter(FunctionParameterInterface $param);
+
+    /**
+     * Returns the list of callable parameters.
+     *
+     * @return array|FunctionParameterInterface[]
+     */
+    public function getParameters();
 
     /**
      * Specify the exceptions that the current method throws.
@@ -36,7 +43,7 @@ interface CallableInterface extends Indentable, NamespaceComponent, PathImportCo
      *
      * @return self
      */
-    public function asInterfaceMethod();
+    public function asCallableSignature();
 
     /**
      * Add contents to the generated method.

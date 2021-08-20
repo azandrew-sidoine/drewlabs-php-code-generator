@@ -68,7 +68,7 @@ function create_interface_method()
         ->throws([
             RuntimeException::class
         ])
-        ->asInterfaceMethod()
+        ->asCallableSignature()
         ->setReturnType(Stringable::class);
     return $method->__toString();
 }
@@ -77,8 +77,10 @@ function create_class_method()
 {
     $method = (PHPClassMethod('methodName'))->throws([
         RuntimeException::class
-    ])->addParam(PHPFunctionParameter('users', null, ["user1" => "Sandra", "user2" => "Emily"]))
-        ->addParam((PHPFunctionParameter('params', PHPFunctionParameter::class))->asOptional());
+    ])
+        ->addParameter(PHPFunctionParameter('users', null, ["user1" => "Sandra", "user2" => "Emily"])->asVariadic())
+        ->addParameter((PHPFunctionParameter('params', PHPFunctionParameter::class))->asOptional())
+        ->addParameter((PHPFunctionParameter('required', 'bool')->asReference()));
     //         ->addContents(
     //             <<<EOT
     // \$this->users_ = \$users;
@@ -208,13 +210,13 @@ function create_php_interfaces()
 //     "id" => "12"
 // ], null) . PHP_EOL;
 
-echo create_php_class_property('fillables', 'array<string>', 'protected', [
-    "firstname",
-    "lastname",
-    "address"
-], "Table fillable attributes") . PHP_EOL;
+// echo create_php_class_property('fillables', 'array<string>', 'protected', [
+//     "firstname",
+//     "lastname",
+//     "address"
+// ], "Table fillable attributes") . PHP_EOL;
 
-// echo create_class_method()->__toString() . PHP_EOL;
+echo create_class_method()->__toString() . PHP_EOL;
 
 
 // echo create_php_class() . PHP_EOL;

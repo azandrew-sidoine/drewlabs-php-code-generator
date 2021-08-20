@@ -68,7 +68,7 @@ class PHPNamespace implements Stringable
             }
         }
         $parts = array_merge($parts, $class_imports);
-        if (count($functions_imports) > 0) {
+        if (\count($functions_imports) > 0) {
             $parts[] = \PHP_EOL.'// Function import statements';
             $parts = array_merge($parts, $functions_imports);
         }

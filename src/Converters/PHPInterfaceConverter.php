@@ -63,8 +63,8 @@ final class PHPInterfaceConverter implements Stringifier
                      */
                     $value = $value->{'addToNamespace'}($component->getNamespace());
                 }
-                // Call asInterfaceMethod() to indicates that the method is defines on an interface
-                $parts[] = $value->asInterfaceMethod()->setGlobalImports($imports)->setIndentation("\t")->__toString();
+                // Call asCallableSignature() to indicates that the method is defines on an interface
+                $parts[] = $value->asCallableSignature()->setGlobalImports($imports)->setIndentation("\t")->__toString();
                 $imports = array_merge($imports, $value->getImports() ?? []);
             }
         }

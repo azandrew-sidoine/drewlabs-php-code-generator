@@ -24,16 +24,26 @@ class PHPFunctionParameter implements FunctionParameterInterface
     /**
      * Parameter default value.
      *
-     * @var string
+     * @var mixed
      */
     private $default_;
 
     /**
      * Parameter is optional or not.
      *
-     * @var string
+     * @var bool
      */
     private $isOptional_;
+
+    /**
+     * @var bool
+     */
+    private $isVariadic_ = false;
+
+    /**
+     * @var bool
+     */
+    private $isReference_ = false;
 
     /**
      * Instance initializer.
@@ -71,6 +81,30 @@ class PHPFunctionParameter implements FunctionParameterInterface
     public function isOptional()
     {
         return $this->isOptional_;
+    }
+
+    public function asVariadic()
+    {
+        $this->isVariadic_ = true;
+
+        return $this;
+    }
+
+    public function isVariadic()
+    {
+        return $this->isVariadic_ ?? false;
+    }
+
+    public function asReference()
+    {
+        $this->isReference_ = true;
+
+        return $this;
+    }
+
+    public function isReference()
+    {
+        return $this->isReference_ ?? false;
     }
 
     /**

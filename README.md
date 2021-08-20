@@ -78,7 +78,7 @@ $method = (new PHPClassMethod(
 ))->throws([
     RuntimeException::class
 ])
-->asInterfaceMethod()
+->asCallableSignature()
 ->setReturnType(Stringable::class)
 ->setModifier(PHPTypesModifiers::PUBLIC);
 
