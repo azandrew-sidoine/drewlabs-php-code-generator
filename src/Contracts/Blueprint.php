@@ -23,10 +23,11 @@ interface Blueprint extends OOPComposableStruct
      * Add a constructor to the class definition
      * 
      * @param FunctionParameterInterface[]|array $params 
+     * @param string $modifier
      * @return self 
      * @throws RuntimeException 
      */
-    public function addConstructor($params = []);
+    public function addConstructor($params = [], $modifier = 'public');
 
     /**
      * Add __invoke() method to the class

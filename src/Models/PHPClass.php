@@ -78,14 +78,14 @@ final class PHPClass implements Blueprint
         return (new PHPClassConverter())->stringify($this->prepare());
     }
 
-    public function addConstructor($params = [])
+    public function addConstructor($params = [], $modifier = PHPTypesModifiers::PUBLIC)
     {
         return $this->addMethod(
             new PHPClassMethod(
                 '__construct',
                 $params ?? [],
                 'self',
-                PHPTypesModifiers::PUBLIC,
+                $modifier ?? PHPTypesModifiers::PUBLIC,
                 'Class instance initializer'
             )
         );
