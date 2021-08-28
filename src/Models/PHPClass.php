@@ -15,9 +15,12 @@ namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\Blueprint;
 use Drewlabs\CodeGenerator\Contracts\CallableInterface;
+use Drewlabs\CodeGenerator\Contracts\OOPStructInterface;
 use Drewlabs\CodeGenerator\Contracts\ValueContainer;
 use Drewlabs\CodeGenerator\Converters\PHPClassConverter;
 use Drewlabs\CodeGenerator\Models\Traits\OOPBlueprintComponent;
+use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
+use RuntimeException;
 
 final class PHPClass implements Blueprint
 {
@@ -75,21 +78,50 @@ final class PHPClass implements Blueprint
         return (new PHPClassConverter())->stringify($this->prepare());
     }
 
-    /**
-     * Adds a constant property definition to the class.
-     *
-     * @return self
-     */
+    public function addConstructor($params = [])
+    {
+        return $this->addMethod(
+            new PHPClassMethod(
+                '__construct',
+                $params ?? [],
+                'self',
+                PHPTypesModifiers::PUBLIC,
+                'Class instance initializer'
+            )
+        );
+    }
+
+    public function asInvokable()
+    {
+        return $this->addMethod(
+            new PHPClassMethod(
+                '__invoke',
+                [],
+                'self',
+                PHPTypesModifiers::PUBLIC,
+                'Undocumented method'
+            )
+        );
+    }
+
+    public function asStringable()
+    {
+        return $this->addMethod(
+            new PHPClassMethod(
+                '__toString',
+                [],
+                'string',
+                PHPTypesModifiers::PUBLIC,
+                'Convert the instances of the current class to PHP string'
+            )
+        );
+    }
+
     public function addConstant(ValueContainer $property)
     {
         return $this->addProperty($property->asConstant());
     }
 
-    /**
-     * Add a class path that will be added to the global import when generating class namespace.
-     *
-     * @return self
-     */
     public function addClassPath(string $classPath)
     {
         if ((null !== $classPath) && drewlabs_core_strings_contains($classPath, '\\')) {

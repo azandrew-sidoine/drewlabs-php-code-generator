@@ -8,4 +8,4 @@
 - Insure that there is on one same property name on a class [x]
 - Add Generator classes for Method, Interface and Trait [x]
 - Migrate, Class, Interface and Trait __toString() codes to generator classes [x]
-- Add [addConstructor] and [isInvokable] methods to the class definition []
+- Add [addConstructor] and [isInvokable] methods to the class definition [x]

@@ -13,8 +13,43 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
+use RuntimeException;
+
 interface Blueprint extends OOPComposableStruct
 {
+
+
+    /**
+     * Add a constructor to the class definition
+     * 
+     * @param FunctionParameterInterface[]|array $params 
+     * @return self 
+     * @throws RuntimeException 
+     */
+    public function addConstructor($params = []);
+
+    /**
+     * Add __invoke() method to the class
+     * 
+     * @return self 
+     * @throws RuntimeException 
+     */
+    public function asInvokable();
+
+    /**
+     * Makes the class stringable by adding a __toString() method to it definitions
+     * 
+     * @return self 
+     * @throws RuntimeException 
+     */
+    public function asStringable();
+
+    /**
+     * Set the base class of the blueprint
+     * 
+     * @param string $baseClass 
+     * @return self 
+     */
     public function setBaseClass(string $baseClass);
 
     /**

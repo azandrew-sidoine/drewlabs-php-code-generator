@@ -5,3 +5,5 @@ tests/**/**
 index.php
 .metals
 .vscode
+.vscode**
+.metals**

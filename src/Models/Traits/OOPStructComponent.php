@@ -28,6 +28,8 @@ trait OOPStructComponent
      */
     private $methods_ = [];
 
+    private $constructorMethodName_ = '__construct';
+
     public function addMethod(CallableInterface $method)
     {
         $methods = [];
@@ -45,7 +47,11 @@ trait OOPStructComponent
         if (BinarySearchResult::LEFT !== $match) {
             throw new \RuntimeException('Duplicated method definition : '.$method->getName());
         }
-        $this->methods_[] = $method;
+        if ($method->getName() === $this->constructorMethodName_) {
+            $this->methods_ = [$method, ...($this->methods_ ?? [])];
+        } else {
+            $this->methods_[] = $method;
+        }
 
         return $this;
     }

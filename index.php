@@ -113,10 +113,6 @@ function create_class_method()
 function create_php_class()
 {
     $class_ = (PHPClass("Person", [], [
-        (PHPClassMethod('__construct', [
-            PHPFunctionParameter('firstname', 'string'),
-            PHPFunctionParameter('lastname', 'string')
-        ], null, 'public', 'Class initializer')),
         (PHPClassMethod('setRequest', [
             PHPFunctionParameter('request', 'Illuminate\\Http\\Request')
         ], "self", 'public', 'Request property setter')),
@@ -125,6 +121,12 @@ function create_php_class()
         ], "self", 'public', 'parent property setter')),
         (PHPClassMethod('getFirstName', [], "string", 'public', 'firstname property getter')),
     ],))
+        ->asInvokable()
+        ->asStringable()
+        ->addConstructor([
+            PHPFunctionParameter('firstname', 'string'),
+            PHPFunctionParameter('lastname', 'string')
+        ])
         ->addClassPath("Illuminate\\Http\\Response")
         ->addFunctionPath("\\Drewlabs\\CodeGenerator\\Proxy\\PHPTrait")
         ->setBaseClass("\\App\\Core\\PersonBase")
@@ -219,7 +221,7 @@ function create_php_interfaces()
 echo create_class_method()->__toString() . PHP_EOL;
 
 
-// echo create_php_class() . PHP_EOL;
+echo create_php_class() . PHP_EOL;
 
 // echo create_interface_method() . PHP_EOL;
 
