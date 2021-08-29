@@ -126,6 +126,10 @@ function create_php_class()
         ->addConstructor([
             PHPFunctionParameter('firstname', 'string'),
             PHPFunctionParameter('lastname', 'string')
+        ],
+        [
+            '$this->firstname = $firstname',
+            '$this->lastname = $lastname',
         ])
         ->addClassPath("Illuminate\\Http\\Response")
         ->addFunctionPath("\\Drewlabs\\CodeGenerator\\Proxy\\PHPTrait")
