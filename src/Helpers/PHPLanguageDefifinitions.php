@@ -25,11 +25,11 @@ class PHPLanguageDefifinitions
     public static function isBlock(string $line)
     {
         return !empty($line) &&
-            (drewlabs_core_strings_starts_with(trim($line), '{') ||
+            ((drewlabs_core_strings_starts_with(trim($line), '{') && drewlabs_core_strings_ends_with(trim($line), '{')) ||
                 drewlabs_core_strings_ends_with(trim($line), '{') ||
-                drewlabs_core_strings_starts_with(trim($line), '}') ||
+                (drewlabs_core_strings_starts_with(trim($line), '}') && drewlabs_core_strings_ends_with(trim($line), '}')) ||
                 drewlabs_core_strings_ends_with(trim($line), '}') ||
-                drewlabs_core_strings_starts_with(trim($line), ':') ||
+                (drewlabs_core_strings_starts_with(trim($line), ':') && (drewlabs_core_strings_ends_with(trim($line), ':'))) ||
                 drewlabs_core_strings_ends_with(trim($line), ':'));
     }
 
@@ -44,7 +44,8 @@ class PHPLanguageDefifinitions
             (drewlabs_core_strings_starts_with(trim($line), '*') ||
                 drewlabs_core_strings_starts_with(trim($line), '/*') ||
                 drewlabs_core_strings_ends_with(trim($line), '*/') ||
-                drewlabs_core_strings_starts_with(trim($line), '//'));
+                drewlabs_core_strings_starts_with(trim($line), '//') ||
+                drewlabs_core_strings_starts_with(trim($line), '#'));
     }
 
     public static function endsWithSpecialCharacters(string $line, array $characters = [])
