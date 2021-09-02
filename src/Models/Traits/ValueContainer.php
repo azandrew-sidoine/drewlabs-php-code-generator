@@ -143,12 +143,18 @@ trait ValueContainer
             if (empty($value)) {
                 $start = '[]';
             } else {
-                $start = '['.\PHP_EOL;
-                foreach ($value as $key => $value) {
-                    $def = (is_numeric($key) ? sprintf("\t\"%s\",", $value) : (is_numeric($value) ? sprintf("\t\"%s\" => %s,", $key, $value) : sprintf("\t\"%s\" => \"%s\",", $key, $value))).\PHP_EOL;
-                    $start .= $indentation ? $indentation.$def : $def;
+                $start = '[' . \PHP_EOL;
+                foreach ($value as $key => $v) {
+                    $evaluateValue = function($item) {
+                        return is_array($item) ? drewlabs_core_strings_replace("\"", "'", json_encode($item)) : $item;
+                    };
+                    $formatFunc = function($key, $item) {
+                        return is_numeric($key) ? "\t\"%s\"," : (is_numeric($item) || is_array($item) ? "\t\"%s\" => %s," : "\t\"%s\" => \"%s\",");
+                    };
+                    $def = is_numeric($key) ? sprintf($formatFunc($key, $v), $evaluateValue($v))  . \PHP_EOL : sprintf($formatFunc($key, $v), $key, $evaluateValue($v)). \PHP_EOL;
+                    $start .= $indentation ? $indentation . $def : $def;
                 }
-                $start .= $indentation ? $indentation.']' : ']';
+                $start .= $indentation ? $indentation . ']' : ']';
             }
 
             return $start;
