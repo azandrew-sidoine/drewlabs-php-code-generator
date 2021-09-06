@@ -15,12 +15,10 @@ namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\Blueprint;
 use Drewlabs\CodeGenerator\Contracts\CallableInterface;
-use Drewlabs\CodeGenerator\Contracts\OOPStructInterface;
 use Drewlabs\CodeGenerator\Contracts\ValueContainer;
 use Drewlabs\CodeGenerator\Converters\PHPClassConverter;
 use Drewlabs\CodeGenerator\Models\Traits\OOPBlueprintComponent;
 use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
-use RuntimeException;
 
 final class PHPClass implements Blueprint
 {
