@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface NamespaceComponent
+interface NamespaceComponent extends Stringable
 {
     /**
      * Add the oop component to a namespace.

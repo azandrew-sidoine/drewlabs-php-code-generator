@@ -15,9 +15,8 @@ namespace Drewlabs\CodeGenerator\Contracts;
 
 use RuntimeException;
 
-interface Blueprint extends OOPComposableStruct
+interface Blueprint extends OOPStructInterface
 {
-
 
     /**
      * Add a constructor to the class definition
@@ -110,4 +109,18 @@ interface Blueprint extends OOPComposableStruct
      * @return self
      */
     public function addFunctionPath(string $functionPath);
+
+    /**
+     * Returns the list of traits of the blueprint.
+     *
+     * @return string[]
+     */
+    public function getTraits(): ?array;
+
+    /**
+     * Add a given trait to the structure definition.
+     *
+     * @return self|mixed
+     */
+    public function addTrait(string $trait);
 }

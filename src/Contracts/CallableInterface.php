@@ -15,6 +15,14 @@ namespace Drewlabs\CodeGenerator\Contracts;
 
 interface CallableInterface extends Indentable, NamespaceComponent, PathImportContainer, Commentable
 {
+
+    /**
+     * Return component name.
+     *
+     * @return string
+     */
+    public function getName();
+
     /**
      * Add a new Parameter to the method.
      *

@@ -13,8 +13,15 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface OOPStructInterface extends OOPComponentInterface, PathImportContainer, NamespaceComponent
+interface OOPStructInterface extends PathImportContainer, NamespaceComponent
 {
+    /**
+     * Return component name.
+     *
+     * @return string
+     */
+    public function getName();
+
     /**
      * Adds a constant property to the oop component definition.
      *

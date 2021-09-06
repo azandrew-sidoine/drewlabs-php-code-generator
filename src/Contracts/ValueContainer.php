@@ -16,6 +16,13 @@ namespace Drewlabs\CodeGenerator\Contracts;
 interface ValueContainer extends Indentable, PathImportContainer, NamespaceComponent
 {
     /**
+     * Return component name.
+     *
+     * @return string
+     */
+    public function getName();
+    
+    /**
      * Type property setter.
      *
      * @return self

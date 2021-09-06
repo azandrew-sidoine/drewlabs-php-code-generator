@@ -13,6 +13,19 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface TraitableStruct extends OOPComposableStruct
+interface TraitableStruct extends OOPStructInterface
 {
+    /**
+     * Returns the list of traits of the blueprint.
+     *
+     * @return string[]
+     */
+    public function getTraits(): ?array;
+
+    /**
+     * Add a given trait to the structure definition.
+     *
+     * @return self|mixed
+     */
+    public function addTrait(string $trait);
 }
