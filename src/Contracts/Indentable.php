@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface Indentable
+interface Indentable extends Stringable
 {
     /**
      * Set the indentation to apply to the component.
