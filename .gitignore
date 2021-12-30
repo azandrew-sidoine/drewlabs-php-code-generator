@@ -7,3 +7,4 @@ index.php
 .vscode
 .vscode**
 .metals**
+composer.lock
