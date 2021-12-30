@@ -5,6 +5,6 @@ tests/**/**
 index.php
 .metals
 .vscode
-.vscode**
+/.vscode
 .metals**
 composer.lock
