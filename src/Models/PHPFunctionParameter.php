@@ -136,8 +136,11 @@ class PHPFunctionParameter implements FunctionParameterInterface
             return $this->isOptional() ? 'null' : null;
         }
         // Return the object is an empry string or array is passed in
-        if (empty($value)) {
+        if (drewlabs_core_strings_is_str($value) && empty($value)) {
             return '';
+        }
+        if (\is_bool($value)) {
+            return $value === false ? "false" : "true";
         }
         $isPHPClassDef = (drewlabs_core_strings_is_str($value) && (drewlabs_core_strings_contains($value, '\\') || drewlabs_core_strings_starts_with($value, 'new') || drewlabs_core_strings_ends_with($value, '::class')));
         if (is_numeric($value) || $isPHPClassDef) {

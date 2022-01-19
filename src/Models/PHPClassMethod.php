@@ -23,6 +23,7 @@ use Drewlabs\CodeGenerator\Models\Traits\HasImportDeclarations;
 use Drewlabs\CodeGenerator\Models\Traits\HasIndentation;
 use Drewlabs\CodeGenerator\Models\Traits\OOPStructComponentMembers;
 use Drewlabs\CodeGenerator\Models\Traits\Type;
+use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
 use Drewlabs\Core\Helpers\Arrays\BinarySearchResult;
 
 class PHPClassMethod implements CallableInterface, ClassMemberInterface
@@ -103,28 +104,39 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
         }
     }
 
+    private function orderParameters()
+    {
+        $params_ = $this->getParameters();
+        $this->params_ = array_merge(
+            array_filter($params_, static function ($p) {
+                return !$p->isOptional() && !$p->isVariadic();
+            }),
+            array_filter($params_, static function ($p) {
+                return $p->isOptional() && !$p->isVariadic();
+            }),
+            array_filter($params_, static function ($p) {
+                return $p->isVariadic();
+            })
+        );
+        return $this;
+    }
+
     public function __toString(): string
     {
+        // TODO : Order the parameters before generating the method/function output
+        $this->orderParameters()
+            ->prepare()
+            ->setComments();
         $name = $this->getName();
-        $this->prepare()->setComments();
-        $indentation = $this->getIndentation();
-        if (null !== $indentation) {
-            $parts[] = $this->comment_->setIndentation($this->getIndentation())->__toString();
-        } else {
-            $parts[] = $this->comment_->__toString();
-        }
-        $accessModifier = (null !== $this->accessModifier_) && \in_array(
-            $this->accessModifier_,
-            [
-                'private', 'protected', 'public',
-            ],
-            true
-        ) && !$this->isInterfaceMethod_ ? $this->accessModifier_ : 'public';
+        $accessModifier = (null !== $this->accessModifier_) &&
+            \in_array($this->accessModifier_, [PHPTypesModifiers::PRIVATE, PHPTypesModifiers::PROTECTED, PHPTypesModifiers::PUBLIC], true)
+            && !$this->isInterfaceMethod_ ?
+            $this->accessModifier_ :
+            PHPTypesModifiers::PUBLIC;
         // Start the declaration
         $declaration = $this->isStatic_ ? "$accessModifier static function $name(" : "$accessModifier function $name(";
         // Add method params
-        $params_ = $this->getParameters();
-        if (null !== $params_) {
+        if (null !== ($params = $this->getParameters())) {
             $params = array_map(static function ($param) {
                 // Add the type definition
                 $type = $param->type();
@@ -139,23 +151,18 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
                 $definitions = array_filter($definitions);
                 // Generate the defintion
                 $result = drewlabs_core_strings_concat('', ...$definitions);
-
-                return ((null === $param->defaultValue()) || $param->isVariadic()) ? $result : "$result = ".drewlabs_core_strings_replace('"null"', 'null', $param->defaultValue());
-            }, array_merge(
-                array_filter($params_, static function ($p) {
-                    return !$p->isOptional() && !$p->isVariadic();
-                }),
-                array_filter($params_, static function ($p) {
-                    return $p->isOptional() && !$p->isVariadic();
-                }),
-                array_filter($params_, static function ($p) {
-                    return $p->isVariadic();
-                })
-            ));
+                return ((null === $param->defaultValue()) || $param->isVariadic()) ?
+                    $result :
+                    "$result = " . drewlabs_core_strings_replace('"null"', 'null', $param->defaultValue());
+            }, $params);
             $declaration .= implode(', ', $params);
         }
         // Add the closing parenthesis
         $declaration .= ')';
+        $indentation = $this->getIndentation();
+        $parts[] = null !== $indentation ?
+            $this->comment_->setIndentation($this->getIndentation())->__toString() :
+            $this->comment_->__toString();
         // If it is an interface method, close the definition
         if ($this->isInterfaceMethod_) {
             $parts[] = "$declaration;";
@@ -166,7 +173,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
             if (!empty(($contents = array_merge(["\t# code..."], $this->contents_ ?? [])))) {
                 $counter = 0;
                 $parts[] = implode(\PHP_EOL, array_map(static function ($content) use ($indentation, &$counter) {
-                    $content = $indentation && $counter > 0 ? $indentation.$content : $content;
+                    $content = $indentation && $counter > 0 ? $indentation . $content : $content;
                     ++$counter;
 
                     return $content;
@@ -176,7 +183,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
         }
         if ($indentation) {
             $parts = array_map(static function ($part) use ($indentation) {
-                return $indentation."$part";
+                return $indentation . "$part";
             }, $parts);
         }
 
@@ -346,7 +353,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
         if (null !== $params_) {
             foreach ($params_ as $value) {
                 $type = null === $value->type() ? 'mixed' : $value->type();
-                $descriptors[] = '@param '.$type.' $'.$value->name();
+                $descriptors[] = '@param ' . $type . ' $' . $value->name();
             }
         }
         // Generate exception comment
@@ -357,7 +364,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
         }
         // Generate returns comment
         if (null !== $this->returns_) {
-            $descriptors[] = '@return '.$this->returns_;
+            $descriptors[] = '@return ' . $this->returns_;
         }
         $this->comment_ = (new CommentModelFactory(true))->make($descriptors);
 

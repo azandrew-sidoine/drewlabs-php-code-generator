@@ -78,9 +78,10 @@ function create_class_method()
     $method = (PHPClassMethod('methodName'))->throws([
         RuntimeException::class
     ])
-        ->addParameter(PHPFunctionParameter('users', null, ["user1" => "Sandra", "user2" => "Emily"])->asVariadic())
+        ->addParameter(PHPFunctionParameter('users', null, [])->asVariadic())
         ->addParameter((PHPFunctionParameter('params', PHPFunctionParameter::class))->asOptional())
-        ->addParameter((PHPFunctionParameter('required', 'bool')->asReference()));
+        ->addParameter((PHPFunctionParameter('required', 'bool')->asReference()))
+        ->addParameter((PHPFunctionParameter('optional', 'bool', false)->asOptional()));
     //         ->addContents(
     //             <<<EOT
     // \$this->users_ = \$users;
@@ -140,6 +141,7 @@ function create_php_class()
         ->asFinal()
         ->addProperty(PHPClassProperty('request', 'Illuminate\\Http\\Request', 'private', null, 'Injected request instance'))
         ->addProperty(PHPClassProperty('fillable', 'App\\Models\\Fillable', 'private', null, 'List of addresses'))
+        ->addProperty(PHPClassProperty('incrementing', 'bool', PHPTypesModifiers::PUBLIC, true, 'Is the primary key incrementable'))
         ->addConstant(PHPClassProperty('parent_', 'App\\Person\\Contracts\\PersonInterface', 'private', null, 'Parent instance'))
         ->addMethod(create_class_method())
         ->addToNamespace("App\\Models");
