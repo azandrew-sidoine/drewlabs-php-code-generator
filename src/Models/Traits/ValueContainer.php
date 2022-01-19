@@ -55,7 +55,6 @@ trait ValueContainer
             return $this->value_;
         }
         $this->value_ = $value;
-
         return $this;
     }
 
@@ -127,8 +126,7 @@ trait ValueContainer
         $isPHPClassDef = (drewlabs_core_strings_is_str($value) && (drewlabs_core_strings_contains($value, '\\') || drewlabs_core_strings_starts_with($value, 'new') || drewlabs_core_strings_ends_with($value, '::class')));
         if (\is_bool($value)) {
             $this->setType(null === $type ? sprintf('%s', PHPTypes::BOOLEAN) : $type);
-
-            return "$value";
+            return $value === false ? "false" : "true";
         } elseif (is_numeric($value) || $isPHPClassDef) {
             $this->setType(null === $type ? (is_numeric($value) ? sprintf('%s|%s', PHPTypes::INT, PHPTypes::FLOAT) : sprintf('%s', PHPTypes::OBJECT)) : $type);
 

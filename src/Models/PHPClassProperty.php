@@ -55,7 +55,7 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
         if (null !== $modifier) {
             $this->setModifier($modifier);
         }
-        $this->value($default ?? '');
+        $this->value(null === $default ? '' : $default);
     }
 
     public function __toString(): string
@@ -92,7 +92,7 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
         $parts[] = $definition;
         if ($this->getIndentation()) {
             $parts = array_map(function ($part) {
-                return $this->getIndentation().$part;
+                return $this->getIndentation() . $part;
             }, $parts);
         }
 
