@@ -82,8 +82,8 @@ class PHPVariable implements ValueContainer
             }
             $definition = $this->isConstant_ ? sprintf('%s %s', PHPTypesModifiers::CONSTANT, drewlabs_core_strings_to_upper_case($name)) : sprintf('$%s', $name);
         }
-        if (drewlabs_core_strings_contains($value, '"[') && drewlabs_core_strings_contains($value, ']"')) {
-            $value = drewlabs_core_strings_replace(' ]"', ']', drewlabs_core_strings_replace('"[', '[', $value));
+        if (drewlabs_core_strings_contains($value, "'[") && drewlabs_core_strings_contains($value, "]'")) {
+            $value = drewlabs_core_strings_replace(" ]'", ']', drewlabs_core_strings_replace("'[", '[', $value));
         }
         if ($value && \is_string($value) && !empty($value)) {
             $definition .= drewlabs_core_strings_replace('"null"', 'null', drewlabs_core_strings_replace(['""'], '"', $this->isRValue_ ? "$value;" : " = $value;"));
