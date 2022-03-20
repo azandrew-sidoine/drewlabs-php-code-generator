@@ -122,6 +122,11 @@ function create_php_class()
         ], "self", 'public', 'parent property setter')),
         (PHPClassMethod('getFirstName', [], "string", 'public', 'firstname property getter')),
     ],))
+        ->addComment(
+            [
+                'Class defining a given person instance'
+            ]
+        )
         ->asInvokable()
         ->asStringable()
         ->addConstructor([
