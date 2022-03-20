@@ -3,3 +3,7 @@
 ## [2.1.10] 2022-03-16
 
 - Review property generator to use ' instead of " for string values
+
+## [2.1.12] 2022-03-16
+
+- Add comments defintions to class definitions
