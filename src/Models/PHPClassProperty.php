@@ -55,7 +55,7 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
         if (null !== $modifier) {
             $this->setModifier($modifier);
         }
-        $this->value(null === $default ? '' : $default);
+        $this->value($default);
     }
 
     public function __toString(): string

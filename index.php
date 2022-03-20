@@ -21,10 +21,12 @@ function create_comments($params, $multiline = false)
     return $comment->__toString();
 }
 
-function create_php_variable(string $name, $type, $value = null, $description = '')
+function create_php_variable(string $name, $type, $value = null, $description = '', $constant =  false)
 {
-    $property = PHPVariable($name, $type, $value, $description)->asConstant();
-
+    $property = PHPVariable($name, $type, $value, $description);
+    if ($constant) {
+        $property = $property->asConstant();
+    }
     return $property->__toString();
 }
 
@@ -140,13 +142,13 @@ function create_php_class()
         ->addClassPath("Illuminate\\Http\\Response")
         ->addFunctionPath("\\Drewlabs\\CodeGenerator\\Proxy\\PHPTrait")
         ->setBaseClass("\\App\\Core\\PersonBase")
-        ->addTrait('\\App\\Person\\Traits\\PersonInterface')
         ->addImplementation("\\App\\Contracts\\PersonInterface")
         ->addImplementation("\\App\\Contracts\\HumanInterface")
+        ->addTrait('\\App\\Person\\Traits\\PersonInterface')
         ->asFinal()
-        ->addProperty(PHPClassProperty('request', 'Illuminate\\Http\\Request', 'private', null, 'Injected request instance'))
-        ->addProperty(PHPClassProperty('fillable', 'App\\Models\\Fillable', 'private', null, 'List of addresses'))
-        ->addProperty(PHPClassProperty('incrementing', 'bool', PHPTypesModifiers::PUBLIC, true, 'Is the primary key incrementable'))
+        // ->addProperty(PHPClassProperty('request', 'Illuminate\\Http\\Request', 'private', null, 'Injected request instance'))
+        // ->addProperty(PHPClassProperty('fillable', 'array', 'private', ['name', 'lastname', 'birthdate'], 'Model fillable properties'))
+        // ->addProperty(PHPClassProperty('incrementing', 'bool', PHPTypesModifiers::PUBLIC, true, 'Is the primary key incrementable'))
         ->addConstant(PHPClassProperty('parent_', 'App\\Person\\Contracts\\PersonInterface', 'private', null, 'Parent instance'))
         ->addMethod(create_class_method())
         ->addToNamespace("App\\Models");
@@ -212,7 +214,7 @@ function create_php_interfaces()
 
 // echo create_comments("This is a single line comment", false) . PHP_EOL;
 
-// echo create_php_class_property('name', null, 'private', null, 'Person first name') . PHP_EOL;
+// echo create_php_class_property('name', null, 'private', "azandrew", 'Person first name') . PHP_EOL;
 // echo create_php_class_property_with_methods('x', 10, PHPTypesModifiers::PRIVATE, 'X coordinates') . PHP_EOL;
 // echo create_php_class_const_property_with_methods('y', 10, PHPTypesModifiers::PRIVATE, 'X coordinates') . PHP_EOL;
 // echo create_php_class_property('address', null, 'public', "\\Drewlabs\\Core\\Stream::class", 'Person address') . PHP_EOL;
@@ -229,10 +231,10 @@ function create_php_interfaces()
 //     "address"
 // ], "Table fillable attributes") . PHP_EOL;
 
-echo create_class_method()->__toString() . PHP_EOL;
+// echo create_class_method()->__toString() . PHP_EOL;
 
 
-echo create_php_class() . PHP_EOL;
+// echo create_php_class() . PHP_EOL;
 
 // echo create_interface_method() . PHP_EOL;
 
@@ -241,20 +243,40 @@ echo create_php_class() . PHP_EOL;
 // echo create_php_interfaces() . PHP_EOL;
 
 
-// echo create_php_variable(
-//     'fillables',
-//     null,
-//     [
-//         "firstname",
-//         "lastname",
-//         "address"
-//     ],
-//     'This is a PHP Variable'
-// ) . PHP_EOL;
+echo create_php_variable(
+    'fillables',
+    'array',
+    [
+        "firstname",
+        "lastname",
+        "address"
+    ],
+    'This is a PHP Variable'
+) . PHP_EOL;
 
-// echo create_php_variable(
-//     'welcome',
-//     'string',
-//     "Hello World!",
-//     'This is a PHP Variable'
-// ) . PHP_EOL;
+echo create_php_variable(
+    'fillables',
+    'array',
+    [
+        "firstname",
+        "lastname",
+        "address"
+    ],
+    'This is a PHP Variable',
+    true
+) . PHP_EOL;
+
+echo create_php_variable(
+    'welcome',
+    'string',
+    "Hello World!",
+    'This is a PHP Variable'
+) . PHP_EOL;
+
+echo create_php_variable(
+    'welcome',
+    'string',
+    "Hello World!",
+    'This is a PHP Variable',
+    true
+) . PHP_EOL;

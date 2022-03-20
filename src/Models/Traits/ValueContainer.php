@@ -37,7 +37,7 @@ trait ValueContainer
     /**
      * The default value to set the property to.
      *
-     * @var string|array
+     * @var string|array|null
      */
     private $value_;
 
@@ -133,8 +133,7 @@ trait ValueContainer
             return "$value";
         } elseif (drewlabs_core_strings_is_str($value) && !$isPHPClassDef) {
             $this->setType(null === $type ? sprintf('%s', PHPTypes::STRING) : $type);
-
-            return "\"$value\"";
+            return "'$value'";
         } elseif (drewlabs_core_array_is_arrayable($value)) {
             $this->setType(null === $type ? sprintf('%s', PHPTypes::LIST) : $type);
             $indentation = $this->getIndentation();
@@ -147,7 +146,7 @@ trait ValueContainer
                         return is_array($item) ? drewlabs_core_strings_replace("\"", "'", json_encode($item)) : $item;
                     };
                     $formatFunc = function($key, $item) {
-                        return is_numeric($key) ? "\t\"%s\"," : (is_numeric($item) || is_array($item) ? "\t\"%s\" => %s," : "\t\"%s\" => \"%s\",");
+                        return is_numeric($key) ? "\t'%s'," : (is_numeric($item) || is_array($item) ? "\t'%s' => %s," : "\t'%s' => '%s',");
                     };
                     $def = is_numeric($key) ? sprintf($formatFunc($key, $v), $evaluateValue($v))  . \PHP_EOL : sprintf($formatFunc($key, $v), $key, $evaluateValue($v)). \PHP_EOL;
                     $start .= $indentation ? $indentation . $def : $def;
@@ -157,7 +156,6 @@ trait ValueContainer
 
             return $start;
         }
-
-        return '';
+        return null === $value ? 'null' : '';
     }
 }
