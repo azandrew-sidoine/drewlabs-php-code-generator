@@ -50,7 +50,9 @@ class PHPClassConverter implements Stringifier
     {
         // Setting import is done in the blueprint definition
         $parts = [];
-        $parts[] = (string)((new CommentModelFactory(true))->make($clazz->comments()));
+        if (!empty($clazz->comments())) {
+            $parts[] = (string)((new CommentModelFactory(true))->make($clazz->comments()));
+        }
         $modifier = $clazz->isFinal() ? 'final ' : ($clazz->isAbstract() ? 'abstract ' : '');
         $declaration = sprintf('%sclass %s', $modifier, $clazz->getName());
         $baseClazz = $clazz->getBaseClass();

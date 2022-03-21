@@ -31,7 +31,6 @@ trait Commentable
             return $this->descriptors_;
         }
         $this->descriptors_ = \is_array($value) ? $value : [$value];
-
         return $this;
     }
 

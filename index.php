@@ -234,7 +234,7 @@ function create_php_interfaces()
 // echo create_class_method()->__toString() . PHP_EOL;
 
 
-// echo create_php_class() . PHP_EOL;
+echo create_php_class() . PHP_EOL;
 
 // echo create_interface_method() . PHP_EOL;
 
@@ -243,40 +243,40 @@ function create_php_interfaces()
 // echo create_php_interfaces() . PHP_EOL;
 
 
-echo create_php_variable(
-    'fillables',
-    'array',
-    [
-        "firstname",
-        "lastname",
-        "address"
-    ],
-    'This is a PHP Variable'
-) . PHP_EOL;
+// echo create_php_variable(
+//     'fillables',
+//     'array',
+//     [
+//         "firstname",
+//         "lastname",
+//         "address"
+//     ],
+//     'This is a PHP Variable'
+// ) . PHP_EOL;
 
-echo create_php_variable(
-    'fillables',
-    'array',
-    [
-        "firstname",
-        "lastname",
-        "address"
-    ],
-    'This is a PHP Variable',
-    true
-) . PHP_EOL;
+// echo create_php_variable(
+//     'fillables',
+//     'array',
+//     [
+//         "firstname",
+//         "lastname",
+//         "address"
+//     ],
+//     'This is a PHP Variable',
+//     true
+// ) . PHP_EOL;
 
-echo create_php_variable(
-    'welcome',
-    'string',
-    "Hello World!",
-    'This is a PHP Variable'
-) . PHP_EOL;
+// echo create_php_variable(
+//     'welcome',
+//     'string',
+//     "Hello World!",
+//     'This is a PHP Variable'
+// ) . PHP_EOL;
 
-echo create_php_variable(
-    'welcome',
-    'string',
-    "Hello World!",
-    'This is a PHP Variable',
-    true
-) . PHP_EOL;
+// echo create_php_variable(
+//     'welcome',
+//     'string',
+//     "Hello World!",
+//     'This is a PHP Variable',
+//     true
+// ) . PHP_EOL;
