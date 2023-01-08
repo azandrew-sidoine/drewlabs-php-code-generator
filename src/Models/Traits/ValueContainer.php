@@ -129,11 +129,10 @@ trait ValueContainer
             return $value === false ? "false" : "true";
         } elseif (is_numeric($value) || $isPHPClassDef) {
             $this->setType(null === $type ? (is_numeric($value) ? sprintf('%s|%s', PHPTypes::INT, PHPTypes::FLOAT) : sprintf('%s', PHPTypes::OBJECT)) : $type);
-
             return "$value";
         } elseif (drewlabs_core_strings_is_str($value) && !$isPHPClassDef) {
             $this->setType(null === $type ? sprintf('%s', PHPTypes::STRING) : $type);
-            return "'$value'";
+            return $this->compileScalar($value);
         } elseif (drewlabs_core_array_is_arrayable($value)) {
             $this->setType(null === $type ? sprintf('%s', PHPTypes::LIST) : $type);
             $indentation = $this->getIndentation();
@@ -142,13 +141,14 @@ trait ValueContainer
             } else {
                 $start = '[' . \PHP_EOL;
                 foreach ($value as $key => $v) {
-                    $evaluateValue = function($item) {
-                        return is_array($item) ? drewlabs_core_strings_replace("\"", "'", json_encode($item)) : $item;
+                    $evaluateValue = function ($item) {
+                        return is_array($item) ?
+                            $this->compileArray($item) : $this->compileScalar($item);
                     };
-                    $formatFunc = function($key, $item) {
+                    $formatFunc = function ($key, $item) {
                         return is_numeric($key) ? "\t'%s'," : (is_numeric($item) || is_array($item) ? "\t'%s' => %s," : "\t'%s' => '%s',");
                     };
-                    $def = is_numeric($key) ? sprintf($formatFunc($key, $v), $evaluateValue($v))  . \PHP_EOL : sprintf($formatFunc($key, $v), $key, $evaluateValue($v)). \PHP_EOL;
+                    $def = is_numeric($key) ? sprintf($formatFunc($key, $v), $evaluateValue($v))  . \PHP_EOL : sprintf($formatFunc($key, $v), $key, $evaluateValue($v)) . \PHP_EOL;
                     $start .= $indentation ? $indentation . $def : $def;
                 }
                 $start .= $indentation ? $indentation . ']' : ']';
@@ -157,5 +157,49 @@ trait ValueContainer
             return $start;
         }
         return null === $value ? 'null' : '';
+    }
+
+    /**
+     * Compile a scalar expression
+     * 
+     * @param string $value 
+     * @return string 
+     */
+    private function compileScalar(string $value)
+    {
+        return (is_string($value) && substr($value, 0, strlen('expr:')) === 'expr:' || is_numeric($value) ? str_replace('expr:', '', (string)$value) : "'$value'");
+    }
+
+    /**
+     * Compile array into a string value
+     * 
+     * @param array $variable 
+     * @param string $indentation 
+     * @return string 
+     */
+    private function compileArray(array $variable, string $indentation = "\t")
+    {
+        $output = ['['];
+        $prettify = false;
+        foreach ($variable as $key => $value) {
+            if (is_array($value)) {
+                $prettify = true;
+                $output[] = $indentation . "\t" . (is_numeric($key) ? '' : "'$key' => ") . $this->compileArray($value, "\t" . $indentation) . ', ';
+                continue;
+            }
+            $output[] = $indentation . "\t" . (is_numeric($key) ? '' : "'$key' => ") .  (is_string($value) && substr($value, 0, strlen('expr:')) === 'expr:' || is_numeric($value) ? str_replace('expr:', '', (string)$value) : "'$value'") . ', ';
+        }
+        $output[count($output) - 1] = rtrim($output[count($output) - 1], ', ');
+        $output[] = $prettify ? \PHP_EOL . $indentation . ']' : ']';
+        if ($prettify) {
+            for ($i = 1; $i < count($output) - 1; $i++) {
+                $output[$i] = \PHP_EOL . $output[$i];
+            }
+        } else {
+            for ($i = 1; $i < count($output) - 1; $i++) {
+                $output[$i] = ltrim($output[$i], $indentation);
+            }
+        }
+        return implode($output);
     }
 }

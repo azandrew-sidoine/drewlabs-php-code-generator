@@ -75,25 +75,17 @@ class PHPVariable implements ValueContainer
         $definition = '';
         if (!$this->isRValue_) {
             // Generate comments
-            if ($this->getIndentation()) {
-                $parts[] = $this->comment_->setIndentation($this->getIndentation())->__toString();
-            } else {
-                $parts[] = $this->comment_->__toString();
-            }
+            $parts[] = $this->getIndentation() ? $this->comment_->setIndentation($this->getIndentation())->__toString() : $this->comment_->__toString();
             $definition = $this->isConstant_ ? sprintf('%s %s', PHPTypesModifiers::CONSTANT, drewlabs_core_strings_to_upper_case($name)) : sprintf('$%s', $name);
         }
         if (drewlabs_core_strings_contains($value, "'[") && drewlabs_core_strings_contains($value, "]'")) {
             $value = drewlabs_core_strings_replace(" ]'", ']', drewlabs_core_strings_replace("'[", '[', $value));
         }
-        if ($value && \is_string($value) && !empty($value)) {
-            $definition .= drewlabs_core_strings_replace('"null"', 'null', drewlabs_core_strings_replace(['""'], '"', $this->isRValue_ ? "$value;" : " = $value;"));
-        } else {
-            $definition .= ';';
-        }
+        $definition .= $value && \is_string($value) && !empty($value) ?  drewlabs_core_strings_replace('"null"', 'null', drewlabs_core_strings_replace(['""'], '"', $this->isRValue_ ? "$value;" : " = $value;")) : ';';
         $parts[] = $definition;
         if ($this->getIndentation()) {
             $parts = array_map(function ($part) {
-                return $this->getIndentation().$part;
+                return $this->getIndentation() . $part;
             }, $parts);
         }
 
