@@ -74,21 +74,15 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
         // Generate defintion / declarations
         $modifier = (null !== $this->accessModifier()) && \in_array(
             $this->accessModifier(),
-            [
-                'private', 'protected', 'public',
-            ],
+            ['private', 'protected', 'public'],
             true
         ) ? $this->accessModifier() : PHPTypesModifiers::PUBLIC;
+
         $definition = $this->isConstant_ ? sprintf('%s %s %s', $modifier, PHPTypesModifiers::CONSTANT, drewlabs_core_strings_to_upper_case($name)) : sprintf('%s $%s', $modifier, $name);
-        // TODO : Review this part after all classes tested successfully
-        if (drewlabs_core_strings_contains($value, '"[') && drewlabs_core_strings_contains($value, ']"')) {
-            $value = drewlabs_core_strings_replace(' ]"', ']', drewlabs_core_strings_replace('"[', '[', $value));
+        if (drewlabs_core_strings_contains($value, "'[") && drewlabs_core_strings_contains($value, "]'")) {
+            $value = drewlabs_core_strings_replace(" ]'", ']', drewlabs_core_strings_replace("'[", '[', $value));
         }
-        if ($value && \is_string($value) && !empty($value)) {
-            $definition .= drewlabs_core_strings_replace('"null"', 'null', drewlabs_core_strings_replace(['""'], '"', " = $value;"));
-        } else {
-            $definition .= ';';
-        }
+        $definition .= $value && \is_string($value) && !empty($value) ? drewlabs_core_strings_replace('"null"', 'null', drewlabs_core_strings_replace(["''"], "'", drewlabs_core_strings_replace(['""'], '"', " = $value;"))) : ';';
         $parts[] = $definition;
         if ($this->getIndentation()) {
             $parts = array_map(function ($part) {

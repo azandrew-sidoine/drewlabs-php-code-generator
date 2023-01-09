@@ -81,7 +81,7 @@ class PHPVariable implements ValueContainer
         if (drewlabs_core_strings_contains($value, "'[") && drewlabs_core_strings_contains($value, "]'")) {
             $value = drewlabs_core_strings_replace(" ]'", ']', drewlabs_core_strings_replace("'[", '[', $value));
         }
-        $definition .= $value && \is_string($value) && !empty($value) ?  drewlabs_core_strings_replace('"null"', 'null', drewlabs_core_strings_replace(['""'], '"', $this->isRValue_ ? "$value;" : " = $value;")) : ';';
+        $definition .= $value && \is_string($value) && !empty($value) ?  drewlabs_core_strings_replace('"null"', 'null', drewlabs_core_strings_replace(["''"], "'", drewlabs_core_strings_replace(['""'], '"', $this->isRValue_ ? "$value;" : " = $value;"))) : ';';
         $parts[] = $definition;
         if ($this->getIndentation()) {
             $parts = array_map(function ($part) {

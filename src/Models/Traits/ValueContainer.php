@@ -123,7 +123,10 @@ trait ValueContainer
         if (drewlabs_core_strings_is_str($value) && empty($value)) {
             return '';
         }
-        $isPHPClassDef = (drewlabs_core_strings_is_str($value) && (drewlabs_core_strings_contains($value, '\\') || drewlabs_core_strings_starts_with($value, 'new') || drewlabs_core_strings_ends_with($value, '::class')));
+        $isPHPClassDef = (drewlabs_core_strings_is_str($value) &&
+            (drewlabs_core_strings_contains($value, '\\') ||
+                drewlabs_core_strings_starts_with($value, 'new') ||
+                drewlabs_core_strings_ends_with($value, '::class')));
         if (\is_bool($value)) {
             $this->setType(null === $type ? sprintf('%s', PHPTypes::BOOLEAN) : $type);
             return $value === false ? "false" : "true";
@@ -148,7 +151,9 @@ trait ValueContainer
                     $formatFunc = function ($key, $item) {
                         return is_numeric($key) ? "\t'%s'," : (is_numeric($item) || is_array($item) ? "\t'%s' => %s," : "\t'%s' => '%s',");
                     };
-                    $def = is_numeric($key) ? sprintf($formatFunc($key, $v), $evaluateValue($v))  . \PHP_EOL : sprintf($formatFunc($key, $v), $key, $evaluateValue($v)) . \PHP_EOL;
+                    $def = is_numeric($key) ?
+                        sprintf($formatFunc($key, $v), $evaluateValue($v))  . \PHP_EOL :
+                        sprintf($formatFunc($key, $v), $key, $evaluateValue($v)) . \PHP_EOL;
                     $start .= $indentation ? $indentation . $def : $def;
                 }
                 $start .= $indentation ? $indentation . ']' : ']';
@@ -187,7 +192,7 @@ trait ValueContainer
                 $output[] = $indentation . "\t" . (is_numeric($key) ? '' : "'$key' => ") . $this->compileArray($value, "\t" . $indentation) . ', ';
                 continue;
             }
-            $output[] = $indentation . "\t" . (is_numeric($key) ? '' : "'$key' => ") .  (is_string($value) && substr($value, 0, strlen('expr:')) === 'expr:' || is_numeric($value) ? str_replace('expr:', '', (string)$value) : "'$value'") . ', ';
+            $output[] = $indentation . "\t" . (is_numeric($key) ? '' : "'$key' => ") .  $this->compileScalar($value) . ', ';
         }
         $output[count($output) - 1] = rtrim($output[count($output) - 1], ', ');
         $output[] = $prettify ? \PHP_EOL . $indentation . ']' : ']';
@@ -200,6 +205,6 @@ trait ValueContainer
                 $output[$i] = ltrim($output[$i], $indentation);
             }
         }
-        return implode($output);
+        return str_replace("''", "'", implode($output));
     }
 }
