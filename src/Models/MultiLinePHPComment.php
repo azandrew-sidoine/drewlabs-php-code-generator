@@ -15,6 +15,7 @@ namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\Stringable;
 use Drewlabs\CodeGenerator\DocComments\Keywords;
+use Drewlabs\CodeGenerator\Helpers\Str;
 use Drewlabs\CodeGenerator\Models\Traits\HasIndentation;
 
 class MultiLinePHPComment implements Stringable
@@ -38,7 +39,7 @@ class MultiLinePHPComment implements Stringable
         $start = '/**';
         $parts[0] = $start;
         foreach (($this->getDescriptors() ?? []) as $key => $value) {
-            $addLine = drewlabs_core_strings_contains($value, Keywords::THROWS) || drewlabs_core_strings_contains($value, Keywords::RETURNS);
+            $addLine = Str::contains($value, Keywords::THROWS) || Str::contains($value, Keywords::RETURNS);
             if ($addLine) {
                 $parts[] = $this->getIndentation() ? $this->getIndentation().' *' : ' *';
             }

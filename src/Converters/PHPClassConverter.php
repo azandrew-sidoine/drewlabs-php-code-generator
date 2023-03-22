@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Converters;
 
+use Drewlabs\CodeGenerator\CommentModelFactory;
 use Drewlabs\CodeGenerator\Contracts\Blueprint;
 use Drewlabs\CodeGenerator\Contracts\Converters\Stringifier;
 use Drewlabs\CodeGenerator\Contracts\ValueContainer;
@@ -45,10 +46,13 @@ class PHPClassConverter implements Stringifier
     /**
      * Returns the class a PHP string that can be write to a file.
      */
-    protected function blueprintToString(Blueprint $clazz): string
+    protected function blueprintToString($clazz): string
     {
         // Setting import is done in the blueprint definition
         $parts = [];
+        if (!empty($clazz->comments())) {
+            $parts[] = (string)((new CommentModelFactory(true))->make($clazz->comments()));
+        }
         $modifier = $clazz->isFinal() ? 'final ' : ($clazz->isAbstract() ? 'abstract ' : '');
         $declaration = sprintf('%sclass %s', $modifier, $clazz->getName());
         $baseClazz = $clazz->getBaseClass();

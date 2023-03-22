@@ -1,10 +1,7 @@
 /vendor
-vendor/
 tests/
-tests/**/**
 index.php
-.metals
-.vscode
-/.vscode
-.metals**
+.metals/
+.vscode/
 composer.lock
+index.php
