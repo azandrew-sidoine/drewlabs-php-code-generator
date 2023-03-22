@@ -13,19 +13,22 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface OOPComposableStruct extends OOPStructInterface
+interface PathImportContainer
 {
     /**
-     * Returns the list of traits of the blueprint.
-     *
-     * @return string[]
+     * List of component imports.
      */
-    public function getTraits(): ?array;
+    public function getImports(): array;
 
     /**
-     * Add a given trait to the structure definition.
+     * Set the list of global imports definitions on the component.
      *
      * @return self|mixed
      */
-    public function addTrait(string $trait);
+    public function setGlobalImports(array $values);
+
+    /**
+     * Returns the list of imports of the container.
+     */
+    public function getGlobalImports(): array;
 }

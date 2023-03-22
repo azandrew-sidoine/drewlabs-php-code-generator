@@ -18,29 +18,17 @@ use Drewlabs\Core\Helpers\Arrays\BinarySearchResult;
 
 trait OOPStructComponent
 {
+    use BelongsToNamespace;
     use HasImportDeclarations;
     use HasPropertyDefinitions;
+    use Type;
 
-    /**
-     * @var string
-     */
-    private $name_;
     /**
      * @var CallableInterface[]
      */
     private $methods_ = [];
 
-    /**
-     * The namespace the class belongs to.
-     *
-     * @var string
-     */
-    private $namespace_;
-
-    public function getName()
-    {
-        return $this->name_;
-    }
+    private $constructorMethodName_ = '__construct';
 
     public function addMethod(CallableInterface $method)
     {
@@ -53,19 +41,17 @@ trait OOPStructComponent
             if ($methods[$curr]->equals($item)) {
                 return BinarySearchResult::FOUND;
             }
+
             return strcmp($methods[$curr]->getName(), $item->getName()) > 0 ? BinarySearchResult::LEFT : BinarySearchResult::RIGHT;
         });
         if (BinarySearchResult::LEFT !== $match) {
             throw new \RuntimeException('Duplicated method definition : '.$method->getName());
         }
-        $this->methods_[] = $method;
-
-        return $this;
-    }
-
-    public function addToNamespace(string $namespace)
-    {
-        $this->namespace_ = $namespace;
+        if ($method->getName() === $this->constructorMethodName_) {
+            $this->methods_ = [$method, ...($this->methods_ ?? [])];
+        } else {
+            $this->methods_[] = $method;
+        }
 
         return $this;
     }
@@ -78,13 +64,5 @@ trait OOPStructComponent
     public function getMethods(): array
     {
         return $this->methods_ ?? [];
-    }
-
-    /**
-     * Returns the namespace that the current class belongs to.
-     */
-    public function getNamespace(): ?string
-    {
-        return $this->namespace_ ?? null;
     }
 }

@@ -58,8 +58,19 @@ class PHPNamespace implements Stringable
             return \is_string($import) ? drewlabs_core_strings_ltrim($import, '\\') : $import;
         }, $this->imports_);
         $parts[] = '';
+        $functions_imports = [];
+        $class_imports = [];
         foreach ($imports as $value) {
-            $parts[] = "use $value;";
+            if (drewlabs_core_strings_starts_with($value, 'function ')) {
+                $functions_imports[] = "use $value;";
+            } else {
+                $class_imports[] = "use $value;";
+            }
+        }
+        $parts = array_merge($parts, $class_imports);
+        if (\count($functions_imports) > 0) {
+            $parts[] = \PHP_EOL.'// Function import statements';
+            $parts = array_merge($parts, $functions_imports);
         }
         $parts[] = '';
         // Add content here

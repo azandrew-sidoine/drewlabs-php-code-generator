@@ -13,12 +13,14 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface OOPComponentInterface extends Stringable
+interface Commentable
 {
     /**
-     * Return component name.
+     * Add comments to the property definition.
      *
-     * @return string
+     * @param string[]|string $value
+     *
+     * @return self|ValueContainer|CallableInterface|mixed
      */
-    public function getName();
+    public function addComment($value);
 }

@@ -13,8 +13,16 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface ImplementableStruct extends OOPComponentInterface, ClassPathImportContainer
+interface ImplementableStruct extends PathImportContainer, NamespaceComponent
 {
+
+    /**
+     * Return component name.
+     *
+     * @return string
+     */
+    public function getName();
+
     /**
      * Returns the base interface that the component inherit from.
      */

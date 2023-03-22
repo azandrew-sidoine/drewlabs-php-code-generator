@@ -13,21 +13,12 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface ClassMemberInterface extends IndentableComponentInterface, ClassPathImportContainer
+interface ClassMemberInterface extends Commentable
 {
     /**
      * Set the property Access modifier definition.
      *
-     * @return self|ClassPropertyInterface|CallableInterface
+     * @return self|ValueContainer|CallableInterface
      */
     public function setModifier(string $modifier);
-
-    /**
-     * Add comments to the property definition.
-     *
-     * @param string[]|string $value
-     *
-     * @return self|ClassPropertyInterface|CallableInterface|mixed
-     */
-    public function addComment($value);
 }

@@ -56,4 +56,32 @@ interface FunctionParameterInterface
      * @return bool
      */
     public function equals(self $value);
+
+    /**
+     * Makes the parameter an ellipsis by adding (...) in front of the parameter.
+     *
+     * @return self
+     */
+    public function asVariadic();
+
+    /**
+     * Boolean value returns indicating the type of parameter.
+     *
+     * @return self
+     */
+    public function isVariadic();
+
+    /**
+     * Creates a reference paramater to a callable.
+     *
+     * @return self
+     */
+    public function asReference();
+
+    /**
+     * Boolean value returns show if the parameter is a reference parameter or not.
+     *
+     * @return self
+     */
+    public function isReference();
 }

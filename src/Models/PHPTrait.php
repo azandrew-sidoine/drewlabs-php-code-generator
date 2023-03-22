@@ -57,6 +57,29 @@ final class PHPTrait implements TraitableStruct
      */
     public function __toString(): string
     {
-        return (new PHPTraitConverter())->stringify($this) ?? '';
+        return (new PHPTraitConverter())->stringify($this->prepare()) ?? '';
+    }
+
+    /**
+     * Set the class imports and returns.
+     *
+     * @return self
+     */
+    public function prepare()
+    {
+        $traits = [];
+        foreach (($this->traits_ ?? []) as $value) {
+            if (drewlabs_core_strings_contains($value, '\\')) {
+                $traits[] = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
+                    return $this->getClassFromClassPath($classPath);
+                })($value);
+                $this->setGlobalImports($this->getImports());
+            } else {
+                $traits[] = $value;
+            }
+        }
+        $this->traits_ = $traits;
+
+        return $this;
     }
 }

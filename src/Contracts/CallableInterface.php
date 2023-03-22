@@ -13,14 +13,29 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface CallableInterface extends ClassMemberInterface
+interface CallableInterface extends Indentable, NamespaceComponent, PathImportContainer, Commentable
 {
+
+    /**
+     * Return component name.
+     *
+     * @return string
+     */
+    public function getName();
+
     /**
      * Add a new Parameter to the method.
      *
      * @return self
      */
-    public function addParam(FunctionParameterInterface $param);
+    public function addParameter(FunctionParameterInterface $param);
+
+    /**
+     * Returns the list of callable parameters.
+     *
+     * @return array|FunctionParameterInterface[]
+     */
+    public function getParameters();
 
     /**
      * Specify the exceptions that the current method throws.
@@ -36,7 +51,7 @@ interface CallableInterface extends ClassMemberInterface
      *
      * @return self
      */
-    public function asInterfaceMethod();
+    public function asCallableSignature();
 
     /**
      * Add contents to the generated method.
@@ -55,15 +70,13 @@ interface CallableInterface extends ClassMemberInterface
     /**
      * Add a new line to the method.
      *
-     * @param string $line
      * @return self
      */
     public function addLine(string $line);
 
     /**
-     * Set the return type of the function or method
+     * Set the return type of the function or method.
      *
-     * @param string $type
      * @return self
      */
     public function setReturnType(string $type);

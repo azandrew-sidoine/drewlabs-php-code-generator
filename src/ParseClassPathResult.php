@@ -29,7 +29,7 @@ class ParseClassPathResult
      */
     private $classPath_;
 
-    public function __construct(string $name, string $classPath)
+    public function __construct(string $name, ?string $classPath = null)
     {
         $this->name_ = $name;
         $this->classPath_ = $classPath;

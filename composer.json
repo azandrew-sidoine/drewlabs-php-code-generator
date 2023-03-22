@@ -6,7 +6,10 @@
     "autoload": {
         "psr-4": {
             "Drewlabs\\CodeGenerator\\": "src/"
-        }
+        },
+        "files": [
+            "./src/proxies.php"
+        ]
     },
     "authors": [
         {
@@ -16,9 +19,9 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": "^7.3|^8.0",
-        "drewlabs/contracts": "v1.0.x-dev",
-        "drewlabs/core-helpers": "v1.0.x-dev"
+        "php": "^7.3|^7.4|^8.0|^8.1",
+        "drewlabs/contracts": "^2.0.20",
+        "drewlabs/core-helpers": "^2.0"
     },
 
     "repositories": [

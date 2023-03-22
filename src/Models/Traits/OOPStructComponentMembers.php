@@ -13,23 +13,21 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Models\Traits;
 
+use Drewlabs\CodeGenerator\Contracts\CallableInterface;
+use Drewlabs\CodeGenerator\Contracts\ValueContainer;
+
 trait OOPStructComponentMembers
 {
-    /**
-     * @var string
-     */
-    private $name_;
-
     /**
      * @var string
      */
     private $accessModifier_;
 
     /**
-     * @var string[]|string
+     * {@inheritDoc}
+     *
+     * @return ValueContainer|CallableInterface
      */
-    private $descriptors_;
-
     public function setModifier(string $value)
     {
         if (null === $value) {
@@ -40,18 +38,8 @@ trait OOPStructComponentMembers
         return $this;
     }
 
-    public function addComment($value)
+    public function accessModifier()
     {
-        if (null === $value) {
-            return $this->descriptors_;
-        }
-        $this->descriptors_ = \is_array($value) ? $value : [$value];
-
-        return $this;
-    }
-
-    public function getName()
-    {
-        return $this->name_;
+        return $this->accessModifier_;
     }
 }

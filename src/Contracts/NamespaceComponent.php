@@ -13,22 +13,17 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface ClassPathImportContainer
+interface NamespaceComponent extends Stringable
 {
     /**
-     * List of component imports.
-     */
-    public function getImports(): array;
-
-    /**
-     * Set the list of global imports definitions on the component.
+     * Add the oop component to a namespace.
      *
      * @return self|mixed
      */
-    public function setGlobalImports(array $values);
+    public function addToNamespace(?string $namespace = null);
 
     /**
-     * Returns the list of imports of the container.
+     * Returns the namespace that the current component belongs to.
      */
-    public function getGlobalImports(): array;
+    public function getNamespace(): ?string;
 }
