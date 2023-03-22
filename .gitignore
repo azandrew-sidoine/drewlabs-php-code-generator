@@ -1,5 +1,6 @@
 /vendor
-vendor/**/**
+vendor/
 tests/
-tests/**/**
+tests/
 index.php
+.vscode/
