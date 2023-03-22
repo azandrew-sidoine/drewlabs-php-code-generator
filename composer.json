@@ -19,14 +19,6 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": "^7.3|^7.4|^8.0|^8.1",
-        "drewlabs/core-helpers": "^1.0|^2.0"
-    },
-
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@github.com:liksoft/drewlabs-php-core-helpers.git"
-        }
-    ]
+        "php": ">=7.2"
+    }
 }

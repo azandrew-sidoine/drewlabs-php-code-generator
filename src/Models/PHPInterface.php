@@ -15,6 +15,7 @@ namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\ImplementableStruct;
 use Drewlabs\CodeGenerator\Converters\PHPInterfaceConverter;
+use Drewlabs\CodeGenerator\Helpers\Str;
 use Drewlabs\CodeGenerator\Models\Traits\OOPStructComponent;
 
 final class PHPInterface implements ImplementableStruct
@@ -67,7 +68,7 @@ final class PHPInterface implements ImplementableStruct
     public function prepare()
     {
         // Set base class imports
-        if (drewlabs_core_strings_contains($this->baseInterface_, '\\')) {
+        if (Str::contains($this->baseInterface_, '\\')) {
             $this->baseInterface_ = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                 return $this->getClassFromClassPath($classPath);
             })($this->baseInterface_);

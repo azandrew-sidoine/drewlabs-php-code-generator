@@ -42,6 +42,6 @@ trait Commentable
     public function comments()
     {
         // Descriptors must be either array or string
-        return array_filter((drewlabs_core_strings_is_str($this->descriptors_) ? [$this->descriptors_] : (\is_array($this->descriptors_) ? $this->descriptors_ : [])) ?? []);
+        return array_filter((is_string($this->descriptors_) ? [$this->descriptors_] : (\is_array($this->descriptors_) ? $this->descriptors_ : [])) ?? []);
     }
 }

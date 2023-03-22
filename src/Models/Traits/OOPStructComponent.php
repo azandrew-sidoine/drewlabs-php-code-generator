@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Drewlabs\CodeGenerator\Models\Traits;
 
 use Drewlabs\CodeGenerator\Contracts\CallableInterface;
-use Drewlabs\Core\Helpers\Arrays\BinarySearchResult;
+use Drewlabs\CodeGenerator\Helpers\Arr;
 
 trait OOPStructComponent
 {
@@ -37,14 +37,14 @@ trait OOPStructComponent
             $methods[$value->getName()] = $value;
         }
         sort($methods);
-        $match = drewlabs_core_array_bsearch(array_keys($methods), $method, static function ($curr, CallableInterface $item) use ($methods) {
+        $match = Arr::bsearch(array_keys($methods), $method, static function ($curr, CallableInterface $item) use ($methods) {
             if ($methods[$curr]->equals($item)) {
-                return BinarySearchResult::FOUND;
+                return 0;
             }
 
-            return strcmp($methods[$curr]->getName(), $item->getName()) > 0 ? BinarySearchResult::LEFT : BinarySearchResult::RIGHT;
+            return strcmp($methods[$curr]->getName(), $item->getName()) > 0 ? -1 : 1;
         });
-        if (BinarySearchResult::LEFT !== $match) {
+        if (-1 !== $match) {
             throw new \RuntimeException('Duplicated method definition : '.$method->getName());
         }
         if ($method->getName() === $this->constructorMethodName_) {

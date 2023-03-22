@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\Stringable;
+use Drewlabs\CodeGenerator\Helpers\Str;
 
 class PHPNamespace implements Stringable
 {
@@ -44,6 +45,12 @@ class PHPNamespace implements Stringable
     private $interfaces_ = [];
 
     /**
+     * 
+     * @var string[]
+     */
+    private $imports_ = [];
+
+    /**
      * Undocumented function.
      */
     public function __construct(string $ns)
@@ -54,14 +61,14 @@ class PHPNamespace implements Stringable
     public function __toString(): string
     {
         $parts = $this->ns_ ? ["namespace $this->ns_;"] : [];
-        $imports = array_map(static function ($import) {
-            return \is_string($import) ? drewlabs_core_strings_ltrim($import, '\\') : $import;
-        }, $this->imports_);
+        $imports = array_unique(array_map(static function ($import) {
+            return \is_string($import) ? ltrim($import, '\\') : $import;
+        }, $this->imports_));
         $parts[] = '';
         $functions_imports = [];
         $class_imports = [];
         foreach ($imports as $value) {
-            if (drewlabs_core_strings_starts_with($value, 'function ')) {
+            if (Str::startsWith($value, 'function ')) {
                 $functions_imports[] = "use $value;";
             } else {
                 $class_imports[] = "use $value;";
@@ -143,7 +150,6 @@ class PHPNamespace implements Stringable
         foreach (($this->traits_ ?? []) as $value) {
             $traits[$value->getName()] = $value->addToNamespace($this->ns_)->__toString();
         }
-
         return $traits;
     }
 }

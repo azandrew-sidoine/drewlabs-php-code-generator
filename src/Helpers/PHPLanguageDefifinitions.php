@@ -25,13 +25,13 @@ class PHPLanguageDefifinitions
     public static function isBlock(string $line)
     {
         return !empty($line) &&
-            ((drewlabs_core_strings_starts_with(trim($line), '{') && drewlabs_core_strings_ends_with(trim($line), '{')) ||
-                drewlabs_core_strings_ends_with(trim($line), '{') ||
-                (drewlabs_core_strings_starts_with(trim($line), '}') && drewlabs_core_strings_ends_with(trim($line), '}')) ||
-                drewlabs_core_strings_ends_with(trim($line), '}') ||
-                (drewlabs_core_strings_starts_with(trim($line), ':') && (drewlabs_core_strings_ends_with(trim($line), ':'))) ||
-                drewlabs_core_strings_ends_with(trim($line), ':') || (drewlabs_core_strings_starts_with(trim($line), '(') && drewlabs_core_strings_ends_with(trim($line), ')')) ||
-                drewlabs_core_strings_ends_with(trim($line), '('));
+            ((Str::startsWith(trim($line), '{') && Str::endsWith(trim($line), '{')) ||
+                Str::endsWith(trim($line), '{') ||
+                (Str::startsWith(trim($line), '}') && Str::endsWith(trim($line), '}')) ||
+                Str::endsWith(trim($line), '}') ||
+                (Str::startsWith(trim($line), ':') && (Str::endsWith(trim($line), ':'))) ||
+                Str::endsWith(trim($line), ':') || (Str::startsWith(trim($line), '(') && Str::endsWith(trim($line), ')')) ||
+                Str::endsWith(trim($line), '('));
     }
 
     /**
@@ -42,19 +42,19 @@ class PHPLanguageDefifinitions
     public static function isComment(string $line)
     {
         return !empty($line) &&
-            (drewlabs_core_strings_starts_with(trim($line), '*') ||
-                drewlabs_core_strings_starts_with(trim($line), '/*') ||
-                drewlabs_core_strings_ends_with(trim($line), '*/') ||
-                drewlabs_core_strings_starts_with(trim($line), '//') ||
-                drewlabs_core_strings_starts_with(trim($line), '#'));
+            (Str::startsWith(trim($line), '*') ||
+                Str::startsWith(trim($line), '/*') ||
+                Str::endsWith(trim($line), '*/') ||
+                Str::startsWith(trim($line), '//') ||
+                Str::startsWith(trim($line), '#'));
     }
 
     public static function endsWithSpecialCharacters(string $line, array $characters = [])
     {
-        $characters = $characters ? drewlabs_core_array_unique(array_merge($characters, self::DEFAULT_SPECIAL_CHARACTERS)) : self::DEFAULT_SPECIAL_CHARACTERS;
+        $characters = $characters ? array_unique(array_merge($characters, self::DEFAULT_SPECIAL_CHARACTERS)) : self::DEFAULT_SPECIAL_CHARACTERS;
         foreach ($characters as $value) {
             // code...
-            if (drewlabs_core_strings_ends_with(rtrim($line), $value)) {
+            if (Str::endsWith(rtrim($line), $value)) {
                 return true;
             }
         }
@@ -64,10 +64,10 @@ class PHPLanguageDefifinitions
 
     public static function startsWithSpecialCharacters(string $line, array $characters = [])
     {
-        $characters = $characters ? drewlabs_core_array_unique(array_merge($characters, self::DEFAULT_SPECIAL_CHARACTERS)) : self::DEFAULT_SPECIAL_CHARACTERS;
+        $characters = $characters ? array_unique(array_merge($characters, self::DEFAULT_SPECIAL_CHARACTERS)) : self::DEFAULT_SPECIAL_CHARACTERS;
         foreach ($characters as $value) {
             // code...
-            if (drewlabs_core_strings_starts_with(ltrim($line), $value)) {
+            if (Str::startsWith(ltrim($line), $value)) {
                 return true;
             }
         }

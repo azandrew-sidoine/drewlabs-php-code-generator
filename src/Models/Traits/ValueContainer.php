@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Drewlabs\CodeGenerator\Models\Traits;
 
 use Drewlabs\CodeGenerator\Contracts\ValueContainer as ContractsValueContainer;
+use Drewlabs\CodeGenerator\Helpers\Str;
+
 use function Drewlabs\CodeGenerator\Proxy\CommentFactory;
 
 use Drewlabs\CodeGenerator\Types\PHPTypes;
@@ -73,7 +75,7 @@ trait ValueContainer
     protected function prepare()
     {
         $type = $this->type();
-        if ((null !== $type) && drewlabs_core_strings_contains($type, '\\')) {
+        if ((null !== $type) && Str::contains($type, '\\')) {
             $this->setType($this->addClassPathToImportsPropertyAfter(function ($classPath) {
                 return $this->getClassFromClassPath($classPath);
             })($type));
@@ -120,23 +122,23 @@ trait ValueContainer
         $value = $this->value_;
         $type = $this->type();
         // Return the object is an empry string or array is passed in
-        if (drewlabs_core_strings_is_str($value) && empty($value)) {
+        if (is_string($value) && empty($value)) {
             return '';
         }
-        $isPHPClassDef = (drewlabs_core_strings_is_str($value) &&
-            (drewlabs_core_strings_contains($value, '\\') ||
-                drewlabs_core_strings_starts_with($value, 'new') ||
-                drewlabs_core_strings_ends_with($value, '::class')));
+        $isPHPClassDef = (is_string($value) &&
+            (Str::contains($value, '\\') ||
+                Str::startsWith($value, 'new') ||
+                Str::endsWith($value, '::class')));
         if (\is_bool($value)) {
             $this->setType(null === $type ? sprintf('%s', PHPTypes::BOOLEAN) : $type);
             return $value === false ? "false" : "true";
         } elseif (is_numeric($value) || $isPHPClassDef) {
             $this->setType(null === $type ? (is_numeric($value) ? sprintf('%s|%s', PHPTypes::INT, PHPTypes::FLOAT) : sprintf('%s', PHPTypes::OBJECT)) : $type);
             return "$value";
-        } elseif (drewlabs_core_strings_is_str($value) && !$isPHPClassDef) {
+        } elseif (is_string($value) && !$isPHPClassDef) {
             $this->setType(null === $type ? sprintf('%s', PHPTypes::STRING) : $type);
             return $this->compileScalar($value);
-        } elseif (drewlabs_core_array_is_arrayable($value)) {
+        } elseif (is_array($value)) {
             $this->setType(null === $type ? sprintf('%s', PHPTypes::LIST) : $type);
             $indentation = $this->getIndentation();
             if (empty($value)) {

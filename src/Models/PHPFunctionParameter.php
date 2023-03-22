@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\FunctionParameterInterface;
+use Drewlabs\CodeGenerator\Helpers\Arr;
+use Drewlabs\CodeGenerator\Helpers\Str;
 use Drewlabs\CodeGenerator\Models\Traits\Type;
 use Drewlabs\CodeGenerator\Types\PHPTypes;
 
@@ -59,12 +61,12 @@ class PHPFunctionParameter implements FunctionParameterInterface
         // Get the type from the parameter value
         if (null === $type) {
             $value = $default;
-            $isPHPClassDef = (drewlabs_core_strings_is_str($value) && (drewlabs_core_strings_contains($value, '\\') || drewlabs_core_strings_starts_with($value, 'new') || drewlabs_core_strings_ends_with($value, '::class')));
+            $isPHPClassDef = (is_string($value) && (Str::contains($value, '\\') || Str::endsWith($value, 'new') || Str::endsWith($value, '::class')));
             if (is_numeric($value) || $isPHPClassDef) {
                 $type = null === $this->type_ ? (is_numeric($value) ? sprintf('%s|%s', PHPTypes::INT, PHPTypes::FLOAT) : sprintf('%s', PHPTypes::OBJECT)) : $this->type_;
-            } elseif (drewlabs_core_strings_is_str($value) && !$isPHPClassDef) {
+            } elseif (is_string($value) && !$isPHPClassDef) {
                 $type = null === $this->type_ ? sprintf('%s', PHPTypes::STRING) : $this->type_;
-            } elseif (drewlabs_core_array_is_arrayable($value)) {
+            } elseif (is_array($value)) {
                 $type = null === $this->type_ ? sprintf('%s', PHPTypes::LIST) : $this->type_;
             }
         }
@@ -136,21 +138,21 @@ class PHPFunctionParameter implements FunctionParameterInterface
             return $this->isOptional() ? 'null' : null;
         }
         // Return the object is an empry string or array is passed in
-        if (drewlabs_core_strings_is_str($value) && empty($value)) {
+        if (is_string($value) && empty($value)) {
             return '';
         }
         if (\is_bool($value)) {
             return $value === false ? "false" : "true";
         }
-        $isPHPClassDef = (drewlabs_core_strings_is_str($value) && (drewlabs_core_strings_contains($value, '\\') || drewlabs_core_strings_starts_with($value, 'new') || drewlabs_core_strings_ends_with($value, '::class')));
+        $isPHPClassDef = (is_string($value) && (Str::contains($value, '\\') || Str::endsWith($value, 'new') || Str::endsWith($value, '::class')));
         if (is_numeric($value) || $isPHPClassDef) {
             return "$value";
-        } elseif (drewlabs_core_strings_is_str($value) && !$isPHPClassDef) {
+        } elseif (is_string($value) && !$isPHPClassDef) {
             return "\"$value\"";
-        } elseif (drewlabs_core_array_is_arrayable($value)) {
+        } elseif (is_array($value)) {
             $start = '[';
             foreach ($value as $key => $v) {
-                if ($key === drewlabs_core_array_key_last($value)) {
+                if ($key === Arr::keyLast($value)) {
                     $start .= ' '.(is_numeric($key) ? sprintf('"%s"', $v) : (is_numeric($v) ? sprintf('"%s" => %s', $key, $v) : sprintf('"%s" => "%s"', $key, $v)));
                     continue;
                 }

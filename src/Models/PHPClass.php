@@ -17,6 +17,7 @@ use Drewlabs\CodeGenerator\Contracts\Blueprint;
 use Drewlabs\CodeGenerator\Contracts\CallableInterface;
 use Drewlabs\CodeGenerator\Contracts\ValueContainer;
 use Drewlabs\CodeGenerator\Converters\PHPClassConverter;
+use Drewlabs\CodeGenerator\Helpers\Str;
 use Drewlabs\CodeGenerator\Models\Traits\OOPBlueprintComponent;
 use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
 
@@ -39,10 +40,10 @@ final class PHPClass implements Blueprint
     ) {
         $this->name_ = $name;
         // Validate implementations
-        if (drewlabs_core_array_is_arrayable($implementations)) {
+        if (is_iterable($implementations)) {
             foreach ($implementations as $value) {
                 // code...
-                if (!drewlabs_core_strings_is_str($value)) {
+                if (!\is_string($value)) {
                     throw new \InvalidArgumentException(sprintf('%s is not an istance of PHP string', \get_class($value)));
                 }
                 $this->addImplementation($value);
@@ -126,7 +127,7 @@ final class PHPClass implements Blueprint
 
     public function addClassPath(string $classPath)
     {
-        if ((null !== $classPath) && drewlabs_core_strings_contains($classPath, '\\')) {
+        if ((null !== $classPath) && Str::contains($classPath, '\\')) {
             $this->addClassPathToImportsPropertyAfter(function ($path) {
                 return $this->getClassFromClassPath($path);
             })($classPath);
@@ -154,7 +155,7 @@ final class PHPClass implements Blueprint
     {
         $traits = [];
         foreach (($this->traits_ ?? []) as $value) {
-            if (drewlabs_core_strings_contains($value, '\\')) {
+            if (Str::contains($value, '\\')) {
                 $traits[] = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                     return $this->getClassFromClassPath($classPath);
                 })($value);
@@ -167,7 +168,7 @@ final class PHPClass implements Blueprint
         // Loop through interfaces
         $interfaces = [];
         foreach (($this->interfaces_ ?? []) as $value) {
-            if (drewlabs_core_strings_contains($value, '\\')) {
+            if (Str::contains($value, '\\')) {
                 $interfaces[] = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                     return $this->getClassFromClassPath($classPath);
                 })($value);
@@ -179,7 +180,7 @@ final class PHPClass implements Blueprint
         $this->interfaces_ = $interfaces;
 
         // Set base class imports
-        if (drewlabs_core_strings_contains($this->baseClass_, '\\')) {
+        if (Str::contains($this->baseClass_, '\\')) {
             $this->baseClass_ = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                 return $this->getClassFromClassPath($classPath);
             })($this->baseClass_);

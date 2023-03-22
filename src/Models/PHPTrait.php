@@ -15,6 +15,7 @@ namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\TraitableStruct;
 use Drewlabs\CodeGenerator\Converters\PHPTraitConverter;
+use Drewlabs\CodeGenerator\Helpers\Str;
 use Drewlabs\CodeGenerator\Models\Traits\HasTraitsDefintions;
 
 final class PHPTrait implements TraitableStruct
@@ -69,7 +70,7 @@ final class PHPTrait implements TraitableStruct
     {
         $traits = [];
         foreach (($this->traits_ ?? []) as $value) {
-            if (drewlabs_core_strings_contains($value, '\\')) {
+            if (Str::contains($value, '\\')) {
                 $traits[] = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                     return $this->getClassFromClassPath($classPath);
                 })($value);

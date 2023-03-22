@@ -17,14 +17,15 @@ use Drewlabs\CodeGenerator\CommentModelFactory;
 use Drewlabs\CodeGenerator\Contracts\CallableInterface;
 use Drewlabs\CodeGenerator\Contracts\ClassMemberInterface;
 use Drewlabs\CodeGenerator\Contracts\FunctionParameterInterface;
+use Drewlabs\CodeGenerator\Helpers\Arr;
 use Drewlabs\CodeGenerator\Helpers\PHPLanguageDefifinitions;
+use Drewlabs\CodeGenerator\Helpers\Str;
 use Drewlabs\CodeGenerator\Models\Traits\BelongsToNamespace;
 use Drewlabs\CodeGenerator\Models\Traits\HasImportDeclarations;
 use Drewlabs\CodeGenerator\Models\Traits\HasIndentation;
 use Drewlabs\CodeGenerator\Models\Traits\OOPStructComponentMembers;
 use Drewlabs\CodeGenerator\Models\Traits\Type;
 use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
-use Drewlabs\Core\Helpers\Arrays\BinarySearchResult;
 
 class PHPClassMethod implements CallableInterface, ClassMemberInterface
 {
@@ -150,10 +151,10 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
                 // Filter out null values
                 $definitions = array_filter($definitions);
                 // Generate the defintion
-                $result = drewlabs_core_strings_concat('', ...$definitions);
+                $result = implode('', $definitions);
                 return ((null === $param->defaultValue()) || $param->isVariadic()) ?
                     $result :
-                    "$result = " . drewlabs_core_strings_replace('"null"', 'null', $param->defaultValue());
+                    "$result = " . str_replace('"null"', 'null', $param->defaultValue());
             }, $params);
             $declaration .= implode(', ', $params);
         }
@@ -198,11 +199,11 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
     public function throws($exceptions = [])
     {
         if (null !== $exceptions) {
-            $exceptions = drewlabs_core_strings_is_str($exceptions) ? [$exceptions] : (\is_array($exceptions) ? $exceptions : []);
+            $exceptions = is_string($exceptions) ? [$exceptions] : (\is_array($exceptions) ? $exceptions : []);
             foreach ($exceptions as $value) {
-                if (drewlabs_core_strings_contains($value, '\\')) {
+                if (Str::contains($value, '\\')) {
                     $this->imports_[] = $value;
-                    $this->exceptions_[] = drewlabs_core_strings_after_last('\\', $value);
+                    $this->exceptions_[] = Str::afterLast('\\', $value);
                 } else {
                     $this->exceptions_[] = $value;
                 }
@@ -225,14 +226,14 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
             $params[$value->name()] = $value;
         }
         sort($params);
-        $match = drewlabs_core_array_bsearch(array_keys($params), $param, static function ($curr, FunctionParameterInterface $item) use ($params) {
+        $match = Arr::bsearch(array_keys($params), $param, static function ($curr, FunctionParameterInterface $item) use ($params) {
             if ($params[$curr]->equals($item)) {
-                return BinarySearchResult::FOUND;
+                return 0;
             }
 
-            return strcmp($params[$curr]->name(), $item->name()) > 0 ? BinarySearchResult::LEFT : BinarySearchResult::RIGHT;
+            return strcmp($params[$curr]->name(), $item->name()) > 0 ? -1 : 1;
         });
-        if (BinarySearchResult::LEFT !== $match) {
+        if (-1 !== $match) {
             throw new \RuntimeException(sprintf('Duplicated entry %s in method %s definition : ', $param->name(), $this->getName()));
         }
         //endregion Validate method parameters for duplicated entries
@@ -254,7 +255,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
         if (null !== $contents) {
             $values = explode(\PHP_EOL, $contents);
             $values = array_map(static function ($content) {
-                return drewlabs_core_strings_rtrim("$content", ';');
+                return rtrim("$content", ';');
             }, $values);
             foreach ($values as $value) {
                 // code...
@@ -311,7 +312,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
     protected function prepare()
     {
         if (null !== $this->returns_) {
-            if (drewlabs_core_strings_contains($this->returns_, '\\')) {
+            if (Str::contains($this->returns_, '\\')) {
                 $this->returns_ = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                     return $this->getClassFromClassPath($classPath);
                 })($this->returns_);
@@ -323,7 +324,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
             $values = \is_array($params_) ? $params_ : (\is_string($params_) ? [$params_] : []);
             $params = [];
             foreach ($values as $value) {
-                if (drewlabs_core_strings_contains($value->type(), '\\')) {
+                if (Str::contains($value->type(), '\\')) {
                     $params[] = new PHPFunctionParameter(
                         $value->name(),
                         $this->addClassPathToImportsPropertyAfter(function ($classPath) {

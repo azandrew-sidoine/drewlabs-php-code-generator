@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Drewlabs\CodeGenerator\Models\Traits;
 
 use Drewlabs\CodeGenerator\Contracts\ValueContainer;
-use Drewlabs\Core\Helpers\Arrays\BinarySearchResult;
+use Drewlabs\CodeGenerator\Helpers\Arr;
 
 trait HasPropertyDefinitions
 {
@@ -30,14 +30,14 @@ trait HasPropertyDefinitions
             $properties[$value->getName()] = $value;
         }
         sort($properties);
-        $match = drewlabs_core_array_bsearch(array_keys($properties), $property, static function ($curr, $item) use ($properties) {
+        $match = Arr::bsearch(array_keys($properties), $property, static function ($curr, $item) use ($properties) {
             if ($properties[$curr]->equals($item)) {
-                return BinarySearchResult::FOUND;
+                return 0;
             }
 
-            return strcmp($properties[$curr]->getName(), $item->getName()) > 0 ? BinarySearchResult::LEFT : BinarySearchResult::RIGHT;
+            return strcmp($properties[$curr]->getName(), $item->getName()) > 0 ? -1 : 1;
         });
-        if (BinarySearchResult::LEFT !== $match) {
+        if (-1 !== $match) {
             throw new \RuntimeException('Duplicated property : '.$property->getName());
         }
         $this->properties_[] = $property;
