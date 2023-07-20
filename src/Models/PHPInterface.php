@@ -93,8 +93,10 @@ final class PHPInterface implements ImplementableStruct
             $extends[] = $extend;
         }
 
-        // Join the extended interface to a string value that will be returned when the getBaseInterface is called
-        $this->preparedExtends = implode(', ', $extends);
+        if (!empty($extends)) {
+            // Join the extended interface to a string value that will be returned when the getBaseInterface is called
+            $this->preparedExtends = implode(', ', $extends);
+        }
 
         return $this;
     }

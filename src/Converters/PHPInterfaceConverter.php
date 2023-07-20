@@ -45,7 +45,7 @@ final class PHPInterfaceConverter implements Stringifier
         $parts = [];
         $declaration = sprintf('interface %s', $component->getName());
         $baseInterface = $component->getBaseInterface();
-        if ((null !== $baseInterface)) {
+        if (!empty($baseInterface)) {
             $declaration .= sprintf(' extends %s', $baseInterface);
         }
         $parts[] = $declaration;

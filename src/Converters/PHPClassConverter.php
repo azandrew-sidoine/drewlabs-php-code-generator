@@ -56,7 +56,7 @@ class PHPClassConverter implements Stringifier
         $modifier = $clazz->isFinal() ? 'final ' : ($clazz->isAbstract() ? 'abstract ' : '');
         $declaration = sprintf('%sclass %s', $modifier, $clazz->getName());
         $baseClazz = $clazz->getBaseClass();
-        if ((null !== $baseClazz)) {
+        if (!empty($baseClazz)) {
             $declaration .= sprintf(' extends %s', $baseClazz);
         }
         // Get class implementations
