@@ -25,9 +25,14 @@ final class PHPInterface implements ImplementableStruct
     /**
      * Class base class name.
      *
+     * @var string[]
+     */
+    private $extends = [];
+
+    /**
      * @var string
      */
-    private $baseInterface_;
+    private $preparedExtends;
 
     public function __construct(
         string $name,
@@ -51,29 +56,45 @@ final class PHPInterface implements ImplementableStruct
         return (new PHPInterfaceConverter())->stringify($this->prepare());
     }
 
-    public function setBaseInterface(string $value): ImplementableStruct
+    public function addBaseInterface(string $value)
     {
         if (null !== $value) {
-            $this->baseInterface_ = $value;
+            $this->extends[] = $value;
         }
 
         return $this;
     }
 
+    public function setBaseInterface(string $value): ImplementableStruct
+    {
+        return $this->addBaseInterface($value);
+    }
+
     public function getBaseInterface(): ?string
     {
-        return $this->baseInterface_ ?? null;
+        return $this->preparedExtends;
     }
 
     public function prepare()
     {
         // Set base class imports
-        if (Str::contains($this->baseInterface_, '\\')) {
-            $this->baseInterface_ = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
-                return $this->getClassFromClassPath($classPath);
-            })($this->baseInterface_);
+
+        $extends = [];
+
+        foreach ($this->extends as $extend) {
+            if (Str::contains($extend, '\\')) {
+                $extend = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
+                    return $this->getClassFromClassPath($classPath);
+                })($extend);
+            }
             $this->setGlobalImports($this->getImports());
+
+            // Add the extended interface to the list of interfaces
+            $extends[] = $extend;
         }
+
+        // Join the extended interface to a string value that will be returned when the getBaseInterface is called
+        $this->preparedExtends = implode(', ', $extends);
 
         return $this;
     }

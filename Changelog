@@ -11,3 +11,8 @@
 ## [2.4.0] 2023-03-21
 
 - Removed dependency to core-helpers library
+
+## [0.2.5] 2023-07-20
+
+- Deprecated non explicit `ImplementableStruct::setBaseInterface()` method
+- Added a replacement `ImplementableStruct::addBaseInterface()` method for `setBaseInterface()` method

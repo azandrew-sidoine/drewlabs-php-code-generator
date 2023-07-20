@@ -29,9 +29,22 @@ interface ImplementableStruct extends PathImportContainer, NamespaceComponent
     public function getBaseInterface(): ?string;
 
     /**
+     * @deprecated v0.2.x
+     * The interface does not express the multiple inheritance ability of PHP interfaces. Use `addBaseInterface()` instead
+     * 
      * Set the base interface that the component inherit from.
+     * 
      */
     public function setBaseInterface(string $value): self;
+
+    /**
+     * Add a base contract/interface to the current interface
+     * 
+     * @param string $value
+     * 
+     * @return static 
+     */
+    public function addBaseInterface(string $value);
 
     /**
      * Returns the list of methods of the current component.
