@@ -16,3 +16,6 @@
 
 - Deprecated non explicit `ImplementableStruct::setBaseInterface()` method
 - Added a replacement `ImplementableStruct::addBaseInterface()` method for `setBaseInterface()` method
+
+
+- Update addConstructor source code generator to return void instead of self
