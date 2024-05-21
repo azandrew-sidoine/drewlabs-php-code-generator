@@ -82,7 +82,7 @@ final class PHPClass implements Blueprint
         $method = new PHPClassMethod(
             '__construct',
             $params ?? [],
-            'self',
+            'void',
             $modifier ?? PHPTypesModifiers::PUBLIC,
             'Class instance initializer'
         );
@@ -100,7 +100,7 @@ final class PHPClass implements Blueprint
             new PHPClassMethod(
                 '__invoke',
                 [],
-                'self',
+                'void',
                 PHPTypesModifiers::PUBLIC,
                 'Undocumented method'
             )
