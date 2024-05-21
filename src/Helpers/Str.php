@@ -103,6 +103,30 @@ class Str
         return $first_capital($search_replace($haystack, $delimiter));
     }
 
+    
+    /**
+     * Convert provided string into snake case.
+     *
+     * @param string $delimiter
+     *
+     * @return string
+     */
+    public static function snakeCase(string $haystack, $delimiter = '_', $escape = '\\')
+    {
+        if ((null === $haystack) || empty($haystack)) {
+            return $haystack;
+        }
+        return str_replace(
+            ' ',
+            '',
+            str_replace(
+                [sprintf('%s%s', $escape, $delimiter), $escape],
+                $delimiter,
+                trim(self::lower(preg_replace('/([A-Z])([a-z\d])/', $delimiter.'$0',preg_replace("/[$delimiter]/", $escape, $haystack))),$delimiter)
+            )
+        );
+    }
+
     /**
      * Returns uppercase representation of the string
      * 
