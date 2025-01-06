@@ -23,17 +23,16 @@ trait OOPStructComponent
     use HasPropertyDefinitions;
     use Type;
 
-    /**
-     * @var CallableInterface[]
-     */
-    private $methods_ = [];
+    /** @var CallableInterface[] */
+    private $methods = [];
 
-    private $constructorMethodName_ = '__construct';
+    /** @var string */
+    private $constructorMethodName = '__construct';
 
     public function addMethod(CallableInterface $method)
     {
         $methods = [];
-        foreach (($this->methods_ ?? []) as $value) {
+        foreach (($this->methods ?? []) as $value) {
             $methods[$value->getName()] = $value;
         }
         sort($methods);
@@ -47,10 +46,10 @@ trait OOPStructComponent
         if (-1 !== $match) {
             throw new \RuntimeException('Duplicated method definition : '.$method->getName());
         }
-        if ($method->getName() === $this->constructorMethodName_) {
-            $this->methods_ = [$method, ...($this->methods_ ?? [])];
+        if ($method->getName() === $this->constructorMethodName) {
+            $this->methods = [$method, ...($this->methods ?? [])];
         } else {
-            $this->methods_[] = $method;
+            $this->methods[] = $method;
         }
 
         return $this;
@@ -63,6 +62,6 @@ trait OOPStructComponent
      */
     public function getMethods(): array
     {
-        return $this->methods_ ?? [];
+        return $this->methods ?? [];
     }
 }

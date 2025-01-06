@@ -20,28 +20,28 @@ class ParseClassPathResult
      *
      * @var string
      */
-    private $name_;
+    private $name;
 
     /**
      * Class path.
      *
      * @var string
      */
-    private $classPath_;
+    private $classPath;
 
     public function __construct(string $name, ?string $classPath = null)
     {
-        $this->name_ = $name;
-        $this->classPath_ = $classPath;
+        $this->name = $name;
+        $this->classPath = $classPath;
     }
 
     public function getClassPath()
     {
-        return $this->classPath_;
+        return $this->classPath;
     }
 
     public function getComponentName()
     {
-        return $this->name_;
+        return $this->name;
     }
 }

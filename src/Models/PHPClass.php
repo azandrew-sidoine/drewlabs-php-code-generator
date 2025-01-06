@@ -15,18 +15,24 @@ namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\Blueprint;
 use Drewlabs\CodeGenerator\Contracts\CallableInterface;
+use Drewlabs\CodeGenerator\Contracts\HasPHP8Attributes as AbstractHasPHP8Attributes;
 use Drewlabs\CodeGenerator\Contracts\ValueContainer;
 use Drewlabs\CodeGenerator\Converters\PHPClassConverter;
 use Drewlabs\CodeGenerator\Helpers\Str;
+use Drewlabs\CodeGenerator\Models\Traits\HasPHP8Attributes;
 use Drewlabs\CodeGenerator\Models\Traits\OOPBlueprintComponent;
 use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
 
-final class PHPClass implements Blueprint
+final class PHPClass implements Blueprint, AbstractHasPHP8Attributes
 {
     use OOPBlueprintComponent;
+    use HasPHP8Attributes;
+
+    /** @var bool */
+    private $promoteProperties = false;
 
     /**
-     * Undocumented function.
+     * Class constructor
      *
      * @param string              $implementations
      * @param CallableInterface[] $methods
@@ -38,7 +44,7 @@ final class PHPClass implements Blueprint
         array $methods = [],
         array $properties = []
     ) {
-        $this->name_ = $name;
+        $this->name = $name;
         // Validate implementations
         if (is_iterable($implementations)) {
             foreach ($implementations as $value) {
@@ -72,9 +78,20 @@ final class PHPClass implements Blueprint
         }
     }
 
+    /**
+     * Build blueprint with PHP 8+ promoted properties syntax support
+     * 
+     * @return static 
+     */
+    public function withPromotedProperties()
+    {
+        $this->promoteProperties = true;
+        return $this;
+    }
+
     public function __toString(): string
     {
-        return (new PHPClassConverter())->stringify($this->prepare());
+        return (new PHPClassConverter($this->promoteProperties))->stringify($this->prepare());
     }
 
     public function addConstructor(array $params = [], array $lines = [], $modifier = PHPTypesModifiers::PUBLIC)
@@ -82,7 +99,7 @@ final class PHPClass implements Blueprint
         $method = new PHPClassMethod(
             '__construct',
             $params ?? [],
-            'void',
+            null,
             $modifier ?? PHPTypesModifiers::PUBLIC,
             'Class instance initializer'
         );
@@ -138,9 +155,9 @@ final class PHPClass implements Blueprint
 
     public function addFunctionPath(string $value)
     {
-        $imports = $this->imports_ ?? [];
+        $imports = $this->imports ?? [];
         if (!empty($value) && !\in_array($value, $imports, true) && (null !== $value)) {
-            $this->imports_[] = sprintf('function %s', ltrim($value, '\\'));
+            $this->imports[] = sprintf('function %s', ltrim($value, '\\'));
         }
 
         return $this;
@@ -154,7 +171,7 @@ final class PHPClass implements Blueprint
     public function prepare()
     {
         $traits = [];
-        foreach (($this->traits_ ?? []) as $value) {
+        foreach (($this->traits ?? []) as $value) {
             if (Str::contains($value, '\\')) {
                 $traits[] = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                     return $this->getClassFromClassPath($classPath);
@@ -164,10 +181,10 @@ final class PHPClass implements Blueprint
                 $traits[] = $value;
             }
         }
-        $this->traits_ = $traits;
+        $this->traits = $traits;
         // Loop through interfaces
         $interfaces = [];
-        foreach (($this->interfaces_ ?? []) as $value) {
+        foreach (($this->interfaces ?? []) as $value) {
             if (Str::contains($value, '\\')) {
                 $interfaces[] = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                     return $this->getClassFromClassPath($classPath);
@@ -177,13 +194,13 @@ final class PHPClass implements Blueprint
                 $interfaces[] = $value;
             }
         }
-        $this->interfaces_ = $interfaces;
+        $this->interfaces = $interfaces;
 
         // Set base class imports
-        if (Str::contains($this->baseClass_, '\\')) {
-            $this->baseClass_ = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
+        if (Str::contains($this->baseClass, '\\')) {
+            $this->baseClass = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                 return $this->getClassFromClassPath($classPath);
-            })($this->baseClass_);
+            })($this->baseClass);
             $this->setGlobalImports($this->getImports());
         }
 

@@ -13,12 +13,13 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface ClassMemberInterface extends Commentable
+interface HasVisibility
 {
     /**
-     * Set the property Access modifier definition.
-     *
-     * @return static|ValueContainer|CallableInterface
+     * Returns the visibility or access modifier of the component
+     * 
+     * @return string 
      */
-    public function setModifier(string $modifier);
+    public function getVisibility(): string;
+
 }

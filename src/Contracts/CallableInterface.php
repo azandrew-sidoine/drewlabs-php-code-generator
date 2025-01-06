@@ -70,14 +70,14 @@ interface CallableInterface extends Indentable, NamespaceComponent, PathImportCo
     /**
      * Add a new line to the method.
      *
-     * @return self
+     * @return static
      */
     public function addLine(string $line);
 
     /**
      * Set the return type of the function or method.
      *
-     * @return self
+     * @return static
      */
     public function setReturnType(string $type);
 }

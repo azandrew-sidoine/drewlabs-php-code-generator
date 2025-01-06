@@ -50,6 +50,9 @@ class PHPTypes
      */
     public const BOOLEAN = 'bool';
 
+    /**
+     * @var string[]
+     */
     public const VALUES = [
         self::INT,
         self::FLOAT,

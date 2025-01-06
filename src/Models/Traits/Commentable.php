@@ -18,7 +18,7 @@ trait Commentable
     /**
      * @var string[]|string
      */
-    private $descriptors_;
+    private $descriptors;
 
     /**
      * {@inheritDoc}
@@ -28,9 +28,9 @@ trait Commentable
     public function addComment($value)
     {
         if (null === $value) {
-            return $this->descriptors_;
+            return $this->descriptors;
         }
-        $this->descriptors_ = \is_array($value) ? $value : [$value];
+        $this->descriptors = \is_array($value) ? $value : [$value];
         return $this;
     }
 
@@ -42,6 +42,6 @@ trait Commentable
     public function comments()
     {
         // Descriptors must be either array or string
-        return array_filter((is_string($this->descriptors_) ? [$this->descriptors_] : (\is_array($this->descriptors_) ? $this->descriptors_ : [])) ?? []);
+        return array_filter((is_string($this->descriptors) ? [$this->descriptors] : (\is_array($this->descriptors) ? $this->descriptors : [])) ?? []);
     }
 }

@@ -13,3 +13,10 @@
 ## v2.2.10
 
 - Rename some internal interfaces [x]
+
+
+## v3.x
+
+- Add PHP PHP 8.0 properties promotions [x]
+- Add PHP >= 8.0 attributes support [x] 
+- Add support for PHP version 8.3 and 8.4 setters and getters definition []

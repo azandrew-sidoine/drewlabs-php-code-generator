@@ -17,68 +17,72 @@ use Drewlabs\CodeGenerator\CommentModelFactory;
 use Drewlabs\CodeGenerator\Contracts\CallableInterface;
 use Drewlabs\CodeGenerator\Contracts\ClassMemberInterface;
 use Drewlabs\CodeGenerator\Contracts\FunctionParameterInterface;
+use Drewlabs\CodeGenerator\Contracts\HasVisibility;
 use Drewlabs\CodeGenerator\Helpers\Arr;
 use Drewlabs\CodeGenerator\Helpers\PHPLanguageDefifinitions;
 use Drewlabs\CodeGenerator\Helpers\Str;
 use Drewlabs\CodeGenerator\Models\Traits\BelongsToNamespace;
 use Drewlabs\CodeGenerator\Models\Traits\HasImportDeclarations;
 use Drewlabs\CodeGenerator\Models\Traits\HasIndentation;
+use Drewlabs\CodeGenerator\Models\Traits\HasPHP8Attributes;
 use Drewlabs\CodeGenerator\Models\Traits\OOPStructComponentMembers;
 use Drewlabs\CodeGenerator\Models\Traits\Type;
 use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
+use Drewlabs\CodeGenerator\Contracts\HasPHP8Attributes as AbstractHasPHP8Attributes;
 
-class PHPClassMethod implements CallableInterface, ClassMemberInterface
+class PHPClassMethod implements CallableInterface, ClassMemberInterface, AbstractHasPHP8Attributes
 {
     use BelongsToNamespace;
     use HasImportDeclarations;
     use HasIndentation;
     use OOPStructComponentMembers;
     use Type;
+    use HasPHP8Attributes;
 
     /**
      * @var FunctionParameterInterface[]
      */
-    private $params_;
+    private $params;
 
     /**
      * PHP Stringeable component.
      *
      * @var mixed
      */
-    private $comment_;
+    private $comment;
 
     /**
      * The returns type of the function.
      *
      * @var string|array
      */
-    private $returns_;
+    private $returns;
 
     /**
      * @var string
      */
-    private $exceptions_;
+    private $exceptions;
 
     /**
      * Indicates whether the method is static or not.
      *
      * @var bool
      */
-    private $isStatic_;
+    private $isStatic;
 
     /**
      * Method defintion content.
      *
      * @var string[]
      */
-    private $contents_;
+    private $contents;
 
     /**
      * Indicates whether the definition is return as interface method or a class method.
      *
      * @var bool
      */
-    private $isInterfaceMethod_ = false;
+    private $isInterfaceMethod = false;
 
     public function __construct(
         string $name,
@@ -89,9 +93,11 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
     ) {
         $this->setName($name);
         // Add list of params to the method
-        foreach (array_filter($params ?? [], static function ($value) {
-            return $value instanceof FunctionParameterInterface;
-        }) as $value) {
+        foreach (
+            array_filter($params ?? [], static function ($value) {
+                return $value instanceof FunctionParameterInterface;
+            }) as $value
+        ) {
             $this->addParameter($value);
         }
         if (null !== $descriptors) {
@@ -108,7 +114,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
     private function orderParameters()
     {
         $params_ = $this->getParameters();
-        $this->params_ = array_merge(
+        $this->params = array_merge(
             array_filter($params_, static function ($p) {
                 return !$p->isOptional() && !$p->isVariadic();
             }),
@@ -124,24 +130,24 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
 
     public function __toString(): string
     {
-        // TODO : Order the parameters before generating the method/function output
-        $this->orderParameters()
-            ->prepare()
-            ->setComments();
+        $this->orderParameters()->prepare()->setComments();
         $name = $this->getName();
-        $accessModifier = (null !== $this->accessModifier_) &&
-            \in_array($this->accessModifier_, [PHPTypesModifiers::PRIVATE, PHPTypesModifiers::PROTECTED, PHPTypesModifiers::PUBLIC], true)
-            && !$this->isInterfaceMethod_ ?
-            $this->accessModifier_ :
+
+        $accessModifier = (null !== $this->accessModifier) &&
+            \in_array($this->accessModifier, [PHPTypesModifiers::PRIVATE, PHPTypesModifiers::PROTECTED, PHPTypesModifiers::PUBLIC], true)
+            && !$this->isInterfaceMethod ?
+            $this->accessModifier :
             PHPTypesModifiers::PUBLIC;
+
         // Start the declaration
-        $declaration = $this->isStatic_ ? "$accessModifier static function $name(" : "$accessModifier function $name(";
+        $declaration = $this->isStatic ? "$accessModifier static function $name(" : "$accessModifier function $name(";
         // Add method params
         if (null !== ($params = $this->getParameters())) {
             $params = array_map(static function ($param) {
                 // Add the type definition
                 $type = $param->type();
-                $definitions[] = $type ? sprintf('%s ', $type) : null;
+                // Add the visibility case param is an instance of HasVisibility
+                $definitions[] = $type ? sprintf('%s%s ', ($param instanceof HasVisibility && (version_compare(\PHP_VERSION, '8.0.0') >= 0)) ? sprintf('%s ', $param->getVisibility()) : '', $type) : (($param instanceof HasVisibility && (version_compare(\PHP_VERSION, '8.0.0') >= 0)) ? sprintf('%s ', $param->getVisibility()) : null);
                 // Add the reference definition
                 $definitions[] = $param->isReference() ? '&' : null;
                 // Add the variadic definition
@@ -153,25 +159,35 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
                 // Generate the defintion
                 $result = implode('', $definitions);
                 return ((null === $param->defaultValue()) || $param->isVariadic()) ?
-                    $result :
-                    "$result = " . str_replace('"null"', 'null', $param->defaultValue());
+                    $result : "$result = " . str_replace('"null"', 'null', $param->defaultValue());
             }, $params);
             $declaration .= implode(', ', $params);
         }
         // Add the closing parenthesis
         $declaration .= ')';
+
+        // Case running a PHP version >= 7.2, we add the return type of the function to the function declaration
+        if (version_compare(\PHP_VERSION, '7.2.0') >= 0 && $this->returns && strtolower($this->returns) != 'mixed') {
+            $declaration .= sprintf(": %s", $this->returns);
+        }
+
         $indentation = $this->getIndentation();
         $parts[] = null !== $indentation ?
-            $this->comment_->setIndentation($this->getIndentation())->__toString() :
-            $this->comment_->__toString();
+            $this->comment->setIndentation($this->getIndentation())->__toString() :
+            $this->comment->__toString();
+        
+        // Add PHP8 attributes to method/function definition
+        foreach ($this->getAttributes() as $attribute) {
+            $parts[] = sprintf("%s", PHP8Attribute::new($attribute)->__toString());
+        }
         // If it is an interface method, close the definition
-        if ($this->isInterfaceMethod_) {
+        if ($this->isInterfaceMethod) {
             $parts[] = "$declaration;";
         } else {
             // If it is not an interface method, add the method body
             $parts[] = $declaration;
             $parts[] = '{';
-            if (!empty(($contents = array_merge(["\t# code..."], $this->contents_ ?? [])))) {
+            if (!empty(($contents = array_merge(["\t# code..."], $this->contents ?? [])))) {
                 $counter = 0;
                 $parts[] = implode(\PHP_EOL, array_map(static function ($content) use ($indentation, &$counter) {
                     $content = $indentation && $counter > 0 ? $indentation . $content : $content;
@@ -193,7 +209,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
 
     public function getParameters()
     {
-        return $this->params_ ?? [];
+        return $this->params ?? [];
     }
 
     public function throws($exceptions = [])
@@ -202,10 +218,10 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
             $exceptions = is_string($exceptions) ? [$exceptions] : (\is_array($exceptions) ? $exceptions : []);
             foreach ($exceptions as $value) {
                 if (Str::contains($value, '\\')) {
-                    $this->imports_[] = $value;
-                    $this->exceptions_[] = Str::afterLast('\\', $value);
+                    $this->imports[] = $value;
+                    $this->exceptions[] = Str::afterLast('\\', $value);
                 } else {
-                    $this->exceptions_[] = $value;
+                    $this->exceptions[] = $value;
                 }
             }
         }
@@ -237,14 +253,14 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
             throw new \RuntimeException(sprintf('Duplicated entry %s in method %s definition : ', $param->name(), $this->getName()));
         }
         //endregion Validate method parameters for duplicated entries
-        $this->params_[] = $param;
+        $this->params[] = $param;
 
         return $this;
     }
 
     public function asStatic(bool $value)
     {
-        $this->isStatic_ = '__construct' === $this->getName() ? false : ($value || false);
+        $this->isStatic = '__construct' === $this->getName() ? false : ($value || false);
 
         return $this;
     }
@@ -281,9 +297,9 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
             PHPLanguageDefifinitions::startsWithSpecialCharacters($line) ||
             PHPLanguageDefifinitions::endsWithSpecialCharacters($line)
         ) {
-            $this->contents_[] = "\t$line";
+            $this->contents[] = "\t$line";
         } else {
-            $this->contents_[] = "\t$line;";
+            $this->contents[] = "\t$line;";
         }
 
         return $this;
@@ -291,7 +307,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
 
     public function asCallableSignature()
     {
-        $this->isInterfaceMethod_ = true;
+        $this->isInterfaceMethod = true;
 
         return $this;
     }
@@ -304,18 +320,18 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
 
     public function setReturnType(string $type)
     {
-        $this->returns_ = $type;
+        $this->returns = $type;
 
         return $this;
     }
 
     protected function prepare()
     {
-        if (null !== $this->returns_) {
-            if (Str::contains($this->returns_, '\\')) {
-                $this->returns_ = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
+        if (null !== $this->returns) {
+            if (Str::contains($this->returns, '\\')) {
+                $this->returns = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                     return $this->getClassFromClassPath($classPath);
-                })($this->returns_);
+                })($this->returns);
             }
         }
         $values = [];
@@ -336,7 +352,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
                     $params[] = $value;
                 }
             }
-            $this->params_ = $params;
+            $this->params = $params;
         }
 
         return $this;
@@ -358,16 +374,16 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface
             }
         }
         // Generate exception comment
-        if ((null !== $this->exceptions_) && \is_array($this->exceptions_)) {
-            foreach ($this->exceptions_ as $value) {
+        if ((null !== $this->exceptions) && \is_array($this->exceptions)) {
+            foreach ($this->exceptions as $value) {
                 $descriptors[] = "@throws $value";
             }
         }
         // Generate returns comment
-        if (null !== $this->returns_) {
-            $descriptors[] = '@return ' . $this->returns_;
+        if (null !== $this->returns) {
+            $descriptors[] = '@return ' . $this->returns;
         }
-        $this->comment_ = (new CommentModelFactory(true))->make($descriptors);
+        $this->comment = (new CommentModelFactory(true))->make($descriptors);
 
         return $this;
     }

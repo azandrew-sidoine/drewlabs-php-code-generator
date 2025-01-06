@@ -27,49 +27,49 @@ trait ValueContainer
      *
      * @var string[]
      */
-    private $imports_;
+    private $imports;
 
     /**
      * PHP Stringeable component.
      *
      * @var mixed
      */
-    private $comment_;
+    private $comment;
 
     /**
      * The default value to set the property to.
      *
      * @var string|array|null
      */
-    private $value_;
+    private $value;
 
     /**
      * Indicates that the property is a constant property.
      *
      * @var bool
      */
-    private $isConstant_ = false;
+    private $isConstant = false;
 
     public function value($value = null)
     {
         // Act like a property getter when nothing is passed
         if (null === $value) {
-            return $this->value_;
+            return $this->value;
         }
-        $this->value_ = $value;
+        $this->value = $value;
         return $this;
     }
 
     public function asConstant()
     {
-        $this->isConstant_ = true;
+        $this->isConstant = true;
 
         return $this;
     }
 
     public function equals(ContractsValueContainer $value)
     {
-        return $this->name_ === $value->getName();
+        return $this->name === $value->getName();
     }
 
     protected function prepare()
@@ -95,7 +95,7 @@ trait ValueContainer
             // Add a line separator between the descriptors and other definitions
             $descriptors[] = '';
         }
-        $this->comment_ = (CommentFactory(true))->make(
+        $this->comment = (CommentFactory(true))->make(
             !empty($descriptors) ?
                 ($type ? array_merge(
                     $descriptors ?? [],
@@ -119,7 +119,7 @@ trait ValueContainer
 
     private function parsePropertyValue()
     {
-        $value = $this->value_;
+        $value = $this->value;
         $type = $this->type();
         // Return the object is an empry string or array is passed in
         if (is_string($value) && empty($value)) {

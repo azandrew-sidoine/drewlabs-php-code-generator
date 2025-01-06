@@ -28,24 +28,20 @@ class PHPFunctionParameter implements FunctionParameterInterface
      *
      * @var mixed
      */
-    private $default_;
+    private $default;
 
     /**
      * Parameter is optional or not.
      *
      * @var bool
      */
-    private $isOptional_;
+    private $isOptional;
 
-    /**
-     * @var bool
-     */
-    private $isVariadic_ = false;
+    /** @var bool */
+    private $isVariadic = false;
 
-    /**
-     * @var bool
-     */
-    private $isReference_ = false;
+    /** @var bool */
+    private $isReference = false;
 
     /**
      * Instance initializer.
@@ -63,16 +59,16 @@ class PHPFunctionParameter implements FunctionParameterInterface
             $value = $default;
             $isPHPClassDef = (is_string($value) && (Str::contains($value, '\\') || Str::endsWith($value, 'new') || Str::endsWith($value, '::class')));
             if (is_numeric($value) || $isPHPClassDef) {
-                $type = null === $this->type_ ? (is_numeric($value) ? sprintf('%s|%s', PHPTypes::INT, PHPTypes::FLOAT) : sprintf('%s', PHPTypes::OBJECT)) : $this->type_;
+                $type = null === $this->type ? (is_numeric($value) ? sprintf('%s|%s', PHPTypes::INT, PHPTypes::FLOAT) : sprintf('%s', PHPTypes::OBJECT)) : $this->type;
             } elseif (is_string($value) && !$isPHPClassDef) {
-                $type = null === $this->type_ ? sprintf('%s', PHPTypes::STRING) : $this->type_;
+                $type = null === $this->type ? sprintf('%s', PHPTypes::STRING) : $this->type;
             } elseif (is_array($value)) {
-                $type = null === $this->type_ ? sprintf('%s', PHPTypes::LIST) : $this->type_;
+                $type = null === $this->type ? sprintf('%s', PHPTypes::LIST) : $this->type;
             }
         }
         $this->setType($type);
-        $this->default_ = $default;
-        $this->isOptional_ = null !== $default ? true : false;
+        $this->default = $default;
+        $this->isOptional = null !== $default ? true : false;
     }
 
     /**
@@ -82,31 +78,31 @@ class PHPFunctionParameter implements FunctionParameterInterface
      */
     public function isOptional()
     {
-        return $this->isOptional_;
+        return $this->isOptional;
     }
 
     public function asVariadic()
     {
-        $this->isVariadic_ = true;
+        $this->isVariadic = true;
 
         return $this;
     }
 
     public function isVariadic()
     {
-        return $this->isVariadic_ ?? false;
+        return $this->isVariadic ?? false;
     }
 
     public function asReference()
     {
-        $this->isReference_ = true;
+        $this->isReference = true;
 
         return $this;
     }
 
     public function isReference()
     {
-        return $this->isReference_ ?? false;
+        return $this->isReference ?? false;
     }
 
     /**
@@ -116,7 +112,7 @@ class PHPFunctionParameter implements FunctionParameterInterface
      */
     public function asOptional()
     {
-        $this->isOptional_ = true;
+        $this->isOptional = true;
 
         return $this;
     }
@@ -133,7 +129,7 @@ class PHPFunctionParameter implements FunctionParameterInterface
      */
     public function defaultValue()
     {
-        $value = $this->default_;
+        $value = $this->default;
         if (null === $value) {
             return $this->isOptional() ? 'null' : null;
         }
@@ -163,6 +159,6 @@ class PHPFunctionParameter implements FunctionParameterInterface
             return $start;
         }
 
-        return $this->default_;
+        return $this->default;
     }
 }

@@ -13,23 +13,20 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Models\Traits;
 
-trait HasIndentation
+trait HasPHP8Attributes
 {
-    /** @var string */
-    private $indentation;
+    /** @var string[] */
+    private $php8Attributes = [];
 
-    /**
-     * @return self
-     */
-    public function setIndentation(string $indentation)
+    public function addAttribute(string $attribute)
     {
-        $this->indentation = $indentation;
+        $this->php8Attributes[] = $attribute;
 
         return $this;
     }
 
-    public function getIndentation()
+    public function getAttributes(): array
     {
-        return $this->indentation;
+        return $this->php8Attributes ?? [];
     }
 }

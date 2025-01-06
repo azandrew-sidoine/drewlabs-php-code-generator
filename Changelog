@@ -19,3 +19,9 @@
 
 
 - Update addConstructor source code generator to return void instead of self
+
+## v3.0.0
+
+- Added support for PHP8 promoted properties
+- Added support for PHP8 Attributes
+- Added support for PHP7.2 return types

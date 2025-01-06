@@ -19,12 +19,14 @@ use Drewlabs\CodeGenerator\Helpers\Str;
 use Drewlabs\CodeGenerator\Models\Traits\BelongsToNamespace;
 use Drewlabs\CodeGenerator\Models\Traits\HasImportDeclarations;
 use Drewlabs\CodeGenerator\Models\Traits\HasIndentation;
+use Drewlabs\CodeGenerator\Models\Traits\HasPHP8Attributes;
 use Drewlabs\CodeGenerator\Models\Traits\OOPStructComponentMembers;
 use Drewlabs\CodeGenerator\Models\Traits\Type;
 use Drewlabs\CodeGenerator\Models\Traits\ValueContainer as TraitsValueContainer;
 use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
+use Drewlabs\CodeGenerator\Contracts\HasPHP8Attributes as AbstractHasPHP8Attributes;
 
-class PHPClassProperty implements ValueContainer, ClassMemberInterface
+class PHPClassProperty implements ValueContainer, ClassMemberInterface, AbstractHasPHP8Attributes
 {
     use BelongsToNamespace;
     use HasImportDeclarations;
@@ -32,6 +34,7 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
     use OOPStructComponentMembers;
     use TraitsValueContainer;
     use Type;
+    use HasPHP8Attributes;
 
     /**
      * Class instances initializer.
@@ -61,17 +64,21 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
 
     public function __toString(): string
     {
-        $this->prepare()
-            ->setComments()
-            ->value($this->value());
+        $this->prepare()->setComments()->value($this->value());
         $value = $this->parsePropertyValue();
         $name = $this->getName();
         // Generate comments
         if ($this->getIndentation()) {
-            $parts[] = $this->comment_->setIndentation($this->getIndentation())->__toString();
+            $parts[] = $this->comment->setIndentation($this->getIndentation())->__toString();
         } else {
-            $parts[] = $this->comment_->__toString();
+            $parts[] = $this->comment->__toString();
         }
+
+        // Add PHP8 attributes to method/function definition
+        foreach ($this->getAttributes() as $attribute) {
+            $parts[] = sprintf("%s", PHP8Attribute::new($attribute)->__toString());
+        }
+
         // Generate defintion / declarations
         $modifier = (null !== $this->accessModifier()) && \in_array(
             $this->accessModifier(),
@@ -79,11 +86,17 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface
             true
         ) ? $this->accessModifier() : PHPTypesModifiers::PUBLIC;
 
-        $definition = $this->isConstant_ ? sprintf('%s %s %s', $modifier, PHPTypesModifiers::CONSTANT, Str::upper($name)) : sprintf('%s $%s', $modifier, $name);
+        $definition = $this->isConstant ? sprintf('%s %s %s', $modifier, PHPTypesModifiers::CONSTANT, Str::upper($name)) : sprintf('%s $%s', $modifier, $name);
         if (Str::contains($value, "'[") && Str::contains($value, "]'")) {
             $value = str_replace(" ]'", ']', str_replace("'[", '[', $value));
         }
-        $definition .= $value && \is_string($value) && !empty($value) ? str_replace('"null"', 'null', str_replace(["''"], "'", str_replace(['""'], '"', " = $value;"))) : ';';
+
+        if ($value && \is_string($value) && !empty($value) && !(trim($value) === 'null' || trim($value) === 'NULL')) {
+            $definition .= str_replace('"null"', 'null', str_replace(["''"], "'", str_replace(['""'], '"', " = $value;")));
+        } else {
+            $definition .= ';';
+        }
+
         $parts[] = $definition;
         if ($this->getIndentation()) {
             $parts = array_map(function ($part) {

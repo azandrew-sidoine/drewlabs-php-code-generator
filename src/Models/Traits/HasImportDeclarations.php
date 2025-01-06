@@ -24,21 +24,17 @@ trait HasImportDeclarations
      *
      * @var string[]
      */
-    private $imports_;
+    private $imports;
 
-    /**
-     * Undocumented variable.
-     *
-     * @var string[]
-     */
-    private $globalImports_;
+    /** @var string[] */
+    private $globalImports;
 
     /**
      * {@inheritDoc}
      */
     public function getImports(): array
     {
-        return $this->imports_ ?? [];
+        return $this->imports ?? [];
     }
 
     /**
@@ -46,7 +42,7 @@ trait HasImportDeclarations
      */
     public function setGlobalImports(array $values)
     {
-        $this->globalImports_ = $values;
+        $this->globalImports = $values;
 
         return $this;
     }
@@ -56,7 +52,7 @@ trait HasImportDeclarations
      */
     public function getGlobalImports(): array
     {
-        return $this->globalImports_ ?? [];
+        return $this->globalImports ?? [];
     }
 
     private function addClassPathToImportsPropertyAfter(\Closure $callback)
@@ -65,9 +61,9 @@ trait HasImportDeclarations
             $result = $callback($value);
             $name = $result instanceof ParseClassPathResult ? $result->getComponentName() : $result;
             $classPath = $result instanceof ParseClassPathResult ? $result->getClassPath() : $value;
-            $imports = $this->imports_ ?? [];
+            $imports = $this->imports ?? [];
             if (!\in_array($value, $imports, true) && (null !== $classPath)) {
-                $this->imports_[] = ltrim($classPath, '\\');
+                $this->imports[] = ltrim($classPath, '\\');
             }
 
             return $name;

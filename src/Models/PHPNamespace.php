@@ -18,52 +18,47 @@ use Drewlabs\CodeGenerator\Helpers\Str;
 
 class PHPNamespace implements Stringable
 {
-    /**
-     * @var string
-     */
-    private $ns_;
+    /** @var string */
+    private $ns;
 
     /**
      * Class definition models.
      *
      * @var PHPClass[]
      */
-    private $class_ = [];
+    private $classes = [];
 
     /**
      * Trait definition models.
      *
      * @var PHPTrait[]
      */
-    private $traits_ = [];
+    private $traits = [];
 
     /**
      * Interfaces definition models.
      *
      * @var PHPInterface[]
      */
-    private $interfaces_ = [];
+    private $interfaces = [];
 
-    /**
-     * 
-     * @var string[]
-     */
-    private $imports_ = [];
+    /** @var string[] */
+    private $imports = [];
 
     /**
      * Undocumented function.
      */
     public function __construct(string $ns)
     {
-        $this->ns_ = $ns;
+        $this->ns = $ns;
     }
 
     public function __toString(): string
     {
-        $parts = $this->ns_ ? ["namespace $this->ns_;"] : [];
+        $parts = $this->ns ? ["namespace $this->ns;"] : [];
         $imports = array_unique(array_map(static function ($import) {
             return \is_string($import) ? ltrim($import, '\\') : $import;
-        }, $this->imports_));
+        }, $this->imports));
         $parts[] = '';
         $functions_imports = [];
         $class_imports = [];
@@ -89,9 +84,9 @@ class PHPNamespace implements Stringable
      *
      * @return self
      */
-    public function addClass(PHPClass $class_)
+    public function addClass(PHPClass $blueprint)
     {
-        $this->class_[] = $class_;
+        $this->classes[] = $blueprint;
 
         return $this;
     }
@@ -103,7 +98,7 @@ class PHPNamespace implements Stringable
      */
     public function addTrait(PHPTrait $value)
     {
-        $this->traits_[] = $value;
+        $this->traits[] = $value;
 
         return $this;
     }
@@ -115,7 +110,7 @@ class PHPNamespace implements Stringable
      */
     public function addInterface(PHPInterface $value)
     {
-        $this->interfaces_[] = $value;
+        $this->interfaces[] = $value;
 
         return $this;
     }
@@ -129,7 +124,7 @@ class PHPNamespace implements Stringable
      */
     public function addImports(array $imports)
     {
-        $this->imports_ = $imports;
+        $this->imports = $imports;
 
         return $this;
     }
@@ -137,8 +132,8 @@ class PHPNamespace implements Stringable
     public function buildClasses()
     {
         $classes = [];
-        foreach (($this->class_ ?? []) as $value) {
-            $classes[$value->getName()] = $value->addToNamespace($this->ns_)->__toString();
+        foreach (($this->classes ?? []) as $value) {
+            $classes[$value->getName()] = $value->addToNamespace($this->ns)->__toString();
         }
 
         return $classes;
@@ -147,8 +142,8 @@ class PHPNamespace implements Stringable
     public function buildTraits()
     {
         $traits = [];
-        foreach (($this->traits_ ?? []) as $value) {
-            $traits[$value->getName()] = $value->addToNamespace($this->ns_)->__toString();
+        foreach (($this->traits ?? []) as $value) {
+            $traits[$value->getName()] = $value->addToNamespace($this->ns)->__toString();
         }
         return $traits;
     }

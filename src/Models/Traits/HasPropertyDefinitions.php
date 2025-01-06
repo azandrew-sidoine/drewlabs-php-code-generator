@@ -18,15 +18,13 @@ use Drewlabs\CodeGenerator\Helpers\Arr;
 
 trait HasPropertyDefinitions
 {
-    /**
-     * @var ValueContainer[]
-     */
-    private $properties_ = [];
+    /** @var ValueContainer[] */
+    private $properties = [];
 
     public function addProperty(ValueContainer $property)
     {
         $properties = [];
-        foreach (($this->properties_ ?? []) as $value) {
+        foreach (($this->properties ?? []) as $value) {
             $properties[$value->getName()] = $value;
         }
         sort($properties);
@@ -40,7 +38,7 @@ trait HasPropertyDefinitions
         if (-1 !== $match) {
             throw new \RuntimeException('Duplicated property : '.$property->getName());
         }
-        $this->properties_[] = $property;
+        $this->properties[] = $property;
 
         return $this;
     }
@@ -57,6 +55,6 @@ trait HasPropertyDefinitions
      */
     public function getProperties(): array
     {
-        return $this->properties_ ?? [];
+        return $this->properties ?? [];
     }
 }

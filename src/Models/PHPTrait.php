@@ -27,7 +27,7 @@ final class PHPTrait implements TraitableStruct
         array $methods = [],
         array $properties = []
     ) {
-        $this->name_ = $name;
+        $this->name = $name;
         // Validate methods
         if (null !== $methods && \is_array($methods)) {
             foreach ($methods as $value) {
@@ -69,7 +69,7 @@ final class PHPTrait implements TraitableStruct
     public function prepare()
     {
         $traits = [];
-        foreach (($this->traits_ ?? []) as $value) {
+        foreach (($this->traits ?? []) as $value) {
             if (Str::contains($value, '\\')) {
                 $traits[] = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                     return $this->getClassFromClassPath($classPath);
@@ -79,7 +79,7 @@ final class PHPTrait implements TraitableStruct
                 $traits[] = $value;
             }
         }
-        $this->traits_ = $traits;
+        $this->traits = $traits;
 
         return $this;
     }

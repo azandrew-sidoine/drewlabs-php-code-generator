@@ -19,19 +19,17 @@ use Drewlabs\CodeGenerator\Models\SingleLinePHPComment;
 
 class CommentModelFactory implements ComponentFactoryInterface
 {
-    /**
-     * @var bool
-     */
-    private $multiline_;
+    /** @var bool */
+    private $multiline;
 
     public function __construct(bool $multiline = true)
     {
-        $this->multiline_ = $multiline;
+        $this->multiline = $multiline;
     }
 
     public function make(...$args)
     {
-        if ($this->multiline_) {
+        if ($this->multiline) {
             return new MultiLinePHPComment(...$args);
         }
 

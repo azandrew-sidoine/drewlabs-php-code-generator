@@ -18,10 +18,8 @@ use Drewlabs\CodeGenerator\Contracts\ValueContainer;
 
 trait OOPStructComponentMembers
 {
-    /**
-     * @var string
-     */
-    private $accessModifier_;
+    /** @var string */
+    private $accessModifier;
 
     /**
      * {@inheritDoc}
@@ -31,15 +29,15 @@ trait OOPStructComponentMembers
     public function setModifier(string $value)
     {
         if (null === $value) {
-            return $this->accessModifier_;
+            return $this->accessModifier;
         }
-        $this->accessModifier_ = $value;
+        $this->accessModifier = $value;
 
         return $this;
     }
 
     public function accessModifier()
     {
-        return $this->accessModifier_;
+        return $this->accessModifier;
     }
 }

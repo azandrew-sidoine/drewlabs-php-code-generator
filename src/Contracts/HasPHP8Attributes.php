@@ -13,12 +13,20 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Contracts;
 
-interface ClassMemberInterface extends Commentable
+
+interface HasPHP8Attributes
 {
     /**
-     * Set the property Access modifier definition.
-     *
-     * @return static|ValueContainer|CallableInterface
+     * Add a PHP8 attribute to the component
+     * 
+     * @return static 
      */
-    public function setModifier(string $modifier);
+    public function addAttribute(string $value);
+
+    /**
+     * Get the list of PHP8 attributes
+     * 
+     * @return static 
+     */
+    public function getAttributes(): array;
 }

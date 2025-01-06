@@ -17,6 +17,7 @@ use Drewlabs\CodeGenerator\CommentModelFactory;
 use Drewlabs\CodeGenerator\Models\PHPClass;
 use Drewlabs\CodeGenerator\Models\PHPClassMethod;
 use Drewlabs\CodeGenerator\Models\PHPClassProperty;
+use Drewlabs\CodeGenerator\Models\PHPConstructorParameter;
 use Drewlabs\CodeGenerator\Models\PHPFunctionParameter;
 use Drewlabs\CodeGenerator\Models\PHPInterface;
 use Drewlabs\CodeGenerator\Models\PHPNamespace;
@@ -86,6 +87,21 @@ function PHPFunctionParameter(
 ) {
     return new PHPFunctionParameter($name, $type, $default);
 }
+
+
+/**
+ * Provides a proxy function the {@link PHPConstructorParameter} constructor.
+ *
+ * @return PHPConstructorParameter
+ */
+function PHPConstructorParameter(
+    string $name,
+    ?string $type = null,
+    $default = null
+) {
+    return new PHPConstructorParameter($name, $type, $default);
+}
+
 
 /**
  * Provides  a proxy function the {@link PHPInterface} constructor.

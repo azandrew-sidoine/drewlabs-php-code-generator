@@ -22,15 +22,20 @@ class SingleLinePHPComment implements Stringable
      *
      * @var string
      */
-    private $description_;
+    private $description;
 
+    /**
+     * Class instance initializer
+     * 
+     * @param string $description 
+     */
     public function __construct(string $description)
     {
-        $this->description_ = $description;
+        $this->description = $description;
     }
 
     public function __toString(): string
     {
-        return sprintf('// %s', $this->description_);
+        return sprintf('// %s', $this->description);
     }
 }

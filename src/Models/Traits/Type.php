@@ -17,20 +17,16 @@ trait Type
 {
     use Commentable;
 
-    /**
-     * @var string
-     */
-    private $name_;
+    /** @var string */
+    private $name;
 
-    /**
-     * @var string
-     */
-    private $type_;
+    /** @var string */
+    private $type;
 
     public function setName(?string $value = null)
     {
         if ((null !== $value) && \is_string($value)) {
-            $this->name_ = $value;
+            $this->name = $value;
         }
 
         return $this;
@@ -43,13 +39,13 @@ trait Type
 
     public function name(): ?string
     {
-        return $this->name_;
+        return $this->name;
     }
 
     public function setType(?string $value = null)
     {
         if ((null !== $value) && (\is_string($value))) {
-            $this->type_ = $value;
+            $this->type = $value;
         }
 
         return $this;
@@ -62,6 +58,6 @@ trait Type
      */
     public function type()
     {
-        return $this->type_;
+        return $this->type;
     }
 }

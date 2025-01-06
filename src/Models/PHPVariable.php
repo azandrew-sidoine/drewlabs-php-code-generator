@@ -49,7 +49,7 @@ class PHPVariable implements ValueContainer
         $default = null,
         $descriptors = ''
     ) {
-        $this->name_ = $name;
+        $this->name = $name;
         if (null !== $type) {
             $this->setType($type);
         }
@@ -76,8 +76,8 @@ class PHPVariable implements ValueContainer
         $definition = '';
         if (!$this->isRValue_) {
             // Generate comments
-            $parts[] = $this->getIndentation() ? $this->comment_->setIndentation($this->getIndentation())->__toString() : $this->comment_->__toString();
-            $definition = $this->isConstant_ ? sprintf('%s %s', PHPTypesModifiers::CONSTANT, Str::upper($name)) : sprintf('$%s', $name);
+            $parts[] = $this->getIndentation() ? $this->comment->setIndentation($this->getIndentation())->__toString() : $this->comment->__toString();
+            $definition = $this->isConstant ? sprintf('%s %s', PHPTypesModifiers::CONSTANT, Str::upper($name)) : sprintf('$%s', $name);
         }
         if (Str::contains($value, "'[") && Str::contains($value, "]'")) {
             $value = str_replace(" ]'", ']', str_replace("'[", '[', $value));

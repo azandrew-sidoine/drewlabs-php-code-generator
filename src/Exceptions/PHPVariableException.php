@@ -15,6 +15,12 @@ namespace Drewlabs\CodeGenerator\Exceptions;
 
 class PHPVariableException extends \Exception
 {
+    /**
+     * Exception instance initializer
+     * 
+     * @param string $name 
+     * @param string $errorMessage 
+     */
     public function __construct(string $name, string $errorMessage = '')
     {
         $message = sprintf('Error while building variable %s, %s', $name, $errorMessage);

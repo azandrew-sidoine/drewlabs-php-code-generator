@@ -23,11 +23,11 @@ trait HasTraitsDefintions
      *
      * @var string[]
      */
-    private $traits_;
+    private $traits;
 
     public function addTrait(string $trait)
     {
-        $this->traits_[] = $trait;
+        $this->traits[] = $trait;
 
         return $this;
     }
@@ -37,6 +37,6 @@ trait HasTraitsDefintions
      */
     public function getTraits(): ?array
     {
-        return $this->traits_ ?? null;
+        return $this->traits ?? null;
     }
 }

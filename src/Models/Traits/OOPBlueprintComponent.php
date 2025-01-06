@@ -22,33 +22,33 @@ trait OOPBlueprintComponent
     /**
      * @var string[]
      */
-    private $interfaces_ = [];
+    private $interfaces = [];
 
     /**
      * Class base class name.
      *
      * @var string
      */
-    private $baseClass_;
+    private $baseClass;
 
     /**
      * Create an abstract php class.
      *
      * @var bool
      */
-    private $isAbstract_;
+    private $isAbstract;
 
     /**
      * Create a final php class.
      *
      * @var bool
      */
-    private $isFinal_;
+    private $isFinal;
 
     public function setBaseClass(string $baseClass)
     {
         if (null !== $baseClass) {
-            $this->baseClass_ = $baseClass;
+            $this->baseClass = $baseClass;
         }
 
         return $this;
@@ -62,7 +62,7 @@ trait OOPBlueprintComponent
     public function addImplementation(string $value)
     {
         if (null !== $value) {
-            $this->interfaces_[] = $value;
+            $this->interfaces[] = $value;
         }
 
         return $this;
@@ -70,20 +70,20 @@ trait OOPBlueprintComponent
 
     public function asFinal()
     {
-        if ($this->isAbstract_) {
+        if ($this->isAbstract) {
             throw new PHPClassException('Class cannot be final and abstract at the same time');
         }
-        $this->isFinal_ = true;
+        $this->isFinal = true;
 
         return $this;
     }
 
     public function asAbstract()
     {
-        if ($this->isFinal_) {
+        if ($this->isFinal) {
             throw new PHPClassException('Class cannot be final and abstract at the same time');
         }
-        $this->isAbstract_ = true;
+        $this->isAbstract = true;
 
         return $this;
     }
@@ -95,7 +95,7 @@ trait OOPBlueprintComponent
      */
     public function getImplementations(): ?array
     {
-        return $this->interfaces_ ?? [];
+        return $this->interfaces ?? [];
     }
 
     /**
@@ -103,7 +103,7 @@ trait OOPBlueprintComponent
      */
     public function getBaseClass(): ?string
     {
-        return $this->baseClass_ ?? null;
+        return $this->baseClass ?? null;
     }
 
     /**
@@ -111,7 +111,7 @@ trait OOPBlueprintComponent
      */
     public function isFinal(): bool
     {
-        return $this->isFinal_ ?? false;
+        return $this->isFinal ?? false;
     }
 
     /**
@@ -119,6 +119,6 @@ trait OOPBlueprintComponent
      */
     public function isAbstract(): bool
     {
-        return $this->isAbstract_ ?? false;
+        return $this->isAbstract ?? false;
     }
 }

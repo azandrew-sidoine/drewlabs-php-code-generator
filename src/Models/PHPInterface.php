@@ -29,16 +29,14 @@ final class PHPInterface implements ImplementableStruct
      */
     private $extends = [];
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $preparedExtends;
 
     public function __construct(
         string $name,
         array $methods = []
     ) {
-        $this->name_ = $name;
+        $this->name = $name;
         // Validate and add user provided methods
         if (null !== $methods && \is_array($methods)) {
             foreach ($methods as $value) {

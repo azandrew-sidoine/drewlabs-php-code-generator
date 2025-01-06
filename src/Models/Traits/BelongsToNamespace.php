@@ -20,20 +20,20 @@ trait BelongsToNamespace
      *
      * @var string
      */
-    private $namespace_;
+    private $namespace;
 
     /**
      * Returns the namespace that the current class belongs to.
      */
     public function getNamespace(): ?string
     {
-        return $this->namespace_ ?? null;
+        return $this->namespace ?? null;
     }
 
     public function addToNamespace(?string $namespace = null)
     {
         if (null !== $namespace) {
-            $this->namespace_ = ltrim($namespace, '\\');
+            $this->namespace = ltrim($namespace, '\\');
         }
 
         return $this;

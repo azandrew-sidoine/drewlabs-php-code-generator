@@ -27,11 +27,11 @@ class MultiLinePHPComment implements Stringable
      *
      * @var array
      */
-    private $descriptors_;
+    private $descriptors;
 
     public function __construct(array $descriptors = [])
     {
-        $this->descriptors_ = $descriptors;
+        $this->descriptors = $descriptors;
     }
 
     public function __toString(): string
@@ -57,7 +57,7 @@ class MultiLinePHPComment implements Stringable
      */
     public function setDescriptors(array $descriptors)
     {
-        $this->descriptors_ = $descriptors;
+        $this->descriptors = $descriptors;
 
         return $this;
     }
@@ -69,6 +69,6 @@ class MultiLinePHPComment implements Stringable
      */
     public function getDescriptors()
     {
-        return $this->descriptors_;
+        return $this->descriptors;
     }
 }
