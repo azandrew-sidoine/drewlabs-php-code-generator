@@ -22,6 +22,11 @@ class CommentModelFactory implements ComponentFactoryInterface
     /** @var bool */
     private $multiline;
 
+    /**
+     * Class instance initializer
+     * 
+     * @param bool $multiline 
+     */
     public function __construct(bool $multiline = true)
     {
         $this->multiline = $multiline;

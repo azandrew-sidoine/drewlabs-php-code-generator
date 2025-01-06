@@ -40,9 +40,7 @@ class PHPTypesModifiers
      */
     public const CONSTANT = 'const';
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     public const VALUES = [
         self::PRIVATE,
         self::PUBLIC,

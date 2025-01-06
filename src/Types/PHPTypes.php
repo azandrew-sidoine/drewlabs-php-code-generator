@@ -19,22 +19,27 @@ class PHPTypes
      * String representation of php integer type.
      */
     public const INT = 'integer';
+
     /**
      * String representation of php floating point type.
      */
     public const FLOAT = 'float';
+
     /**
      * String representation of php decimal type.
      */
     public const DECIMAL = 'float';
+
     /**
      * String representation of php string type.
      */
     public const STRING = 'string';
+
     /**
      * String representation of php objects.
      */
     public const OBJECT = 'object';
+
     /**
      * String representation of php standard class.
      */
@@ -50,9 +55,7 @@ class PHPTypes
      */
     public const BOOLEAN = 'bool';
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     public const VALUES = [
         self::INT,
         self::FLOAT,

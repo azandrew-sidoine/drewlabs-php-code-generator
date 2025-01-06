@@ -29,6 +29,12 @@ class ParseClassPathResult
      */
     private $classPath;
 
+    /**
+     * Class instance initializer
+     * 
+     * @param string $name 
+     * @param null|string $classPath 
+     */
     public function __construct(string $name, ?string $classPath = null)
     {
         $this->name = $name;
