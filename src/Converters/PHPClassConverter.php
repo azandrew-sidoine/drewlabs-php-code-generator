@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Converters;
 
-use Drewlabs\CodeGenerator\CommentModelFactory;
+use Drewlabs\CodeGenerator\CommentFactory;
 use Drewlabs\CodeGenerator\Contracts\Blueprint;
 use Drewlabs\CodeGenerator\Contracts\Converters\Stringifier;
 use Drewlabs\CodeGenerator\Contracts\HasPHP8Attributes;
@@ -67,7 +67,7 @@ class PHPClassConverter implements Stringifier
         // Setting import is done in the blueprint definition
         $parts = [];
         if (!empty($blueprint->comments())) {
-            $parts[] = (string)((new CommentModelFactory(true))->make($blueprint->comments()));
+            $parts[] = (string)((new CommentFactory(true))->make($blueprint->comments()));
         }
         if ($blueprint instanceof HasPHP8Attributes) {
             foreach ($blueprint->getAttributes() as $attribute) {

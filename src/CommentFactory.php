@@ -17,7 +17,7 @@ use Drewlabs\CodeGenerator\Contracts\ComponentFactoryInterface;
 use Drewlabs\CodeGenerator\Models\MultiLinePHPComment;
 use Drewlabs\CodeGenerator\Models\SingleLinePHPComment;
 
-class CommentModelFactory implements ComponentFactoryInterface
+class CommentFactory implements ComponentFactoryInterface
 {
     /** @var bool */
     private $multiline;

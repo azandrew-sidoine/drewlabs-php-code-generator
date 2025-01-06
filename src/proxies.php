@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Proxy;
 
-use Drewlabs\CodeGenerator\CommentModelFactory;
+use Drewlabs\CodeGenerator\CommentFactory;
 use Drewlabs\CodeGenerator\Models\PHPClass;
 use Drewlabs\CodeGenerator\Models\PHPClassMethod;
 use Drewlabs\CodeGenerator\Models\PHPClassProperty;
@@ -141,11 +141,11 @@ function PHPTrait(
 /**
  * Provides  a proxy function the {@link CommentModelFactory} constructor.
  *
- * @return CommentModelFactory
+ * @return CommentFactory
  */
 function CommentFactory(bool $multiline = true)
 {
-    return new CommentModelFactory($multiline);
+    return new CommentFactory($multiline);
 }
 
 /**

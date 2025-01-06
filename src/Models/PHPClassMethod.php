@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Models;
 
-use Drewlabs\CodeGenerator\CommentModelFactory;
+use Drewlabs\CodeGenerator\CommentFactory;
 use Drewlabs\CodeGenerator\Contracts\CallableInterface;
 use Drewlabs\CodeGenerator\Contracts\ClassMemberInterface;
 use Drewlabs\CodeGenerator\Contracts\FunctionParameterInterface;
@@ -383,7 +383,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
         if (null !== $this->returns) {
             $descriptors[] = '@return ' . $this->returns;
         }
-        $this->comment = (new CommentModelFactory(true))->make($descriptors);
+        $this->comment = (new CommentFactory(true))->make($descriptors);
 
         return $this;
     }

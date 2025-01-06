@@ -28,19 +28,34 @@ use Drewlabs\CodeGenerator\Contracts\HasPHP8Attributes as AbstractHasPHP8Attribu
 
 class PHPClassProperty implements ValueContainer, ClassMemberInterface, AbstractHasPHP8Attributes
 {
-    use BelongsToNamespace;
-    use HasImportDeclarations;
-    use HasIndentation;
-    use OOPStructComponentMembers;
-    use TraitsValueContainer;
     use Type;
+    use HasIndentation;
     use HasPHP8Attributes;
+    use BelongsToNamespace;
+    use TraitsValueContainer;
+    use HasImportDeclarations;
+    use OOPStructComponentMembers;
+
+    /** @var bool */
+    private $hasMutator = false;
+
+    /** @var bool */
+    private $hasAccessor = false;
+
+    /** @var bool */
+    private $immutable = false;
+
+    /** @var bool */
+    private $hasHooks;
 
     /**
      * Class instances initializer.
-     *
-     * @param string       $modifier
-     * @param string|array $default
+     * 
+     * @param string $name 
+     * @param null|string $type 
+     * @param null|string $modifier
+     * @param mixed $default 
+     * @param string $descriptors 
      */
     public function __construct(
         string $name,
@@ -60,6 +75,45 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface, Abstract
             $this->setModifier($modifier);
         }
         $this->value($default);
+    }
+
+    public function setHasAccessor(bool $value = true)
+    {
+        $this->hasAccessor = $value;
+        return $this;
+    }
+
+    public function setHasMutator(bool $value = true)
+    {
+        $this->hasMutator = $value;
+        return $this;
+    }
+
+    public function setHasHooks(bool $value = true)
+    {
+        $this->hasHooks = $value;
+        return $this;
+    }
+
+    public function setImmutable(bool $value = true)
+    {
+        $this->immutable = $value;
+        return $this;
+    }
+
+    public function hasMutator(): bool
+    {
+        return $this->hasMutator;
+    }
+
+    public function hasAccessor(): bool
+    {
+        return $this->hasAccessor;
+    }
+
+    public function hasHooks(): bool
+    {
+        return $this->hasHooks;
     }
 
     public function __toString(): string

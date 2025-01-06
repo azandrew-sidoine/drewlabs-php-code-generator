@@ -31,6 +31,9 @@ final class PHPClass implements Blueprint, AbstractHasPHP8Attributes
     /** @var bool */
     private $promoteProperties = false;
 
+    /** @var  PHPClassPropertyHook[] */
+    private $propertyHooks = [];
+
     /**
      * Class constructor
      *
@@ -166,7 +169,7 @@ final class PHPClass implements Blueprint, AbstractHasPHP8Attributes
     /**
      * Set the class imports and returns.
      *
-     * @return self
+     * @return static
      */
     public function prepare()
     {
