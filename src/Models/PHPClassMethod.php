@@ -142,10 +142,11 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
         // Add method params
         if (null !== ($params = $this->getParameters())) {
             $params = array_map(static function ($param) {
+                $default = $param->defaultValue();
                 // Add the type definition
                 $type = $param->type();
                 // Add the visibility case param is an instance of HasVisibility
-                $definitions[] = $type ? sprintf('%s%s ', ($param instanceof HasVisibility && (version_compare(\PHP_VERSION, '8.0.0') >= 0)) ? ($param->getVisibility() ? sprintf('%s ', $param->getVisibility()) : '') : '', $type) : (($param instanceof HasVisibility && (version_compare(\PHP_VERSION, '8.0.0') >= 0)) ? ($param->getVisibility() ? sprintf('%s ', $param->getVisibility()) : '') : null);
+                $definitions[] = $type ? sprintf('%s%s%s ', ($param instanceof HasVisibility && (version_compare(\PHP_VERSION, '8.0.0') >= 0)) ? ($param->getVisibility() ? sprintf('%s ', $param->getVisibility()) : '') : '', ($param->isOptional() && strtolower($default) === '"null"') ? '?' : '', $type) : (($param instanceof HasVisibility && (version_compare(\PHP_VERSION, '8.0.0') >= 0)) ? ($param->getVisibility() ? sprintf('%s ', $param->getVisibility()) : '') : null);
                 // Add the reference definition
                 $definitions[] = $param->isReference() ? '&' : null;
                 // Add the variadic definition
@@ -156,8 +157,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
                 $definitions = array_filter($definitions);
                 // Generate the defintion
                 $result = implode('', $definitions);
-                return ((null === $param->defaultValue()) || $param->isVariadic()) ?
-                    $result : "$result = " . str_replace('"null"', 'null', $param->defaultValue());
+                return (is_null($default) || $param->isVariadic()) ? $result : "$result = " . str_replace('"null"', 'null', $default);
             }, $params);
             $declaration .= implode(', ', $params);
         }
