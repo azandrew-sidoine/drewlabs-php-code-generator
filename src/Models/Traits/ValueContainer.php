@@ -135,6 +135,6 @@ trait ValueContainer
         } elseif (is_array($this->value)) {
             $this->setType(null === $type ? sprintf('%s', PHPTypes::LIST) : $type);
         }
-        return PHPValueStringifier::new($type, $this->getIndentation())->stringify($this->value);
+        return PHPValueStringifier::new($this->getIndentation())->stringify($this->value);
     }
 }

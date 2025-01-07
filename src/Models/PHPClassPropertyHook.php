@@ -67,7 +67,7 @@ class PHPClassPropertyHook
         $params = [$this->modifier ?? PHPTypesModifiers::PUBLIC, $this->type ? sprintf(" %s", $this->type) : '', $this->name];
         $declaration = ($this->mutable ? sprintf("%s%s \$%s", ...$params) : sprintf("%s private(set)%s \$%s", ...$params));
         if ($this->default) {
-            $declaration .= sprintf(" = %s {", str_replace('"null"', 'null', PHPValueStringifier::new($this->type)->stringify($this->default)));
+            $declaration .= sprintf(" = %s {", str_replace('"null"', 'null', PHPValueStringifier::new()->stringify($this->default)));
             $components[] = $declaration;
         } else {
             $components[] = $declaration;
