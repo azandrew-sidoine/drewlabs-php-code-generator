@@ -36,7 +36,7 @@ class PHPClassPropertyAccessor
      */
     public function __construct(
         string $propertyName,
-        string $type = null,
+        ?string $type = null,
         string $indentation = "\t"
     ) {
         $this->propertyName = $propertyName;

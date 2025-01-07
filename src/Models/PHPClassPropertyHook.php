@@ -47,7 +47,7 @@ class PHPClassPropertyHook
      */
     public function __construct(
         string $name,
-        string $type = null,
+        ? string $type = null,
         ?string $modifier = PHPTypesModifiers::PUBLIC,
         bool $mutable = true,
         $default = null,

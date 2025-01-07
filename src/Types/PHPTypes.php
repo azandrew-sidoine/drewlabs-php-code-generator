@@ -15,45 +15,32 @@ namespace Drewlabs\CodeGenerator\Types;
 
 class PHPTypes
 {
-    /**
-     * String representation of php integer type.
-     */
+    /** PHP `integer` type enum value  */
     public const INT = 'integer';
 
-    /**
-     * String representation of php floating point type.
-     */
+    /** PHP `float` type enum value  */
     public const FLOAT = 'float';
 
-    /**
-     * String representation of php decimal type.
-     */
+    /** PHP `float` type enum value  */
     public const DECIMAL = 'float';
 
-    /**
-     * String representation of php string type.
-     */
+    /** PHP `string` type enum value  */
     public const STRING = 'string';
 
-    /**
-     * String representation of php objects.
-     */
+    /** PHP `object` type enum value  */
     public const OBJECT = 'object';
 
-    /**
-     * String representation of php standard class.
-     */
+    /** PHP `stdClass` type enum value  */
     public const STANDARD_CLASS = '\\stdClass';
 
-    /**
-     * String representation of php list type.
-     */
+    /** PHP `list` or `array` type enum value  */
     public const LIST = 'array';
 
-    /**
-     * String representation of a boolean value.
-     */
+    /** PHP `bool` type enum value  */
     public const BOOLEAN = 'bool';
+
+    /** PHP `mixed` type enum value  */
+    public const ANY = 'mixed';
 
     /** @var string[] */
     public const VALUES = [

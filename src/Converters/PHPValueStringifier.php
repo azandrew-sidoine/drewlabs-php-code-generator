@@ -14,13 +14,10 @@ declare(strict_types=1);
 namespace Drewlabs\CodeGenerator\Converters;
 
 use Drewlabs\CodeGenerator\Contracts\Converters\Stringifier;
-use Drewlabs\CodeGenerator\Helpers\Str;
-use Drewlabs\CodeGenerator\Types\PHPTypes;
+use Drewlabs\CodeGenerator\Helpers\Types;
 
 class PHPValueStringifier implements Stringifier
 {
-    /** @var string */
-    private $type;
 
     /** @var null|string */
     private $indentation;
@@ -29,10 +26,10 @@ class PHPValueStringifier implements Stringifier
      * PHP value stringifier instance initializer
      * 
      * @param string $type 
+     * @param null|string $indentation
      */
-    public function __construct(string $type, string $indentation = null)
+    public function __construct(?string $type = null, ?string $indentation = null)
     {
-        $this->type = $type;
         $this->indentation = $indentation;
     }
 
@@ -40,10 +37,10 @@ class PHPValueStringifier implements Stringifier
      * Class factory constructor
      * 
      * @param string $type 
-     * @param string|null $indentation 
+     * @param string|null $indentation
      * @return static
      */
-    public static function new(string $type, string $indentation = null)
+    public static function new(string $type, ?string $indentation = null)
     {
         return new static($type, $indentation);
     }
@@ -54,30 +51,32 @@ class PHPValueStringifier implements Stringifier
             return '';
         }
 
-        $isPHPClassDef = (is_string($value) &&
-            (Str::contains($value, '\\') ||
-                Str::startsWith($value, 'new') ||
-                Str::endsWith($value, '::class')));
+        $isClassDeclaration = Types::isClassDeclaration($value);
         if (\is_bool($value)) {
             return $value === false ? "false" : "true";
-        } elseif (is_numeric($value) || $isPHPClassDef) {
+        }
+        
+        if (is_numeric($value) || $isClassDeclaration) {
             return "$value";
-        } elseif (is_string($value) && !$isPHPClassDef) {
+        }
+        
+        if (is_string($value) && !$isClassDeclaration) {
             return $this->compileScalar($value);
-        } elseif (is_array($value)) {
+        }
+        
+        if (is_array($value)) {
             if (empty($value)) {
                 $start = '[]';
             } else {
                 $start = '[' . \PHP_EOL;
                 foreach ($value as $key => $v) {
-                    $evaluateValue = function ($item) {
-                        return is_array($item) ?
-                            $this->compileArray($item) : $this->compileScalar($item);
+                    $compile = function ($item) {
+                        return is_array($item) ? $this->compileArray($item) : $this->compileScalar($item);
                     };
                     $format = function ($key, $item) {
                         return is_numeric($key) ? "\t'%s'," : (is_numeric($item) || is_array($item) ? "\t'%s' => %s," : "\t'%s' => '%s',");
                     };
-                    $def = is_numeric($key) ? sprintf($format($key, $v), $evaluateValue($v))  . \PHP_EOL : sprintf($format($key, $v), $key, $evaluateValue($v)) . \PHP_EOL;
+                    $def = is_numeric($key) ? sprintf($format($key, $v), $compile($v))  . \PHP_EOL : sprintf($format($key, $v), $key, $compile($v)) . \PHP_EOL;
                     $start .= $this->indentation ? $this->indentation . $def : $def;
                 }
                 $start .= $this->indentation ? $this->indentation . ']' : ']';
@@ -85,6 +84,7 @@ class PHPValueStringifier implements Stringifier
 
             return $start;
         }
+
         return null === $value ? 'null' : '';
     }
 

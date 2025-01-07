@@ -15,29 +15,16 @@ namespace Drewlabs\CodeGenerator\Types;
 
 class PHPTypesModifiers
 {
-    /**
-     * PHP class component private modifier.
-     *
-     * @var string
-     */
+    /** PHP `private` access modifier enum value */
     public const PRIVATE = 'private';
-    /**
-     * PHP class component public modifier.
-     *
-     * @var string
-     */
+
+    /** PHP `public` access modifier enum value */
     public const PUBLIC = 'public';
 
-    /**
-     * PHP class component public modifier.
-     *
-     * @var string
-     */
+    /** PHP `protected` access modifier enum value */
     public const PROTECTED = 'protected';
 
-    /**
-     * String representation of php constant type.
-     */
+    /** PHP `const` access modifier enum value */
     public const CONSTANT = 'const';
 
     /** @var string[] */
