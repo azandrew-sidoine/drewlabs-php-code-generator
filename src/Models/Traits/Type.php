@@ -53,10 +53,17 @@ trait Type
 
     /**
      * Returns the parameter type name.
+     * @deprecated
      *
      * @return string
      */
     public function type()
+    {
+        return $this->type;
+    }
+
+
+    public function getType(): ?string
     {
         return $this->type;
     }

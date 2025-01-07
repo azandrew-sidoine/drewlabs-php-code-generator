@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Drewlabs\CodeGenerator\Models;
 
+use Drewlabs\CodeGenerator\Converters\PHPValueStringifier;
 use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
 
 class PHPClassPropertyHook
@@ -28,6 +29,9 @@ class PHPClassPropertyHook
 
     /** @var bool */
     private $mutable;
+
+    /** @var null|string */
+    private $default;
 
     /** @var string*/
     private $indentation = "\t";
@@ -46,35 +50,35 @@ class PHPClassPropertyHook
         string $type = null,
         ?string $modifier = PHPTypesModifiers::PUBLIC,
         bool $mutable = true,
+        $default = null,
         string $indentation = "\t"
     ) {
         $this->name = $name;
         $this->type = $type;
         $this->modifier = $modifier ?? PHPTypesModifiers::PUBLIC;
         $this->mutable = $mutable;
+        $this->default = $default;
         $this->indentation = $indentation;
     }
-
 
     public function __toString(): string
     {
         $components = [];
         $params = [$this->modifier ?? PHPTypesModifiers::PUBLIC, $this->type ? sprintf(" %s", $this->type) : '', $this->name];
-        $components[] = ($this->mutable ? sprintf("%s%s %s", ...$params) : sprintf("%s private(set)%s %s", ...$params));
-        $components[] = "{";
-
-        if ($this->mutable) {
-            $components[] = sprintf("  set (%s\$value) {", $this->type ? sprintf("%s ", $this->type) : '');
-            $components[] = sprintf("    #code...");
-            $components[] = sprintf("    \$this->%s = \$value;", $this->name);
-            $components[] = "  }";
+        $declaration = ($this->mutable ? sprintf("%s%s \$%s", ...$params) : sprintf("%s private(set)%s \$%s", ...$params));
+        if ($this->default) {
+            $declaration .= sprintf(" = %s {", str_replace('"null"', 'null', PHPValueStringifier::new($this->type)->stringify($this->default)));
+            $components[] = $declaration;
+        } else {
+            $components[] = $declaration;
+            $components[] = "{";
         }
 
-        $components[] = "";
-        $components[] = "  get () {";
-        $components[] = sprintf("    #code...");
-        $components[] = sprintf("    return\$this->%s;", $this->name);
-        $components[] = "  }";
+        if ($this->mutable) {
+            $components[] = sprintf("  set (%s\$value) => (\$this->%s = \$value);", $this->type ? sprintf("%s ", $this->type) : '', $this->name);
+        }
+
+        $components[] = sprintf("  get => \$this->%s;", $this->name);
         $components[] = "}";
 
         $components = array_map(function($c) {

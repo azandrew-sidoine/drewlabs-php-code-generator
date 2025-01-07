@@ -18,7 +18,7 @@ interface NamespaceComponent extends Stringable
     /**
      * Add the oop component to a namespace.
      *
-     * @return self|mixed
+     * @return static
      */
     public function addToNamespace(?string $namespace = null);
 

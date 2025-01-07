@@ -26,7 +26,7 @@ interface CallableInterface extends Indentable, NamespaceComponent, PathImportCo
     /**
      * Add a new Parameter to the method.
      *
-     * @return self
+     * @return static
      */
     public function addParameter(FunctionParameterInterface $param);
 
@@ -42,21 +42,21 @@ interface CallableInterface extends Indentable, NamespaceComponent, PathImportCo
      *
      * @param array $exceptions
      *
-     * @return self
+     * @return static
      */
     public function throws($exceptions = []);
 
     /**
      * Indicates to generate the class as an interface method definitions.
      *
-     * @return self
+     * @return static
      */
     public function asCallableSignature();
 
     /**
      * Add contents to the generated method.
      *
-     * @return self
+     * @return static
      */
     public function addContents(string $content);
 

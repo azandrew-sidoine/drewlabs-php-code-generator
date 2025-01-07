@@ -18,7 +18,7 @@ use Drewlabs\CodeGenerator\Contracts\ImplementableStruct;
 use Drewlabs\CodeGenerator\Models\PHPClassMethod;
 use Drewlabs\CodeGenerator\Models\PHPNamespace;
 
-final class PHPInterfaceConverter implements Stringifier
+final class PHPInterfaceStringifier implements Stringifier
 {
     /**
      * {@inheritDoc}

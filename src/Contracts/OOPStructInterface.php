@@ -27,21 +27,21 @@ interface OOPStructInterface extends PathImportContainer, NamespaceComponent
      *
      * @param PHPClassProperty $property
      *
-     * @return self
+     * @return static
      */
     public function addConstant(ValueContainer $property);
 
     /**
      * Add a property to the oop component definition.
      *
-     * @return self
+     * @return static
      */
     public function addProperty(ValueContainer $property);
 
     /**
      * Add a method definition to the oop component definition.
      *
-     * @return self
+     * @return static
      */
     public function addMethod(CallableInterface $property);
 

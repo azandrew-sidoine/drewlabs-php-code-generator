@@ -18,8 +18,8 @@ interface HasVisibility
     /**
      * Returns the visibility or access modifier of the component
      * 
-     * @return string 
+     * @return null|string 
      */
-    public function getVisibility(): string;
+    public function getVisibility(): ?string;
 
 }

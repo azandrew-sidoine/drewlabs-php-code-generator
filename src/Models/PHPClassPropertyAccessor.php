@@ -16,7 +16,7 @@ namespace Drewlabs\CodeGenerator\Models;
 class PHPClassPropertyAccessor
 {
     /** @var string */
-    private $name;
+    private $propertyName;
 
     /** @var string|null */
     private $type;
@@ -24,21 +24,35 @@ class PHPClassPropertyAccessor
     /** @var string*/
     private $indentation = "\t";
 
+    /** @var string */
+    private $name;
+
     /**
      * Class instance initializer
      * 
-     * @param string $name
+     * @param string $propertyName
      * @param null|string $type
      * @param string $indentation 
      */
     public function __construct(
-        string $name,
+        string $propertyName,
         string $type = null,
         string $indentation = "\t"
     ) {
-        $this->name = $name;
+        $this->propertyName = $propertyName;
         $this->type = $type;
         $this->indentation = $indentation;
+        $this->name = sprintf("get%s", ucfirst($this->propertyName));
+    }
+
+    /**
+     * Returns the accessor method name
+     * 
+     * @return string 
+     */
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     public function __toString(): string
@@ -46,14 +60,14 @@ class PHPClassPropertyAccessor
         $components = [];
         $components[] = "/**";
         $components[] = " *";
-        $components[] = sprintf(" * Reads %s property value", $this->name);
+        $components[] = sprintf(" * Get %s property value", $this->propertyName);
         $components[] = " *";
         $components[] = sprintf(" * @return %s", $this->type ?? 'mixed');
         $components[] = " */";
-        $components[] = sprintf("public function get%s(%s\$value)", ucfirst($this->name), $this->type ? sprintf("%s ", $this->type) : '');
+        $components[] = sprintf("public function %s()%s", $this->name, $this->type ? sprintf(": %s ", $this->type) : '');
         $components[] = "{";
         $components[] = sprintf("    #code...");
-        $components[] = sprintf("    return\$this->%s;", $this->name);
+        $components[] = sprintf("    return \$this->%s;", $this->propertyName);
         $components[] = "}";
 
         $components = array_map(function ($c) {

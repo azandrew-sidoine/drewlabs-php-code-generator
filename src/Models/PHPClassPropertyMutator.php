@@ -16,7 +16,7 @@ namespace Drewlabs\CodeGenerator\Models;
 class PHPClassPropertyMutator
 {
     /** @var string */
-    private $name;
+    private $propertyName;
 
     /** @var string|null */
     private $type;
@@ -27,23 +27,37 @@ class PHPClassPropertyMutator
     /** @var string*/
     private $indentation = "\t";
 
+    /** @var string */
+    private $name;
+
     /**
      * Class instance initializer
      * 
-     * @param string $name
+     * @param string $propertyName
      * @param null|string $type
      * @param string $indentation 
      */
     public function __construct(
-        string $name,
+        string $propertyName,
         string $type = null,
         bool $immutable = false,
         string $indentation = "\t"
     ) {
-        $this->name = $name;
+        $this->propertyName = $propertyName;
         $this->type = $type;
         $this->immutable = $immutable ?? false;
         $this->indentation = $indentation;
+        $this->name = sprintf("set%s", ucfirst($this->propertyName));
+    }
+
+    /**
+     * Returns the mutator method name
+     * 
+     * @return string 
+     */
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     public function __toString(): string
@@ -51,19 +65,19 @@ class PHPClassPropertyMutator
         $ref = $this->immutable ? 'self' : 'this';
         $components = [];
         $components[] = "/**";
-        $components[] = sprintf(" * Mutates %s property value", $this->name);
+        $components[] = sprintf(" * Mutates %s property value", $this->propertyName);
         $components[] = " *";
-        $components[] = sprintf(" * @param %s %s", $this->type ?? 'mixed', $this->name);
+        $components[] = sprintf(" * @param %s %s", $this->type ?? 'mixed', $this->propertyName);
         $components[] = " *";
         $components[] = " * @return static";
         $components[] = " */";
-        $components[] = sprintf("public function set%s(%s\$value)", ucfirst($this->name), $this->type ? sprintf("%s ", $this->type) : '');
+        $components[] = sprintf("public function %s(%s\$value)", $this->name, $this->type ? sprintf("%s ", $this->type) : '');
         $components[] = "{";
         $components[] = sprintf("    #code...");
         if ($this->immutable) {
             $components[] = "    \$self = clone \$this;";
         }
-        $components[] = sprintf("    \$%s->%s = \$value;", $ref, $this->name);
+        $components[] = sprintf("    \$%s->%s = \$value;", $ref, $this->propertyName);
         $components[] = sprintf("    return \$%s;", $ref);
         $components[] = "}";
 

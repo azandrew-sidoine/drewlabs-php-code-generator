@@ -19,7 +19,7 @@ use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
 class PHPConstructorParameter extends PHPFunctionParameter implements HasVisibility
 {
     /** @var string */
-    private $visibility = PHPTypesModifiers::PRIVATE;
+    private $visibility;
 
     /**
      * Set the param visibility to the provided value
@@ -34,7 +34,7 @@ class PHPConstructorParameter extends PHPFunctionParameter implements HasVisibil
         return $this;
     }
 
-    public function getVisibility(): string
+    public function getVisibility(): ?string
     {
         return $this->visibility;
     }

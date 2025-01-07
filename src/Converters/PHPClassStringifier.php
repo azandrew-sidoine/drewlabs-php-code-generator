@@ -17,19 +17,25 @@ use Drewlabs\CodeGenerator\CommentFactory;
 use Drewlabs\CodeGenerator\Contracts\Blueprint;
 use Drewlabs\CodeGenerator\Contracts\Converters\Stringifier;
 use Drewlabs\CodeGenerator\Contracts\HasPHP8Attributes;
+use Drewlabs\CodeGenerator\Contracts\PropertyInterface;
 use Drewlabs\CodeGenerator\Contracts\ValueContainer;
 use Drewlabs\CodeGenerator\Models\PHP8Attribute;
 use Drewlabs\CodeGenerator\Models\PHPClassMethod;
 use Drewlabs\CodeGenerator\Models\PHPClassProperty;
+use Drewlabs\CodeGenerator\Models\PHPClassPropertyAccessor;
+use Drewlabs\CodeGenerator\Models\PHPClassPropertyHook;
+use Drewlabs\CodeGenerator\Models\PHPClassPropertyMutator;
 use Drewlabs\CodeGenerator\Models\PHPNamespace;
+use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
+use Drewlabs\CodeGenerator\Contracts\CallableInterface;
 
-class PHPClassConverter implements Stringifier
+class PHPClassStringifier implements Stringifier
 {
     /** @var bool */
     private $promoteProperties = false;
 
     /**
-     * Class constructor
+     * Class instance initializer
      * 
      * @param bool $promoteProperties 
      * @return void 
@@ -99,29 +105,68 @@ class PHPClassConverter implements Stringifier
         }
         $imports = $blueprint->getImports();
 
+        /** @var ValueContainer[] */
+        $properties = $blueprint->getProperties() ?? [];
+        /** @var CallableInterface[] */
+        $methods = $blueprint->getMethods() ?? [];
+        $methodNames = array_map(function ($method) {
+            return $method->getName();
+        }, $methods);
+        $bfPHP8Hooks = [];
+
         // Add properties
-        if ((version_compare(\PHP_VERSION, '8.0.0') >= 0) && !$this->promoteProperties) {
-            $properties = $blueprint->getProperties();
-            if ((null !== $properties) && \is_array($properties) && !empty($properties)) {
-                foreach ($properties as $value) {
-                    $parts[] = '';
-                    if (($value instanceof PHPClassProperty) || method_exists($value, 'addToNamespace')) {
-                        /** @var ValueContainer */
-                        $value = $value->{'addToNamespace'}($blueprint->getNamespace());
+        if (!$this->promoteProperties) {
+            foreach ($properties as $property) {
+                $parts[] = '';
+                if (($property instanceof PHPClassProperty) || method_exists($property, 'addToNamespace')) {
+                    $property = $property->addToNamespace($blueprint->getNamespace());
+                }
+                $imports = array_merge($imports, $property->getImports() ?? []);
+                if ($property instanceof PropertyInterface && ($property->hasMutator() || $property->hasAccessor()) && (version_compare(\PHP_VERSION, '8.4') >= 0)) {
+                    $hook = new PHPClassPropertyHook($property->getName(), $property->getType(), PHPTypesModifiers::PUBLIC, $property->hasMutator(), $property->value(), "\t");
+                    $parts[] = $hook->__toString();
+                } else if ($property instanceof PropertyInterface && ($property->hasMutator() || $property->hasAccessor()) && (version_compare(\PHP_VERSION, '8.4') < 0)) {
+                    $parts[] = $property->setIndentation("\t")->__toString();
+                    $accessor = new PHPClassPropertyAccessor($property->getName(), $property->getType(), "\t");
+                    // Case an accessor name is not already defined in class method, we add the accessor as method
+                    if (!in_array($accessor->getName(), $methodNames)) {
+                        $bfPHP8Hooks[] = $accessor->__toString();
                     }
-                    $parts[] = $value->setIndentation("\t")->__toString();
-                    $imports = array_merge($imports, $value->getImports() ?? []);
+
+                    if ($property->hasMutator()) {
+                        $mutator = new PHPClassPropertyMutator($property->getName(), $property->getType(), $property->isImmutable(), "\t");
+                        // Case an mutator name is not already defined in class method, we add the mutator as method
+                        if (!in_array($mutator->getName(), $methodNames)) {
+                            $bfPHP8Hooks[] = $mutator->__toString();
+                        }
+                    }
                 }
             }
         }
 
+        // Add Class constructor
+        /** @var CallableInterface */
+        if ($constructor = $blueprint->getConstructor()) {
+            $parts[] = '';
+            if (($constructor instanceof PHPClassMethod) || method_exists($constructor, 'addToNamespace')) {
+                $constructor = $constructor->{'addToNamespace'}($blueprint->getNamespace());
+            }
+            $parts[] = $constructor->setGlobalImports($imports)->setIndentation("\t")->__toString();
+            $imports = array_merge($imports, $constructor->getImports() ?? []);
+            $parts[] = '';
+        }
+
+        // Add the hooks source code if any
+        foreach ($bfPHP8Hooks as $hook) {
+            $parts[] = $hook;
+            $parts[] = '';
+        }
+
         // Add class methods
-        $methods = $blueprint->getMethods();
         if ((null !== $methods) && \is_array($methods) && !empty($methods)) {
             foreach ($methods as $value) {
                 $parts[] = '';
                 if (($value instanceof PHPClassMethod) || method_exists($value, 'addToNamespace')) {
-                    /** @var ValueContainer */
                     $value = $value->{'addToNamespace'}($blueprint->getNamespace());
                 }
                 $parts[] = $value->setGlobalImports($imports)->setIndentation("\t")->__toString();

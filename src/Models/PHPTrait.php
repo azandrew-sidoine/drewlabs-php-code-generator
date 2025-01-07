@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\TraitableStruct;
-use Drewlabs\CodeGenerator\Converters\PHPTraitConverter;
+use Drewlabs\CodeGenerator\Converters\PHPTraitStringifier;
 use Drewlabs\CodeGenerator\Helpers\Str;
 use Drewlabs\CodeGenerator\Models\Traits\HasTraitsDefintions;
 
@@ -58,7 +58,7 @@ final class PHPTrait implements TraitableStruct
      */
     public function __toString(): string
     {
-        return (new PHPTraitConverter())->stringify($this->prepare()) ?? '';
+        return (new PHPTraitStringifier())->stringify($this->prepare()) ?? '';
     }
 
     /**

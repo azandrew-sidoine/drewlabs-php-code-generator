@@ -39,9 +39,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
     use Type;
     use HasPHP8Attributes;
 
-    /**
-     * @var FunctionParameterInterface[]
-     */
+    /** @var FunctionParameterInterface[] */
     private $params;
 
     /**
@@ -147,7 +145,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
                 // Add the type definition
                 $type = $param->type();
                 // Add the visibility case param is an instance of HasVisibility
-                $definitions[] = $type ? sprintf('%s%s ', ($param instanceof HasVisibility && (version_compare(\PHP_VERSION, '8.0.0') >= 0)) ? sprintf('%s ', $param->getVisibility()) : '', $type) : (($param instanceof HasVisibility && (version_compare(\PHP_VERSION, '8.0.0') >= 0)) ? sprintf('%s ', $param->getVisibility()) : null);
+                $definitions[] = $type ? sprintf('%s%s ', ($param instanceof HasVisibility && (version_compare(\PHP_VERSION, '8.0.0') >= 0)) ? ($param->getVisibility() ? sprintf('%s ', $param->getVisibility()) : '') : '', $type) : (($param instanceof HasVisibility && (version_compare(\PHP_VERSION, '8.0.0') >= 0)) ? ($param->getVisibility() ? sprintf('%s ', $param->getVisibility()) : '') : null);
                 // Add the reference definition
                 $definitions[] = $param->isReference() ? '&' : null;
                 // Add the variadic definition
@@ -175,7 +173,7 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
         $parts[] = null !== $indentation ?
             $this->comment->setIndentation($this->getIndentation())->__toString() :
             $this->comment->__toString();
-        
+
         // Add PHP8 attributes to method/function definition
         foreach ($this->getAttributes() as $attribute) {
             $parts[] = sprintf("%s", PHP8Attribute::new($attribute)->__toString());

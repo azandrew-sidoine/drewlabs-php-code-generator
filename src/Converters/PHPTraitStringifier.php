@@ -19,7 +19,7 @@ use Drewlabs\CodeGenerator\Models\PHPClassMethod;
 use Drewlabs\CodeGenerator\Models\PHPClassProperty;
 use Drewlabs\CodeGenerator\Models\PHPNamespace;
 
-class PHPTraitConverter implements Stringifier
+class PHPTraitStringifier implements Stringifier
 {
     public function typeToString(TraitableStruct $component): string
     {

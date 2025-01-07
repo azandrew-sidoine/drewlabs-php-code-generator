@@ -25,8 +25,9 @@ use Drewlabs\CodeGenerator\Models\Traits\Type;
 use Drewlabs\CodeGenerator\Models\Traits\ValueContainer as TraitsValueContainer;
 use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
 use Drewlabs\CodeGenerator\Contracts\HasPHP8Attributes as AbstractHasPHP8Attributes;
+use Drewlabs\CodeGenerator\Contracts\PropertyInterface;
 
-class PHPClassProperty implements ValueContainer, ClassMemberInterface, AbstractHasPHP8Attributes
+class PHPClassProperty implements ValueContainer, ClassMemberInterface, AbstractHasPHP8Attributes, PropertyInterface
 {
     use Type;
     use HasIndentation;
@@ -46,7 +47,7 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface, Abstract
     private $immutable = false;
 
     /** @var bool */
-    private $hasHooks;
+    private $hasHooks = false;
 
     /**
      * Class instances initializer.
@@ -114,6 +115,11 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface, Abstract
     public function hasHooks(): bool
     {
         return $this->hasHooks;
+    }
+
+    public function isImmutable(): bool
+    {
+        return $this->hasMutator && $this->immutable;
     }
 
     public function __toString(): string

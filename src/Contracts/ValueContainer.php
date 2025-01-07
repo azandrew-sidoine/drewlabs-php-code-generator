@@ -25,9 +25,17 @@ interface ValueContainer extends Indentable, PathImportContainer, NamespaceCompo
     /**
      * Type property setter.
      *
-     * @return self
+     * @return static
      */
     public function setType(string $type);
+
+
+    /**
+     * Returns type definition of the instance
+     * 
+     * @return null|string 
+     */
+    public function getType(): ?string;
 
     /**
      * Set the property default value definition or returns it it null is passed.
@@ -41,7 +49,7 @@ interface ValueContainer extends Indentable, PathImportContainer, NamespaceCompo
     /**
      * Create the property as PHP Constant.
      *
-     * @return self
+     * @return static
      */
     public function asConstant();
 

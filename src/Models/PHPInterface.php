@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\ImplementableStruct;
-use Drewlabs\CodeGenerator\Converters\PHPInterfaceConverter;
+use Drewlabs\CodeGenerator\Converters\PHPInterfaceStringifier;
 use Drewlabs\CodeGenerator\Helpers\Str;
 use Drewlabs\CodeGenerator\Models\Traits\OOPStructComponent;
 
@@ -51,7 +51,7 @@ final class PHPInterface implements ImplementableStruct
 
     public function __toString(): string
     {
-        return (new PHPInterfaceConverter())->stringify($this->prepare());
+        return (new PHPInterfaceStringifier())->stringify($this->prepare());
     }
 
     public function addBaseInterface(string $value)

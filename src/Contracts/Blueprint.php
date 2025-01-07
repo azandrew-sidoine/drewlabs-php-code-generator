@@ -21,13 +21,21 @@ interface Blueprint extends OOPStructInterface
     /**
      * Add a constructor to the class definition
      * 
-     * @param FunctionParameterInterface[]|array $params
+     * @param FunctionParameterInterface[] $params
      * @param array $lines
      * @param string $modifier
      * @return self 
      * @throws RuntimeException 
      */
     public function addConstructor(array $params = [], array $lines = [], $modifier = 'public');
+
+
+    /**
+     * Returns the constructor of the blueprint instance
+     * 
+     * @return CallableInterface 
+     */
+    public function getConstructor(): ?CallableInterface;
 
     /**
      * Add __invoke() method to the class

@@ -46,7 +46,7 @@ interface FunctionParameterInterface
     /**
      * Creates an optional method / function parameter.
      *
-     * @return self
+     * @return static
      */
     public function asOptional();
 
@@ -60,28 +60,28 @@ interface FunctionParameterInterface
     /**
      * Makes the parameter an ellipsis by adding (...) in front of the parameter.
      *
-     * @return self
+     * @return static
      */
     public function asVariadic();
 
     /**
      * Boolean value returns indicating the type of parameter.
      *
-     * @return self
+     * @return static
      */
     public function isVariadic();
 
     /**
      * Creates a reference paramater to a callable.
      *
-     * @return self
+     * @return static
      */
     public function asReference();
 
     /**
      * Boolean value returns show if the parameter is a reference parameter or not.
      *
-     * @return self
+     * @return static
      */
     public function isReference();
 }

@@ -18,7 +18,7 @@ interface Indentable extends Stringable
     /**
      * Set the indentation to apply to the component.
      *
-     * @return self
+     * @return static
      */
     public function setIndentation(string $indentation);
 

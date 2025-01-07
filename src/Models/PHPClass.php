@@ -17,7 +17,7 @@ use Drewlabs\CodeGenerator\Contracts\Blueprint;
 use Drewlabs\CodeGenerator\Contracts\CallableInterface;
 use Drewlabs\CodeGenerator\Contracts\HasPHP8Attributes as AbstractHasPHP8Attributes;
 use Drewlabs\CodeGenerator\Contracts\ValueContainer;
-use Drewlabs\CodeGenerator\Converters\PHPClassConverter;
+use Drewlabs\CodeGenerator\Converters\PHPClassStringifier;
 use Drewlabs\CodeGenerator\Helpers\Str;
 use Drewlabs\CodeGenerator\Models\Traits\HasPHP8Attributes;
 use Drewlabs\CodeGenerator\Models\Traits\OOPBlueprintComponent;
@@ -33,6 +33,9 @@ final class PHPClass implements Blueprint, AbstractHasPHP8Attributes
 
     /** @var  PHPClassPropertyHook[] */
     private $propertyHooks = [];
+
+    /** @var CallableInterface */
+    private $constructor;
 
     /**
      * Class constructor
@@ -94,7 +97,7 @@ final class PHPClass implements Blueprint, AbstractHasPHP8Attributes
 
     public function __toString(): string
     {
-        return (new PHPClassConverter($this->promoteProperties))->stringify($this->prepare());
+        return (new PHPClassStringifier($this->promoteProperties))->stringify($this->prepare());
     }
 
     public function addConstructor(array $params = [], array $lines = [], $modifier = PHPTypesModifiers::PUBLIC)
@@ -106,12 +109,23 @@ final class PHPClass implements Blueprint, AbstractHasPHP8Attributes
             $modifier ?? PHPTypesModifiers::PUBLIC,
             'Class instance initializer'
         );
-        foreach (array_filter($lines ?? [], function ($line) {
-            return null !== $line;
-        }) as $line) {
+
+        foreach (
+            array_filter($lines ?? [], function ($line) {
+                return null !== $line;
+            }) as $line
+        ) {
             $method = $method->addLine($line);
         }
-        return $this->addMethod($method);
+
+        $this->constructor = $method;
+
+        return $this;
+    }
+
+    public function getConstructor(): ?CallableInterface
+    {
+        return $this->constructor;
     }
 
     public function asInvokable()

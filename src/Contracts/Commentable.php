@@ -20,7 +20,7 @@ interface Commentable
      *
      * @param string[]|string $value
      *
-     * @return self|ValueContainer|CallableInterface|mixed
+     * @return static|ValueContainer|CallableInterface
      */
     public function addComment($value);
 }
