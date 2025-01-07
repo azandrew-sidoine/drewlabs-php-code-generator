@@ -18,17 +18,15 @@ use Drewlabs\CodeGenerator\Helpers\Types;
 
 class PHPValueStringifier implements Stringifier
 {
-
     /** @var null|string */
     private $indentation;
 
     /**
      * PHP value stringifier instance initializer
      * 
-     * @param string $type 
      * @param null|string $indentation
      */
-    public function __construct(?string $type = null, ?string $indentation = null)
+    public function __construct(?string $indentation = null)
     {
         $this->indentation = $indentation;
     }
@@ -36,13 +34,12 @@ class PHPValueStringifier implements Stringifier
     /**
      * Class factory constructor
      * 
-     * @param string $type 
      * @param string|null $indentation
      * @return static
      */
-    public static function new(string $type, ?string $indentation = null)
+    public static function new(?string $indentation = null)
     {
-        return new static($type, $indentation);
+        return new static($indentation);
     }
 
     public function stringify($value): string
