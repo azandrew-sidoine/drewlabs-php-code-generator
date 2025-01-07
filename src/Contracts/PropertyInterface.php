@@ -38,4 +38,11 @@ interface PropertyInterface
      * @return bool 
      */
     public function isImmutable(): bool;
+
+    /**
+     * Checks if property declaration should use PHP8.4 property hooks
+     * 
+     * @return bool 
+     */
+    public function usesHooks(): bool;
 }

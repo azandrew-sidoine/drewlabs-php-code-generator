@@ -47,7 +47,7 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface, Abstract
     private $immutable = false;
 
     /** @var bool */
-    private $hasHooks = false;
+    private $usesHooks = false;
 
     /**
      * Class instances initializer.
@@ -90,12 +90,6 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface, Abstract
         return $this;
     }
 
-    public function setHasHooks(bool $value = true)
-    {
-        $this->hasHooks = $value;
-        return $this;
-    }
-
     public function setImmutable(bool $value = true)
     {
         $this->immutable = $value;
@@ -112,9 +106,21 @@ class PHPClassProperty implements ValueContainer, ClassMemberInterface, Abstract
         return $this->hasAccessor;
     }
 
-    public function hasHooks(): bool
+    /**
+     * Forces property instance to use PHP8.4 property hooks
+     * 
+     * @return static 
+     */
+    public function withHooks()
     {
-        return $this->hasHooks;
+        $this->usesHooks = true;
+
+        return $this;
+    }
+
+    public function usesHooks(): bool
+    {
+        return $this->usesHooks;
     }
 
     public function isImmutable(): bool

@@ -122,10 +122,10 @@ class PHPClassStringifier implements Stringifier
                     $property = $property->addToNamespace($blueprint->getNamespace());
                 }
                 $imports = array_merge($imports, $property->getImports() ?? []);
-                if ($property instanceof PropertyInterface && ($property->hasMutator() || $property->hasAccessor()) && (version_compare(\PHP_VERSION, '8.4') >= 0)) {
+                if ($property instanceof PropertyInterface && ($property->hasMutator() || $property->hasAccessor()) && $property->usesHooks() && (version_compare(\PHP_VERSION, '8.4') >= 0)) {
                     $hook = new PHPClassPropertyHook($property->getName(), $property->getType(), PHPTypesModifiers::PUBLIC, $property->hasMutator(), $property->value(), "\t");
                     $parts[] = $hook->__toString();
-                } else if ($property instanceof PropertyInterface && ($property->hasMutator() || $property->hasAccessor()) && (version_compare(\PHP_VERSION, '8.4') < 0)) {
+                } else if ($property instanceof PropertyInterface && ($property->hasMutator() || $property->hasAccessor())) {
                     $parts[] = $property->setIndentation("\t")->__toString();
                     $accessor = new PHPClassPropertyAccessor($property->getName(), $property->getType(), "\t");
                     // Case an accessor name is not already defined in class method, we add the accessor as method
@@ -140,6 +140,8 @@ class PHPClassStringifier implements Stringifier
                             $bfPHP8Hooks[] = $mutator->__toString();
                         }
                     }
+                } else {
+                    $parts[] = $property->setIndentation("\t")->__toString();
                 }
             }
         }

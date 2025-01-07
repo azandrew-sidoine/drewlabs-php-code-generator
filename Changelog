@@ -25,3 +25,8 @@
 - Added support for PHP8 promoted properties
 - Added support for PHP8 Attributes
 - Added support for PHP7.2 return types
+
+## v0.3.2
+
+- Added support for PHP 8.4 property hooks
+    From this version, php 8.4 property hooks are used intead of getter and setter function whenever client ask the compiler to generate getter and setters for a given property using the `withHooks()` call on class property model definition.
