@@ -24,6 +24,8 @@ interface FunctionParameterInterface
 
     /**
      * Returns the parameter type name.
+     * 
+     * @deprecated v0.3.x Use getType()
      *
      * @return string
      */
@@ -84,4 +86,18 @@ interface FunctionParameterInterface
      * @return static
      */
     public function isReference();
+
+    /**
+     * Returns a function parameter interface with a modified type
+     * 
+     * @return static 
+     */
+    public function withType(string $value);
+
+    /**
+     * Return the parameter type declaration value
+     * 
+     * @return null|string 
+     */
+    public function getType(): ?string;
 }

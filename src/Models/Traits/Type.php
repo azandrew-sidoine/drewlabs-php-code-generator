@@ -67,4 +67,11 @@ trait Type
     {
         return $this->type;
     }
+
+    public function withType(string $value)
+    {
+        $self = clone $this;
+        $self->type = $value;
+        return $self;
+    }
 }

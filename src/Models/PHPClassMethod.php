@@ -141,12 +141,12 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
         $declaration = $this->isStatic ? "$accessModifier static function $name(" : "$accessModifier function $name(";
         // Add method params
         if (null !== ($params = $this->getParameters())) {
-            $params = array_map(static function ($param) {
+            $params = array_map(static function (FunctionParameterInterface $param) {
                 $default = $param->defaultValue();
                 // Add the type definition
-                $type = $param->type();
+                $type = $param->getType();
                 // Add the visibility case param is an instance of HasVisibility
-                $definitions[] = $type ? sprintf('%s%s%s ', ($param instanceof HasVisibility && (version_compare(\PHP_VERSION, '8.0.0') >= 0)) ? ($param->getVisibility() ? sprintf('%s ', $param->getVisibility()) : '') : '', ($param->isOptional() && strtolower($default) === '"null"') ? '?' : '', $type) : (($param instanceof HasVisibility && (version_compare(\PHP_VERSION, '8.0.0') >= 0)) ? ($param->getVisibility() ? sprintf('%s ', $param->getVisibility()) : '') : null);
+                $definitions[] = $type ? sprintf('%s%s%s ', ($param instanceof HasVisibility && (version_compare(\PHP_VERSION, '8.0.0') >= 0)) ? ($param->getVisibility() ? sprintf('%s ', $param->getVisibility()) : '') : '', ($param->isOptional() && in_array(strtolower($default), ['"null"', 'null'])) ? '?' : '', $type) : (($param instanceof HasVisibility && (version_compare(\PHP_VERSION, '8.0.0') >= 0)) ? ($param->getVisibility() ? sprintf('%s ', $param->getVisibility()) : '') : null);
                 // Add the reference definition
                 $definitions[] = $param->isReference() ? '&' : null;
                 // Add the variadic definition
@@ -165,7 +165,8 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
         $declaration .= ')';
 
         // Case running a PHP version >= 7.2, we add the return type of the function to the function declaration
-        if (version_compare(\PHP_VERSION, '7.2.0') >= 0 && $this->returns && strtolower($this->returns) != 'mixed') {
+        // PHP return type does not support mixed, template type declaration yet, therefore, we drop those casses
+        if (version_compare(\PHP_VERSION, '7.2.0') >= 0 && is_string($this->returns) && !in_array('mixed', explode('|', $this->returns)) && strpos($this->returns, '<') === false && strpos($this->returns, '[') === false) {
             $declaration .= sprintf(": %s", $this->returns);
         }
 
@@ -333,19 +334,16 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
             }
         }
         $values = [];
-        $params_ = $this->getParameters();
-        if (!empty($params_)) {
-            $values = \is_array($params_) ? $params_ : (\is_string($params_) ? [$params_] : []);
+        $methodParameters = $this->getParameters();
+        if (!empty($methodParameters)) {
+            /** @var FunctionParameterInterface[] */
+            $values = \is_array($methodParameters) ? $methodParameters : (\is_string($methodParameters) ? [$methodParameters] : []);
             $params = [];
             foreach ($values as $value) {
-                if (Str::contains($value->type(), '\\')) {
-                    $params[] = new PHPFunctionParameter(
-                        $value->name(),
-                        $this->addClassPathToImportsPropertyAfter(function ($classPath) {
-                            return $this->getClassFromClassPath($classPath);
-                        })($value->type()),
-                        $value->defaultValue()
-                    );
+                if (Str::contains($value->getType(), '\\')) {
+                    $params[] = $value->withType($this->addClassPathToImportsPropertyAfter(function ($classPath) {
+                        return $this->getClassFromClassPath($classPath);
+                    })($value->getType()));
                 } else {
                     $params[] = $value;
                 }
@@ -360,14 +358,14 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
     {
         $descriptors = $this->comments();
         if (!empty($descriptors)) {
-            // Add a line separator between the descriptors and other definitions
             $descriptors[] = '';
         }
         // Generates method params comments
-        $params_ = $this->getParameters();
-        if (null !== $params_) {
-            foreach ($params_ as $value) {
-                $type = null === $value->type() ? 'mixed' : $value->type();
+        $methodParameters = $this->getParameters();
+        if (null !== $methodParameters) {
+            /** @var FunctionParameterInterface $value */
+            foreach ($methodParameters as $value) {
+                $type = null === $value->getType() ? 'mixed' : $value->getType();
                 $descriptors[] = '@param ' . $type . ' $' . $value->name();
             }
         }

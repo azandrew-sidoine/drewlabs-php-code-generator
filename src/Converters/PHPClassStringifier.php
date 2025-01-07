@@ -151,7 +151,7 @@ class PHPClassStringifier implements Stringifier
         if ($constructor = $blueprint->getConstructor()) {
             $parts[] = '';
             if (($constructor instanceof PHPClassMethod) || method_exists($constructor, 'addToNamespace')) {
-                $constructor = $constructor->{'addToNamespace'}($blueprint->getNamespace());
+                $constructor = $constructor->addToNamespace($blueprint->getNamespace());
             }
             $parts[] = $constructor->setGlobalImports($imports)->setIndentation("\t")->__toString();
             $imports = array_merge($imports, $constructor->getImports() ?? []);
@@ -169,7 +169,7 @@ class PHPClassStringifier implements Stringifier
             foreach ($methods as $value) {
                 $parts[] = '';
                 if (($value instanceof PHPClassMethod) || method_exists($value, 'addToNamespace')) {
-                    $value = $value->{'addToNamespace'}($blueprint->getNamespace());
+                    $value = $value->addToNamespace($blueprint->getNamespace());
                 }
                 $parts[] = $value->setGlobalImports($imports)->setIndentation("\t")->__toString();
                 $imports = array_merge($imports, $value->getImports() ?? []);

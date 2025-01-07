@@ -30,3 +30,8 @@
 
 - Added support for PHP 8.4 property hooks
     From this version, php 8.4 property hooks are used intead of getter and setter function whenever client ask the compiler to generate getter and setters for a given property using the `withHooks()` call on class property model definition.
+
+
+## v0.3.10
+
+- Added a withType implementation to FunctionParameterInterface to fix issue with PHPConstructorParameter being switched to PHPFunctionParameter

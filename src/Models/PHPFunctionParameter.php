@@ -108,12 +108,14 @@ class PHPFunctionParameter implements FunctionParameterInterface
     /**
      * Creates an optional method / function parameter.
      *
-     * @return self
+     * @return static
      */
     public function asOptional()
     {
         $this->isOptional = true;
-
+        if (is_null($this->default)) {
+            $this->default = 'null';
+        }
         return $this;
     }
 
@@ -129,21 +131,23 @@ class PHPFunctionParameter implements FunctionParameterInterface
      */
     public function defaultValue()
     {
-        $value = $this->default;
-        if (null === $value) {
-            return $this->isOptional() ? 'null' : null;
+        $value = is_null($this->default) ? ($this->isOptional() ? 'null' : null) : $this->default;
+        if ($value === 'null') {
+            return $value;
         }
-        // Return the object is an empry string or array is passed in
+
         if (is_string($value) && empty($value)) {
             return '';
         }
+
         if (\is_bool($value)) {
             return $value === false ? "false" : "true";
         }
-        $isPHPClassDef = (is_string($value) && (Str::contains($value, '\\') || Str::endsWith($value, 'new') || Str::endsWith($value, '::class')));
-        if (is_numeric($value) || $isPHPClassDef) {
+
+        $isClassDeclaration = (is_string($value) && (Str::contains($value, '\\') || Str::endsWith($value, 'new') || Str::endsWith($value, '::class')));
+        if (is_numeric($value) || $isClassDeclaration) {
             return "$value";
-        } elseif (is_string($value) && !$isPHPClassDef) {
+        } elseif (is_string($value) && !$isClassDeclaration) {
             return "\"$value\"";
         } elseif (is_array($value)) {
             $start = '[';

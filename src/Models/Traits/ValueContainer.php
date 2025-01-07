@@ -24,6 +24,7 @@ use function Drewlabs\CodeGenerator\Proxy\CommentFactory;
 
 /** 
  * @method static setType(?string $value = null)
+ * @method ?string getType()
  */
 trait ValueContainer
 {
@@ -79,7 +80,7 @@ trait ValueContainer
 
     protected function prepare()
     {
-        $type = $this->type();
+        $type = $this->getType();
         if ((null !== $type) && Str::contains($type, '\\')) {
             $this->setType($this->addClassPathToImportsPropertyAfter(function ($classPath) {
                 return $this->getClassFromClassPath($classPath);
@@ -91,10 +92,8 @@ trait ValueContainer
 
     protected function setComments()
     {
-        $type = $this->type();
-        /**
-         * @var string[]
-         */
+        $type = $this->getType();
+        /** @var string[] */
         $descriptors = $this->comments();
         if (!empty($descriptors)) {
             // Add a line separator between the descriptors and other definitions

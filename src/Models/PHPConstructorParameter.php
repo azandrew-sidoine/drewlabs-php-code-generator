@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\HasVisibility;
-use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
 
 class PHPConstructorParameter extends PHPFunctionParameter implements HasVisibility
 {
