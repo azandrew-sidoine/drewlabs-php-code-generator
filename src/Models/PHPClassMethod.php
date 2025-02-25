@@ -45,11 +45,11 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
     /** @var mixed PHP Stringeable component. */
     private $comment;
 
-    /** @var string|array The returns type of the function. */
-    private $returns;
+    /** @var string|array declared returns type of the function. */
+    private $declraredReturnType;
 
-    /** @var string */
-    private $declaredReturnType;
+    /** @var string returns type of the function */
+    private $returnType;
 
     /** @var string */
     private $exceptions;
@@ -147,8 +147,8 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
 
         // Case running a PHP version >= 7.2, we add the return type of the function to the function declaration
         // PHP return type does not support mixed, template type declaration yet, therefore, we drop those casses
-        if (version_compare(\PHP_VERSION, '7.2.0') >= 0 && is_string($this->declaredReturnType) && !in_array('mixed', explode('|', $this->declaredReturnType)) && strpos($this->declaredReturnType, '<') === false && strpos($this->declaredReturnType, '[') === false) {
-            $declaration .= sprintf(": %s", $this->declaredReturnType);
+        if (version_compare(\PHP_VERSION, '7.2.0') >= 0 && is_string($this->returnType) && !in_array('mixed', explode('|', $this->returnType)) && strpos($this->returnType, '<') === false && strpos($this->returnType, '[') === false) {
+            $declaration .= sprintf(": %s", $this->returnType);
         }
 
         $indentation = $this->getIndentation();
@@ -301,27 +301,47 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
     public function setReturnType(string $type)
     {
         if (mb_strpos($type, '[') && mb_strpos($type, ']')) {
-            $this->declaredReturnType = 'array';
+            $this->returnType = 'array';
         } else if (($offset_1 = mb_strpos($type, '<'))) {
-            $this->declaredReturnType = trim(mb_substr($type, 0, $offset_1));
+            $this->returnType = trim(mb_substr($type, 0, $offset_1));
         } else {
-            $this->declaredReturnType = $type;
+            $this->returnType = $type;
         }
 
-        $this->returns = $type;
+        $this->declraredReturnType = $type;
 
         return $this;
     }
 
+    /**
+     * returns function declared return type
+     * 
+     * @return null|string 
+     */
+    public function getDeclaredReturnType(): ?string
+    {
+        return $this->declraredReturnType;
+    }
+
+    /**
+     * retrurns function return type
+     * 
+     * @return string 
+     */
+    public function getReturnType(): ?string
+    {
+        return $this->returnType;
+    }
+
     protected function prepare()
     {
-        if (null !== $this->declaredReturnType) {
-            if (Str::contains($this->declaredReturnType, '\\')) {
-                $currentDeclaredReturnType = $this->declaredReturnType;
-                $this->declaredReturnType = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
+        if (null !== $this->returnType) {
+            if (Str::contains($this->returnType, '\\')) {
+                $currentDeclaredReturnType = $this->returnType;
+                $this->returnType = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                     return $this->getClassFromClassPath($classPath);
-                })($this->declaredReturnType);
-                $this->returns = str_replace($currentDeclaredReturnType, $this->declaredReturnType, $this->returns);
+                })($this->returnType);
+                $this->declraredReturnType = str_replace($currentDeclaredReturnType, $this->returnType, $this->declraredReturnType);
             }
         }
         $values = [];
@@ -367,8 +387,8 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
             }
         }
         // Generate returns comment
-        if (null !== $this->returns) {
-            $descriptors[] = '@return ' . $this->returns;
+        if (null !== $this->declraredReturnType) {
+            $descriptors[] = '@return ' . $this->declraredReturnType;
         }
         $this->comment = (new CommentFactory(true))->make($descriptors);
 
