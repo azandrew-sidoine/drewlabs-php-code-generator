@@ -16,7 +16,7 @@ namespace Drewlabs\CodeGenerator\Types;
 class PHPTypes
 {
     /** PHP `integer` type enum value  */
-    public const INT = 'integer';
+    public const INT = 'int';
 
     /** PHP `float` type enum value  */
     public const FLOAT = 'float';
