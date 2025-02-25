@@ -42,44 +42,25 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
     /** @var FunctionParameterInterface[] */
     private $params;
 
-    /**
-     * PHP Stringeable component.
-     *
-     * @var mixed
-     */
+    /** @var mixed PHP Stringeable component. */
     private $comment;
 
-    /**
-     * The returns type of the function.
-     *
-     * @var string|array
-     */
+    /** @var string|array The returns type of the function. */
     private $returns;
 
-    /**
-     * @var string
-     */
+    /** @var string */
+    private $declaredReturnType;
+
+    /** @var string */
     private $exceptions;
 
-    /**
-     * Indicates whether the method is static or not.
-     *
-     * @var bool
-     */
+    /** @var bool Indicates whether the method is static or not. */
     private $isStatic;
 
-    /**
-     * Method defintion content.
-     *
-     * @var string[]
-     */
+    /** @var string[] Method defintion content. */
     private $contents;
 
-    /**
-     * Indicates whether the definition is return as interface method or a class method.
-     *
-     * @var bool
-     */
+    /** @var bool Indicates whether the definition is return as interface method or a class method. */
     private $isInterfaceMethod = false;
 
     public function __construct(
@@ -166,8 +147,8 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
 
         // Case running a PHP version >= 7.2, we add the return type of the function to the function declaration
         // PHP return type does not support mixed, template type declaration yet, therefore, we drop those casses
-        if (version_compare(\PHP_VERSION, '7.2.0') >= 0 && is_string($this->returns) && !in_array('mixed', explode('|', $this->returns)) && strpos($this->returns, '<') === false && strpos($this->returns, '[') === false) {
-            $declaration .= sprintf(": %s", $this->returns);
+        if (version_compare(\PHP_VERSION, '7.2.0') >= 0 && is_string($this->declaredReturnType) && !in_array('mixed', explode('|', $this->declaredReturnType)) && strpos($this->declaredReturnType, '<') === false && strpos($this->declaredReturnType, '[') === false) {
+            $declaration .= sprintf(": %s", $this->declaredReturnType);
         }
 
         $indentation = $this->getIndentation();
@@ -319,6 +300,14 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
 
     public function setReturnType(string $type)
     {
+        if (mb_strpos($type, '[') && mb_strpos($type, ']')) {
+            $this->declaredReturnType = 'array';
+        } else if (($offset_1 = mb_strpos($type, '<'))) {
+            $this->declaredReturnType = trim(mb_substr($type, 0, $offset_1));
+        } else {
+            $this->declaredReturnType = $type;
+        }
+
         $this->returns = $type;
 
         return $this;
@@ -326,11 +315,13 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
 
     protected function prepare()
     {
-        if (null !== $this->returns) {
-            if (Str::contains($this->returns, '\\')) {
-                $this->returns = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
+        if (null !== $this->declaredReturnType) {
+            if (Str::contains($this->declaredReturnType, '\\')) {
+                $currentDeclaredReturnType = $this->declaredReturnType;
+                $this->declaredReturnType = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                     return $this->getClassFromClassPath($classPath);
-                })($this->returns);
+                })($this->declaredReturnType);
+                $this->returns = str_replace($currentDeclaredReturnType, $this->declaredReturnType, $this->returns);
             }
         }
         $values = [];
