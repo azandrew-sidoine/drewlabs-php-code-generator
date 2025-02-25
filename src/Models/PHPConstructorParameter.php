@@ -14,11 +14,12 @@ declare(strict_types=1);
 namespace Drewlabs\CodeGenerator\Models;
 
 use Drewlabs\CodeGenerator\Contracts\HasVisibility;
+use Drewlabs\CodeGenerator\Types\PHPTypesModifiers;
 
 class PHPConstructorParameter extends PHPFunctionParameter implements HasVisibility
 {
     /** @var string */
-    private $visibility;
+    private $visibility = PHPTypesModifiers::PRIVATE;
 
     /**
      * Set the param visibility to the provided value
