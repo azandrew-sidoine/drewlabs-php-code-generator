@@ -317,12 +317,11 @@ class PHPClassMethod implements CallableInterface, ClassMemberInterface, Abstrac
     {
         if (null !== $this->declaredReturnType) {
             if (Str::contains($this->declaredReturnType, '\\')) {
-                // uncomment the code below when class path imports has been successfully fixed
-                // $currentDeclaredReturnType = $this->declaredReturnType;
+                $currentDeclaredReturnType = $this->declaredReturnType;
                 $this->declaredReturnType = $this->addClassPathToImportsPropertyAfter(function ($classPath) {
                     return $this->getClassFromClassPath($classPath);
                 })($this->declaredReturnType);
-                // $this->returns = str_replace($currentDeclaredReturnType, $this->declaredReturnType, $this->returns);
+                $this->returns = str_replace($currentDeclaredReturnType, $this->declaredReturnType, $this->returns);
             }
         }
         $values = [];

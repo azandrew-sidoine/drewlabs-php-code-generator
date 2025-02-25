@@ -19,11 +19,7 @@ use Drewlabs\CodeGenerator\ParseClassPathResult;
 
 trait HasImportDeclarations
 {
-    /**
-     * List of imports to append to the file/class imports.
-     *
-     * @var string[]
-     */
+    /** @var string[] List of imports to append to the file/class imports. */
     private $imports;
 
     /** @var string[] */
@@ -77,21 +73,22 @@ trait HasImportDeclarations
             return new ParseClassPathResult($classPath);
         }
         // Get the global imports components
-        $globalImports_ = $this->getGlobalImports() ?? [];
-        $classPathComponents = array_reverse(Str::split($classPath, '\\'));
+        $globalImports = $this->getGlobalImports() ?? [];
+        $components = array_reverse(Str::split($classPath, '\\'));
         // Get the class name from the class path
-        $name = $classPathComponents[0];
+        $name = $components[0];
         // Get the namespace of the component
         $namespace = null !== ($namespace = ($this instanceof NamespaceComponent) ? $this->getNamespace() : null) ? rtrim($namespace, '\\') : null;
+
         // Do not add the class path to the imports statement if the last item of the class path is in the same
         if ($namespace && Str::contains($classPath, $namespace) && !Str::contains(str_replace($namespace.'\\', '', $classPath), '\\')) {
             return new ParseClassPathResult($name);
-        } elseif (!\in_array($classPath, $globalImports_ ?? [], true)) {
-            $matches = array_filter($globalImports_ ?? [], static function ($import) use ($name) {
+        } elseif (!\in_array(trim(ltrim($classPath, "\\")), $globalImports ?? [], true)) {
+            $matches = array_filter($globalImports ?? [], static function ($import) use ($name) {
                 return \is_string($import) && Str::endsWith($import, $name);
             });
             if (!empty($matches)) {
-                $prefix = \count($classPathComponents) > 1 ? $classPathComponents[1] : 'Base';
+                $prefix = \count($components) > 1 ? $components[1] : 'Base';
                 $name = Str::camelize(sprintf('%s%s', $prefix, $name));
                 $classPath = sprintf('%s as %s', $classPath, $name);
             }
